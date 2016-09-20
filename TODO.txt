@@ -1,0 +1,40 @@
+* General
+- embed font files into executable to make it completely standalone
+
+* Machine Code Monitor
+- create 'step' command, which executes a single opcode and prints:
+    - modified register/flags
+    - modified memory address/content
+- add breakpoints? ('b <address>' to toggle, 'bl' to list)
+- idea: add 'reset' command
+- idea: put a # in front of a command to specify the amount of lines to display for that command
+for consecutive calls
+- add some kind of scripting ability, eg. startup-script to load symbols, binary files; set variables and settings, etc
+- example file (startup.bat):
+    #!echo off          ; disable printing commands and their outputs (except for the output of 'print')
+    #!echo on           ; ensable printing commands and their outputs (they can be placed on any line and will be applied to the lines below them)
+    print hello world!  ; print "hello world!" onto the debugger window
+    hex                 ; set number format to hex
+    #m 10               ; set byte listing length to 10 lines
+    #mw 4               ; set word listing length to 4 lines
+    #md                 ; display dword memory display line length
+    l test.rsx          ; load test.rsx
+    ls test.sym         ; load symbol file test.sym
+    lb image.dat 4000   ; load binary file to $4000
+- handle window resize (for main window)
+- create 'fill', 'copy' and 'find' commands'
+- idea: 'asm' command to directly execute single assembly instructions, eg: 'asm mov r0, [$1000]'
+- show whether the VM is running in the prompt, eg. with an asterix, like so: hex*>
+- display only the last 40 or so characters of the filename when loading/saving
+- add the ability to load symbol listing files and use the definitions in the disassembly view
+- "online" documentation: have a file that contains help for all commands, parse it realtime with the 'help' command
+- implement debug window scrolling? (maybe a just simple page up/page down)
+- make it possible to turn on/off UTF-8 display support in Monitor
+
+* RSFonts
+
+- rewrite, because currently it doesn't handle fonts with different sizes
+
+* GPU-G1
+
+- mmu.write exceptions are not handled (should GPU register values be validated? think about it)

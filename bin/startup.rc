@@ -1,0 +1,4 @@
+load test.rsx
+hex
+d c000
+g c000

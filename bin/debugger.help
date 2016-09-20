@@ -1,0 +1,96 @@
+[help]
+Display available commands or give details for command specified in argument
+{
+Usage: $cmd <command>
+If command is specified, give detailed info.
+Otherwise, display all available commands
+}
+
+[sys][system]
+Display system information, system vectors
+
+[r][regs]
+Display CPU registers
+
+[rg][gpuregs]
+Display GPU registers
+
+[rgs][surfaceregs]
+Display GPU surface registers
+{
+Usage: %src <surface index>
+}
+
+[m][mem]
+Display memory contents
+{
+Usage: $cmd[d|w] <address>
+<address> is optional (continues printing from last address)
+m  (or mem)  uses 8-bit ordering
+md (or memd) uses 16-bit ordering
+mw (or memw) uses 32-bit ordering
+}
+
+[i][ascii]
+Display memory contents in alphanumeric format
+{
+Usage: $cmd <address>
+<address> is optional (continues printing from last address)
+'ii' replace invisible characters with greek letters
+}
+
+[d][disasm]
+Display disassembly
+{
+Usage d <address>
+<address> is optional (continues printing from last address)
+}
+
+[setb][setw][setd]
+Change register/memory address value
+{
+Usage:
+setb|setw|setd <register|address> <value>
+<register> = r0..r13, SP, PC
+setb: 8-bit, setw: 16-bit, setd: 32-bit value
+}
+
+[dec]
+Change numeric mode to decimal
+
+[hex]
+Change numeric mode to hexidecimal
+
+[l][load]
+Load RSX file
+{
+Usage: $cmd <filename>
+If <filename> is not specified, a file selector dialog window will appear.
+Otherwise, the specified file will be loaded.
+}
+
+[lb][loadbinary]
+Load binary file
+{
+Usage: $cmd <address> <filename>
+The file will be loaded in from the given memory <address>.
+If <filename> is not specified, a file selector dialog window will appear.
+Otherwise, the specified file will be loaded.
+}
+
+[s][savebinary]
+Save memory contents to file
+{
+Usage $cmd <start address> <end address> <filename>
+If <filename> is not specified, a file selector dialog window will appear.
+<end address> is inclusive.
+}
+
+[cls]
+Clear console
+
+[.]
+Repeat last command
+
+[q]
+Quit RetroSim
