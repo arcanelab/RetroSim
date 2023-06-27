@@ -64,7 +64,7 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
             for (uint_fast8_t x = 0; x < tileWidth; x++)
             {
                 colorIndex = core.ReadMem<uint8_t>(tileBitmapAddress);
-                color = core.ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + (colorIndex << 2)); // colorIndex * 4
+                color = core.ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + (colorIndex * 4)); // * 4: one color is 4 bytes
                 outputTexture[textureOffset] = color;
                 tileBitmapAddress++;
             }
