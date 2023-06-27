@@ -54,20 +54,22 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
         tileIndex = core.ReadMem<uint8_t>(tileMapAddress);
 
         const uint_fast32_t tileBitmapAddressBase = Core::TILE_MEMORY_U8 + tileIndex * tilePixelNum;
-        const uint_fast32_t tileBitmapAddressEnd = tileBitmapAddressBase + tilePixelNum;
 
         // textureOffset will be incremented as we iterate through the tile bitmap
-        uint_fast32_t textureOffset = (tileMapIndex % numTilesX) * tileWidth + (tileMapIndex / numTilesX) * tileWidth * width;
+        uint_fast32_t textureOffset = (tileMapIndex % numTilesX * tileWidth) + (tileMapIndex / numTilesX * tileHeight * width);
+        uint_fast32_t tileBitmapAddress = tileBitmapAddressBase;
 
-        for (uint_fast32_t tileBitmapAddress = tileBitmapAddressBase;
-             tileBitmapAddress < tileBitmapAddressEnd;
-             tileBitmapAddress++)
+        for (uint_fast8_t y = 0; y < tileHeight; y++)
         {
-            colorIndex = core.ReadMem<uint8_t>(tileBitmapAddress);
-            color = core.ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + (colorIndex << 2)); // colorIndex * 4
-            outputTexture[textureOffset] = color;
-            textureOffset++;
-            textureOffset %= tileWidth;
+            for (uint_fast8_t x = 0; x < tileWidth; x++)
+            {
+                colorIndex = core.ReadMem<uint8_t>(tileBitmapAddress);
+                color = core.ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + (colorIndex << 2)); // colorIndex * 4
+                outputTexture[textureOffset] = color;
+                tileBitmapAddress++;
+            }
+
+            textureOffset += width - tileWidth;
         }
 
         tileMapAddress++;
