@@ -18,11 +18,11 @@ class GPU
 {
 private:
     Core &core;
-    uint32_t *outputTexture; // RGBA
 
     void Render(const uint8_t tileWidth, const uint8_t tileHeight);
 
 public:
+    uint32_t *outputTexture; // RGBA
     const uint_fast16_t width = 480;
     const uint_fast16_t height = 256;
 
