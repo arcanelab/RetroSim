@@ -14,6 +14,9 @@ void GPU::RenderTileMode()
 {
     uint8_t tileMode = core.ReadMem<uint8_t>(Core::TILE_MODE_U8);
 
+    // TODO: Remove TILE_MODE and make the tile size freely configurable.
+    //       This could also possibly increase run-time performance as it would
+    //       remove the need for the switch, which has to run every frame.
     switch (tileMode)
     {
     case TILE_MODE_8x8:
@@ -32,6 +35,7 @@ void GPU::RenderTileMode()
 }
 
 // TODO: make outputTexture a parameter
+// TODO: use SIMD instrinsics
 // Optimized version
 void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
 {
