@@ -6,14 +6,6 @@
 
 class Core;
 
-enum TileModes
-{
-    TILE_MODE_8x8,
-    TILE_MODE_8x16,
-    TILE_MODE_16x8,
-    TILE_MODE_16x16
-};
-
 class GPU
 {
 private:
@@ -26,13 +18,21 @@ public:
     const uint_fast16_t width = 480;
     const uint_fast16_t height = 256;
 
-    enum TileMode
+    enum TileModes
     {
-        _8x8,
-        _8x16,
-        _16x8,
-        _16x16
+        TILE_MODE_8x8 = 0,
+        TILE_MODE_8x16 = 1,
+        TILE_MODE_16x8 = 2,
+        TILE_MODE_16x16 = 3
     };
+
+    // enum TileMode
+    // {
+    //     _8x8,
+    //     _8x16,
+    //     _16x8,
+    //     _16x16
+    // };
 
     GPU(Core &core);
     ~GPU(){};
