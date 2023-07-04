@@ -3,7 +3,6 @@ set_version("0.2.0")
 add_rules("mode.debug", "mode.release")
 
 add_requires("libsdl 2.x")
-add_headerfiles()
 
 if is_mode("debug") then
     add_defines("DEBUG")
