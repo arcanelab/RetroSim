@@ -12,7 +12,7 @@ GPU::GPU(Core &core) : core(core)
 
 void GPU::RenderTileMode()
 {
-    uint8_t tileMode = core.ReadMem<uint8_t>(Core::TILE_MODE_U8);
+    uint8_t tileMode = core.mmu->ReadMem<uint8_t>(Core::TILE_MODE_U8);
 
     // TODO: Remove TILE_MODE and make the tile size freely configurable.
     //       This could also possibly increase run-time performance as it would
@@ -49,7 +49,7 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
 
     for (uint_fast16_t tileMapIndex = 0; tileMapIndex < lastTileMapIndex; tileMapIndex++)
     {
-        uint_fast8_t tileIndex = core.ReadMem<uint8_t>(tileMapAddress);
+        uint_fast8_t tileIndex = core.mmu->ReadMem<uint8_t>(tileMapAddress);
         const uint_fast32_t tileBitmapAddressBase = Core::TILE_MEMORY_U8 + tileIndex * tilePixelNum;
         // textureOffset will be incremented as we iterate through the tile bitmap
         uint_fast32_t textureOffset = (tileMapIndex % numTilesX * tileWidth) + (tileMapIndex / numTilesX * tileHeight * width);
@@ -59,8 +59,8 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
         {
             for (uint_fast8_t x = 0; x < tileWidth; x++)
             {
-                uint_fast8_t colorIndex = core.ReadMem<uint8_t>(tileBitmapAddress);
-                uint32_t color = core.ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + (colorIndex * 4)); // * 4: one color is 4 bytes
+                const uint_fast8_t colorIndex = core.mmu->ReadMem<uint8_t>(tileBitmapAddress);
+                uint32_t color = core.mmu->ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + (colorIndex * 4)); // * 4: one color is 4 bytes
                 outputTexture[textureOffset] = color;
                 textureOffset++;
                 tileBitmapAddress++;

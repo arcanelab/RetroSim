@@ -3,16 +3,16 @@
 
 #pragma once
 #include <cstdint>
+#include "MMU.h"
 
 class GPU;
 
 class Core
 {
-private:
-    GPU *gpu;
-    uint8_t *memory;
-
 public:
+    GPU *gpu;
+    MMU *mmu;
+
     enum MemoryMap
     {
         TILE_MODE_U8 = 0x100, // valid values = 0..3
@@ -26,17 +26,7 @@ public:
     Core();
     ~Core(){};
 
-    const uint_fast32_t MEMSIZE = 0x10000; // 64KB
+    const uint_fast32_t MEMSIZE = 0x10000; // 64K
 
-    template <typename T>
-    inline T ReadMem(uint32_t address)
-    {
-        return *((T *)(memory + address));
-    }
-
-    template <typename T>
-    inline void WriteMem(uint32_t address, T value)
-    {
-        *(T *)(memory + address) = value;
-    }
+    void Render();
 };

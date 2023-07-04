@@ -31,8 +31,12 @@ int main(int argc, char *argv[])
 
     SDL_Event event;
     bool quit = false;
+
+    core.mmu->WriteMem<uint8_t>(Core::TILE_MODE_U8, GPU::TILE_MODE_8x16);
+
     while (!quit)
     {
+        core.Render();
         SDL_UpdateTexture(texture, NULL, gpu.outputTexture, gpu.width * sizeof(uint32_t));
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
