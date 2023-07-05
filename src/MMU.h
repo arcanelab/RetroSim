@@ -3,32 +3,19 @@
 
 #pragma once
 #include <cstdint>
-#include <stdlib.h>
 
 class MMU
 {
     uint8_t *memory;
+    const uint_fast32_t memorySize;
 
 public:
-    MMU(uint32_t sizeInBytes)
-    {
-        memory = (uint8_t *)malloc(sizeInBytes);
-    }
-
-    ~MMU()
-    {
-        free(memory);
-    }
+    MMU(uint32_t sizeInBytes);
+    ~MMU();
 
     template <typename T>
-    inline T ReadMem(uint32_t address)
-    {
-        return *((T *)(memory + address));
-    }
+    inline T ReadMem(uint32_t address);
 
     template <typename T>
-    inline void WriteMem(uint32_t address, T value)
-    {
-        *(T *)(memory + address) = value;
-    }
+    inline void WriteMem(uint32_t address, T value);
 };
