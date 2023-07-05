@@ -13,11 +13,14 @@ Core::Core()
     mmu = new MMU(MEMSIZE);
     gpu = new GPU(*this);
 
-    mmu->WriteMem<uint8_t>(TILE_MODE_U8, GPU::TILE_MODE_8x8);
+    mmu->WriteMem<uint8_t>(TILE_MODE_U8, GPU::TILE_MODE_8x16);
+
+    int tileWidth = 8;
+    int tileHeight = 16;
 
     // Generate map data
-    uint8_t numTilesX = gpu->width / 8;
-    uint8_t numTilesY = gpu->height / 8;
+    uint8_t numTilesX = gpu->width / tileWidth;
+    uint8_t numTilesY = gpu->height / tileHeight;
     for (int i = 0; i < numTilesX * numTilesY; i++)
     {
         // gpu->outputTexture[i] = (i % gpu->width) | (i << 8) || (i << 16) || (i << 24);
@@ -26,11 +29,13 @@ Core::Core()
 
     for (int i = 0; i < 256; i++)
     {
-        for (int y = 0; y < 8; y++)
+        for (int y = 0; y < tileHeight; y++)
         {
-            for (int x = 0; x < 8; x++)
+            for (int x = 0; x < tileWidth; x++)
             {
-                mmu->WriteMem<uint8_t>(Core::TILE_MEMORY_U8 + i * 64 + y * 8 + x, (i % 8 + y) % 256);
+                // mmu->WriteMem<uint8_t>(Core::TILE_MEMORY_U8 + i * 64 + y * tileWidth + x, i);
+                // mmu->WriteMem<uint8_t>(Core::TILE_MEMORY_U8 + i * 64 + y * 8 + x, (i % 8 + y) % 256);
+                mmu->WriteMem<uint8_t>(Core::TILE_MEMORY_U8 + i * tileWidth * tileHeight + y * tileWidth + x, (i * 3) % 33);
             }
         }
     }

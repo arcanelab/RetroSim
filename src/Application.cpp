@@ -61,7 +61,8 @@ void Application::CreateSDLWindow()
 {
     SDL_Init(SDL_INIT_EVERYTHING);
     window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                              core.gpu->width, core.gpu->height, SDL_WINDOW_SHOWN);
+                              core.gpu->width, core.gpu->height,
+                              SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
