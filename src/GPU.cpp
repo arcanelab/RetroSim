@@ -4,6 +4,7 @@
 #include "GPU.h"
 #include "Core.h"
 #include <cassert>
+#include <stdio.h>
 
 GPU::GPU(Core &core) : core(core)
 {
@@ -34,6 +35,7 @@ void GPU::RenderTileMode()
     }
 }
 
+#if 0
 // TODO: make outputTexture a parameter
 // TODO: use SIMD instrinsics
 // Optimized version
@@ -72,7 +74,7 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
         tileMapAddress++;
     }
 }
-/*
+#else
 void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
 {
     const uint8_t numTilesX = width / tileWidth;
@@ -91,23 +93,23 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
     {
         for (size_t tileMapX = 0; tileMapX < numTilesX; tileMapX++)
         {
-            tileIndex = core->ReadMem<uint8_t>(uint32_t(Core::MAP_MEMORY_U8 + tileMapX + tileMapY * numTilesX));
+            tileIndex = core.mmu->ReadMem<uint8_t>(uint32_t(Core::MAP_MEMORY_U8 + tileMapX + tileMapY * numTilesX));
             tileBitmapAddress = Core::TILE_MEMORY_U8 + tileIndex * tileWidth * tileHeight;
 
             for (size_t tileMemY = 0; tileMemY < tileHeight; tileMemY++)
             {
                 for (size_t tileMemX = 0; tileMemX < tileWidth; tileMemX++)
                 {
-                    colorIndex = core->ReadMem<uint8_t>(uint32_t(tileBitmapAddress + tileMemX + tileMemY * tileWidth));
-                    color = core->ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + colorIndex);
+                    colorIndex = core.mmu->ReadMem<uint8_t>(uint32_t(tileBitmapAddress + tileMemX + tileMemY * tileWidth));
+                    color = core.mmu->ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + colorIndex);
 
                     pixelCoordX = tileMapX * tileWidth + tileMemX;
                     pixelCoordY = tileMapY * tileWidth + tileMemY;
 
-                    texture[pixelCoordX + pixelCoordY * width] = color;
+                    outputTexture[pixelCoordX + pixelCoordY * width] = color;
                 }
             }
         }
     }
 }
-*/
+#endif

@@ -26,7 +26,7 @@ public:
     Core();
     ~Core(){};
 
-    const uint_fast32_t MEMSIZE = 0x10000; // 64K
+    const uint_fast32_t MEMSIZE = 0x40000; // 256K
 
     void Render();
 };

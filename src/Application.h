@@ -9,17 +9,13 @@
 class Application
 {
 public:
-    Application()
-    {
-        gpu = new GPU(core);
-    };
+    Application() {}
     ~Application(){};
 
     void Run();
 
 private:
     Core core;
-    GPU *gpu;
 
     SDL_Window *window;
     SDL_Renderer *renderer;

@@ -14,7 +14,7 @@ private:
     void Render(const uint8_t tileWidth, const uint8_t tileHeight);
 
 public:
-    uint32_t *outputTexture; // RGBA
+    uint32_t *outputTexture; // ARGB8888
     const uint_fast16_t width = 480;
     const uint_fast16_t height = 256;
 
@@ -25,14 +25,6 @@ public:
         TILE_MODE_16x8 = 2,
         TILE_MODE_16x16 = 3
     };
-
-    // enum TileMode
-    // {
-    //     _8x8,
-    //     _8x16,
-    //     _16x8,
-    //     _16x16
-    // };
 
     GPU(Core &core);
     ~GPU(){};
