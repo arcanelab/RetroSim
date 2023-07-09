@@ -16,7 +16,7 @@ template void MMU::WriteMem<uint32_t>(uint32_t address, uint32_t value);
 
 MMU::MMU(uint32_t sizeInBytes) : memorySize(sizeInBytes)
 {
-    memory = (uint8_t *)malloc(sizeInBytes);
+    memory = (uint8_t *)calloc(sizeInBytes, 1);
 }
 
 MMU::~MMU()
