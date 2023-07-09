@@ -69,6 +69,22 @@ void Application::CreateSDLWindow()
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
                                 core.gpu->width, core.gpu->height);
 
+    // Set the logical size to maintain aspect ratio
+    float aspectRatio = (float)core.gpu->width / (float)core.gpu->height;
+    SDL_RenderSetLogicalSize(renderer, core.gpu->width, (int)(core.gpu->width / aspectRatio));
+
+    // Set the scale to fit the window while maintaining aspect ratio
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+    float scaleX = (float)windowWidth / (float)core.gpu->width;
+    float scaleY = (float)windowHeight / (float)(core.gpu->width / aspectRatio);
+    SDL_RenderSetScale(renderer, scaleX, scaleY);
+
+    SDL_DisplayMode displayMode;
+    SDL_GetDesktopDisplayMode(0, &displayMode);
+    SDL_SetWindowSize(window, displayMode.w / 2, displayMode.h / 2);
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
     // check for errors
     if (window == NULL)
     {
