@@ -15,8 +15,8 @@ private:
 
 public:
     uint32_t *outputTexture; // ARGB8888
-    const uint_fast16_t width = 480;
-    const uint_fast16_t height = 256;
+    const uint_fast16_t textureWidth = 480;
+    const uint_fast16_t textureHeight = 256;
 
     enum TileModes
     {

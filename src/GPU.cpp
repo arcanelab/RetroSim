@@ -8,7 +8,7 @@
 
 GPU::GPU(Core &core) : core(core)
 {
-    outputTexture = new uint32_t[width * height];
+    outputTexture = new uint32_t[textureWidth * textureHeight];
 }
 
 void GPU::RenderTileMode()
@@ -77,8 +77,8 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
 #else
 void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
 {
-    const uint8_t numTilesX = width / tileWidth;
-    const uint8_t numTilesY = height / tileHeight;
+    const uint8_t numTilesX = textureWidth / tileWidth;
+    const uint8_t numTilesY = textureHeight / tileHeight;
 
     uint8_t tileIndex;
     uint8_t colorIndex;
@@ -93,7 +93,7 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
     {
         for (size_t tileMapX = 0; tileMapX < numTilesX; tileMapX++)
         {
-            tileIndex = core.mmu->ReadMem<uint8_t>(uint32_t(Core::MAP_MEMORY_U8 + tileMapX + tileMapY * numTilesX));
+            tileIndex = core.mmu->ReadMem<uint8_t>(uint32_t(Core::MAP_MEMORY_U8 + tileMapX + tileMapY * (size_t)numTilesX));
             tileBitmapAddress = Core::TILE_MEMORY_U8 + tileIndex * tileWidth * tileHeight;
 
             for (size_t tileMemY = 0; tileMemY < tileHeight; tileMemY++)
@@ -104,9 +104,9 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
                     color = core.mmu->ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + colorIndex);
 
                     pixelCoordX = tileMapX * tileWidth + tileMemX;
-                    pixelCoordY = tileMapY * tileWidth + tileMemY;
+                    pixelCoordY = tileMapY * tileHeight + tileMemY;
 
-                    outputTexture[pixelCoordX + pixelCoordY * width] = color;
+                    outputTexture[pixelCoordX + pixelCoordY * textureWidth] = color;
                 }
             }
         }
