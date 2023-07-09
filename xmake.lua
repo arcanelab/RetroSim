@@ -13,6 +13,8 @@ else
     set_optimize("faster")
 end
 
+set_targetdir(".")
+
 target("RetroSim")
     set_kind("binary")
     add_files("src/**.cpp")
