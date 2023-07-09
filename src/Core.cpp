@@ -28,9 +28,6 @@ Core::Core()
         mmu->WriteMem<uint8_t>(Core::MAP_MEMORY_U8 + i, i % 256);
     }
 
-    // print current directory
-    system("dir");
-
     if (mmu->LoadFile("data/unscii-16.tiledata", Core::TILE_MEMORY_U8) == -1)
     {
         printf("Failed to load file\n");
@@ -57,7 +54,7 @@ Core::Core()
         // mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32 + i * 4, i << 8 | 0xff);
         mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32 + i * 4, 0xffc0c0c0); // 0xAARRGGBB
     }
-    mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32, 0xff000000); // 0xAARRGGBB = ARGB8888
+    mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32, 0xff202020); // 0xAARRGGBB = ARGB8888
 }
 
 void Core::Render()
