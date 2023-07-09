@@ -54,10 +54,10 @@ Core::Core()
     // Generate palette
     for (int i = 0; i < 256; i++)
     {
-        // mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32 + i * 4, i << 8 | 0xff); // ARGB8888 = 0xBBGGRRAA
-        mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32 + i * 4, 0x00ff00ff); // ARGB8888 = 0xBBGGRRAA
+        // mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32 + i * 4, i << 8 | 0xff);
+        mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32 + i * 4, 0xffc0c0c0); // 0xAARRGGBB
     }
-    mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32, 0x20ff2020);
+    mmu->WriteMem<uint32_t>(Core::PALETTE_MEMORY_U32, 0xff000000); // 0xAARRGGBB = ARGB8888
 }
 
 void Core::Render()
