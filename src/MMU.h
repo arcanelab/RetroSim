@@ -18,4 +18,6 @@ public:
 
     template <typename T>
     inline void WriteMem(uint32_t address, T value);
+
+    int LoadFile(const char *filename, uint32_t address);
 };

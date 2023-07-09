@@ -34,6 +34,7 @@ inline T MMU::ReadMem(uint32_t address)
     else
     {
         printf("ReadMem: invalid address: %08X\n", address);
+        return 0;
     }
 }
 
@@ -48,4 +49,29 @@ inline void MMU::WriteMem(uint32_t address, T value)
     {
         printf("WriteMem: invalid address: %08X\n", address);
     }
+}
+
+int MMU::LoadFile(const char *filename, uint32_t address)
+{
+    FILE *file = fopen(filename, "rb");
+    if (file == nullptr)
+    {
+        printf("Failed to open file: %s\n", filename);
+        return -1;
+    }
+
+    fseek(file, 0, SEEK_END);
+    uint32_t fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    if (address + fileSize > memorySize)
+    {
+        printf("LoadFile: file size exceeds memory size: %08X\n", address + fileSize);
+        return -1;
+    }
+
+    fread(memory + address, 1, fileSize, file);
+    fclose(file);
+
+    return 0;
 }
