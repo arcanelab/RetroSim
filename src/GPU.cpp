@@ -101,7 +101,7 @@ void GPU::Render(const uint8_t tileWidth, const uint8_t tileHeight)
                 for (size_t tileMemX = 0; tileMemX < tileWidth; tileMemX++)
                 {
                     colorIndex = core.mmu->ReadMem<uint8_t>(uint32_t(tileBitmapAddress + tileMemX + tileMemY * tileWidth));
-                    color = core.mmu->ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + colorIndex);
+                    color = core.mmu->ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + colorIndex * 4);
 
                     pixelCoordX = tileMapX * tileWidth + tileMemX;
                     pixelCoordY = tileMapY * tileHeight + tileMemY;
