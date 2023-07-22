@@ -2,3 +2,5 @@
 .xmake/
 build/
 .DS_Store
+tmp
+PicoC/lib

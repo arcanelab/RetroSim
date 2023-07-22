@@ -1,7 +1,6 @@
 set_project("RetroSim")
 set_version("0.2.0")
 add_rules("mode.debug", "mode.release")
-
 add_requires("libsdl 2.x")
 
 if is_mode("debug") then
@@ -10,16 +9,35 @@ if is_mode("debug") then
     set_optimize("none")
 else 
     set_symbols("hidden")
-    set_optimize("faster")
+    set_optimize("fastest")
 end
 
-set_targetdir(".")
+-- if is_plat("windows") and is_kind("shared") and is_mode("release") then
+if is_plat("windows") and is_mode("release") then -- and is_kind("shared") then
+    -- add_cxflags("-MD -O2 -arch:AVX2 -Ob2 -DNDEBUG")
+    add_defines("NDEBUG")
+end
+
+if is_plat("windows") then
+    add_defines("WIN32")
+elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
+    add_defines("UNIX_HOST")
+end
+
+if is_plat("windows") then
+    add_ldflags("-subsystem:windows")
+end
+
+add_subdirs("PicoC")
 
 target("RetroSim")
     set_kind("binary")
+    add_includedirs("PicoC")
     add_files("src/**.cpp")
+    add_deps("picoc")
     add_packages("libsdl")
 
+set_targetdir(".")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
