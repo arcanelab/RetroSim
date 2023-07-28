@@ -9,8 +9,6 @@
 
 Core::Core()
 {
-    printf("Core::Core()\n");
-
     mmu = new MMU(MEMSIZE);
     gpu = new GPU(*this);
 

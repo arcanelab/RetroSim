@@ -4,6 +4,7 @@
 #pragma once
 #include "Core.h"
 #include "GPU.h"
+#include "ScriptManager.h"
 #include <SDL.h>
 
 class Application
@@ -16,6 +17,7 @@ public:
 
 private:
     Core core;
+    ScriptManager scriptManager;
 
     SDL_Window *window;
     SDL_Renderer *renderer;
