@@ -29,16 +29,12 @@ end
 --     add_ldflags("-subsystem:windows")
 -- end
 
--- add_subdirs("PicoC")
-
 target("RetroSim")
     set_kind("binary")
     add_files("src/**.cpp")
     add_files("gravity/src/**.c")
     add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
     add_packages("libsdl")
-    -- add_includedirs("PicoC")
-    -- add_deps("picoc")
 
 set_targetdir(".")
 --
