@@ -1,5 +1,6 @@
 set_project("RetroSim")
 set_version("0.2.0")
+set_languages("cxx20")
 add_rules("mode.debug", "mode.release")
 add_requires("libsdl 2.x")
 
@@ -24,18 +25,20 @@ elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
     add_defines("UNIX_HOST")
 end
 
-if is_plat("windows") then
-    add_ldflags("-subsystem:windows")
-end
+-- if is_plat("windows") then
+--     add_ldflags("-subsystem:windows")
+-- end
 
-add_subdirs("PicoC")
+-- add_subdirs("PicoC")
 
 target("RetroSim")
     set_kind("binary")
-    add_includedirs("PicoC")
     add_files("src/**.cpp")
-    add_deps("picoc")
+    add_files("gravity/src/**.c")
+    add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
     add_packages("libsdl")
+    -- add_includedirs("PicoC")
+    -- add_deps("picoc")
 
 set_targetdir(".")
 --
