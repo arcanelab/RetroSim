@@ -22,11 +22,11 @@ void ScriptManager::CompileScriptFromFile(std::string filename)
         return;
 
     CompileScript(script);
+    gravity_vm_loadclosure(vm, closure);
 }
 
 void ScriptManager::RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs)
 {
-    gravity_vm_loadclosure(vm, closure);
     gravity_value_t function = gravity_vm_getvalue(vm, functionName.c_str(), strlen(functionName.c_str()));
 
     gravity_closure_t *closure = VALUE_AS_CLOSURE(function);
