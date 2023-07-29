@@ -1,5 +1,8 @@
-#include "ScriptManager.h"
+// RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
+// https://github.com/arcanelab
 
+#include "ScriptManager.h"
+#include "FileUtils.h"
 #include <string>
 
 // Compiles the script and transfers it to the VM
@@ -10,6 +13,15 @@ void ScriptManager::CompileScript(std::string script)
     const char *scriptCStr = script.c_str();
     closure = gravity_compiler_run(compiler, scriptCStr, (uint32_t)strlen(scriptCStr), 0, true, true);
     gravity_compiler_transfer(compiler, vm);
+}
+
+void ScriptManager::CompileScriptFromFile(std::string filename)
+{
+    script = RetroSim::ReadTextFile(filename);
+    if(script.empty())
+        return;
+
+    CompileScript(script);
 }
 
 void ScriptManager::RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs)

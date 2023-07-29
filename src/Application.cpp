@@ -4,8 +4,9 @@
 #include "Application.h"
 #include <stdio.h>
 #include <cstring>
+#include <string>
 
-void Application::Run()
+void Application::Run(std::string scriptFileName)
 {
     CreateSDLWindow();
     RunMainLoop();
@@ -13,7 +14,14 @@ void Application::Run()
 
 void Application::RunMainLoop()
 {
-    scriptManager.CompileScript("func main() { System.print(\"Hello world from Gravity!\") return 42 }");
+    if (config.scriptPath.empty() == false)
+    {
+        scriptManager.CompileScriptFromFile(config.scriptPath);
+        scriptManager.RunScript("start", {}, 0);
+        scriptingEnabled = true;
+    }
+    // else
+    // scriptManager.CompileScript("func main() { System.print(\"Hello world from Gravity!\") return 42 }");
 
     SDL_Event event;
     bool quit = false;
@@ -21,7 +29,9 @@ void Application::RunMainLoop()
     uint32_t lastFrameTime = 0;
     while (!quit)
     {
-        // scriptManager.RunScript("main", {}, 0);
+        if (scriptingEnabled)
+            scriptManager.RunScript("update", {}, 0);
+
         uint32_t frameStartTime = SDL_GetTicks();
         core.Render();
         SDL_UpdateTexture(texture, NULL, core.gpu->outputTexture, core.gpu->textureWidth * sizeof(uint32_t));
@@ -56,6 +66,7 @@ void Application::RunMainLoop()
 void Application::CreateSDLWindow()
 {
     SDL_Init(SDL_INIT_EVERYTHING);
+
     window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               core.gpu->textureWidth, core.gpu->textureHeight,
                               SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
@@ -80,6 +91,9 @@ void Application::CreateSDLWindow()
     SDL_GetDesktopDisplayMode(0, &displayMode);
     SDL_SetWindowSize(window, displayMode.w / 2, displayMode.h / 2);
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+    if (config.fullscreen)
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
     // check for errors
     if (window == NULL)
