@@ -1,9 +1,12 @@
+var counter = 1234
+
 func start()
 {
-    System.print("Hello, world!")
+    System.print("start")
 }
 
 func update()
 {
-    System.print("update() called.")
+    counter = counter + 1
+    System.print(counter)
 }
