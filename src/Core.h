@@ -2,16 +2,11 @@
 // https://github.com/arcanelab
 
 #pragma once
-#include <cstdint>
-#include "MMU.h"
 
-class GPU;
-
-class Core
+namespace RetroSim::Core
 {
-public:
-    GPU *gpu;
-    MMU *mmu;
+    void Initialize();
+    void Render();
 
     enum MemoryMap
     {
@@ -23,10 +18,5 @@ public:
         TILE_MEMORY_U8 = 0x6000, // 256 elements
     };
 
-    Core();
-    ~Core(){};
-
-    const uint_fast32_t MEMSIZE = 0x40000; // 256K
-
-    void Render();
-};
+    // const uint_fast32_t MEMSIZE = 0x40000; // 256K
+}

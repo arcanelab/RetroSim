@@ -4,14 +4,9 @@
 #pragma once
 #include <cstdint>
 
-class MMU
+namespace RetroSim::MMU
 {
-    uint8_t *memory;
-    const uint_fast32_t memorySize;
-
-public:
-    MMU(uint32_t sizeInBytes);
-    ~MMU();
+    const uint_fast32_t memorySize = 0x40000; // 256K;
 
     template <typename T>
     inline T ReadMem(uint32_t address);

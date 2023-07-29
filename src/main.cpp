@@ -13,16 +13,15 @@ int main(int argc, char *argv[])
 
     std::string scriptFileName = GetFilenameFromArgs(argc, argv);
 
-    Application app;
-    app.Run(scriptFileName);
+    RetroSim::Application::Run(scriptFileName);
 }
 
 std::string GetFilenameFromArgs(int argc, char *argv[])
 {
-    if(argc == 1) // no arguments
+    if (argc == 1) // no arguments
         return "";
 
-    if(argc != 2) // one argument
+    if (argc != 2) // one argument
     {
         puts("Usage: RetroSim <script>");
         exit(0);
