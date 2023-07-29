@@ -1,0 +1,9 @@
+func start()
+{
+    System.print("Hello, world!")
+}
+
+func update()
+{
+    System.print("update() called.")
+}
