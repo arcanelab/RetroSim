@@ -49,8 +49,8 @@ void Config::LoadConfigFile()
                     scriptPath = value;
                 else if(key == "fullscreen")
                     fullscreen = (value == "true");
-                else if(key == "forcedFPS")
-                    forcedFPS = stoi(value);
+                else if(key == "fpsOverride")
+                    fpsOverride = stoi(value);
                 else
                     cout << "Unknown key in config file: " << key << endl;
             }

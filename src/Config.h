@@ -9,14 +9,14 @@ class Config
 public:
     std::string scriptPath;
     bool fullscreen;
-    int forcedFPS;
+    int fpsOverride;
 
     Config()
     {
         // Set default values in case they can't be read from the config file.
         scriptPath = "";
         fullscreen = false;
-        forcedFPS = 0;
+        fpsOverride = 0;
 
         LoadConfigFile();
     }
