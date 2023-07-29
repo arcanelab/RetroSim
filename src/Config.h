@@ -4,22 +4,16 @@
 #pragma once
 #include <string>
 
-class Config
+namespace RetroSim::Config
 {
-public:
-    std::string scriptPath;
-    bool fullscreen;
-    int fpsOverride;
-
-    Config()
+    struct ConfigValues
     {
-        // Set default values in case they can't be read from the config file.
-        scriptPath = "";
-        fullscreen = false;
-        fpsOverride = 0;
+        std::string scriptPath;
+        bool fullscreen;
+        int fpsOverride;
+    };
 
-        LoadConfigFile();
-    }
+    extern ConfigValues config;
 
-    void LoadConfigFile();
+    void Initialize();
 };

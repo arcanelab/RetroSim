@@ -12,7 +12,6 @@ using namespace RetroSim;
 
 namespace RetroSim::Application
 {
-    Config config;
     ScriptManager scriptManager;
     bool scriptingEnabled = false;
 
@@ -25,6 +24,7 @@ namespace RetroSim::Application
 
     void Run(std::string scriptFileName)
     {
+        Config::Initialize();
         Core::Initialize();
         CreateSDLWindow();
         RunMainLoop();
@@ -32,9 +32,9 @@ namespace RetroSim::Application
 
     void RunMainLoop()
     {
-        if (config.scriptPath.empty() == false)
+        if (Config::config.scriptPath.empty() == false)
         {
-            scriptManager.CompileScriptFromFile(config.scriptPath);
+            scriptManager.CompileScriptFromFile(Config::config.scriptPath);
             scriptManager.RunScript("start", {}, 0);
             scriptingEnabled = true;
         }
@@ -110,7 +110,7 @@ namespace RetroSim::Application
         SDL_SetWindowSize(window, displayMode.w / 2, displayMode.h / 2);
         SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-        if (config.fullscreen)
+        if (Config::config.fullscreen)
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
         // check for errors
