@@ -9,7 +9,7 @@ std::string GetFilenameFromArgs(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
-    printf("RetroSim v0.2.0 development\n");
+    printf("RetroSim v0.2.0 development\n\n");
 
     std::string scriptFileName = GetFilenameFromArgs(argc, argv);
 
