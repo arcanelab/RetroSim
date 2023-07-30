@@ -34,7 +34,7 @@ namespace RetroSim::Config
         // check if file exists
         if (!RetroSim::FileExists(fileName))
         {
-            cout << "Config file not found: " << fileName << endl;
+            printf("Config file '%s' not found.\n", fileName.c_str());
             return;
         }
 
