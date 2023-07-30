@@ -12,7 +12,6 @@ using namespace RetroSim;
 
 namespace RetroSim::Application
 {
-    ScriptManager scriptManager;
     bool scriptingEnabled = false;
 
     SDL_Window *window;
@@ -34,8 +33,8 @@ namespace RetroSim::Application
     {
         if (Config::config.scriptPath.empty() == false)
         {
-            scriptManager.CompileScriptFromFile(Config::config.scriptPath);
-            scriptManager.RunScript("start", {}, 0);
+            ScriptManager::CompileScriptFromFile(Config::config.scriptPath);
+            ScriptManager::RunScript("start", {}, 0);
             scriptingEnabled = true;
         }
         // else
@@ -48,7 +47,7 @@ namespace RetroSim::Application
         while (!quit)
         {
             if (scriptingEnabled)
-                scriptManager.RunScript("update", {}, 0);
+                ScriptManager::RunScript("update", {}, 0);
 
             uint32_t frameStartTime = SDL_GetTicks();
             Core::Render();
@@ -73,7 +72,7 @@ namespace RetroSim::Application
             lastFrameTime = SDL_GetTicks() - frameStartTime;
         }
 
-        scriptManager.Destroy();
+        ScriptManager::Destroy();
 
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(renderer);

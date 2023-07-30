@@ -11,27 +11,11 @@
 #include <vector>
 #include <string>
 
-class ScriptManager
+namespace RetroSim::ScriptManager
 {
-public:
     void Update(float deltaTime);
     void Destroy();
-    void CompileScript(std::string script);
+    void CompileScript(std::string _script);
     void RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs);
     void CompileScriptFromFile(std::string filename);
-
-    ScriptManager() {}
-    ~ScriptManager()
-    {
-        Destroy();
-    }
-
-private:
-    std::string script;
-    // Gravity-related items
-    static void ErrorCallback(gravity_vm *vm, error_type_t error_type, const char *message, error_desc_t error_desc, void *xdata);
-    gravity_delegate_t delegate = {.error_callback = ErrorCallback};
-    gravity_compiler_t *compiler = gravity_compiler_create(&delegate);
-    gravity_vm *vm = gravity_vm_new(&delegate);
-    gravity_closure_t *closure;
-};
+}
