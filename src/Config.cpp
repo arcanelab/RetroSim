@@ -59,7 +59,7 @@ namespace RetroSim::Config
                     string value = match[2];
 
                     // print key-value pairs
-                    cout << key << ": " << value << endl;
+                    // cout << key << ": " << value << endl;
 
                     if (key == "scriptPath")
                         config.scriptPath = value;
