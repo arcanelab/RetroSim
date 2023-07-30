@@ -79,7 +79,7 @@
 
 # Building
 
-RetroSim is written in C++ using SDL. [Xmake](https://xmake.io/) is used to manage the dependencies and for building the project.
+RetroSim is written in C++ using SDL. [Xmake](https://xmake.io/) is used to manage the dependencies and to build the project.
 
 ## 3rd-party libraries
 * [SDL](http://www.libsdl.org/)
