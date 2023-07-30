@@ -19,4 +19,4 @@ namespace RetroSim::GPU
     };
 
     void RenderTileMode();
-};
+}

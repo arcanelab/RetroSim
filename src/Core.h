@@ -17,6 +17,4 @@ namespace RetroSim::Core
         MAP_MEMORY_U8 = 0x2000,
         TILE_MEMORY_U8 = 0x6000, // 256 elements
     };
-
-    // const uint_fast32_t MEMSIZE = 0x40000; // 256K
 }
