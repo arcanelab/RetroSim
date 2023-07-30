@@ -4,6 +4,7 @@
 #include "ScriptManager.h"
 #include "FileUtils.h"
 #include <string>
+#include <sstream>
 
 namespace RetroSim::ScriptManager
 {
@@ -59,19 +60,10 @@ namespace RetroSim::ScriptManager
     std::string ScriptManager::GetScriptLine(const std::string &script, uint32_t lineNumber)
     {
         std::string line;
-        uint32_t lineCounter = 0;
-        for (uint32_t i = 0; i < script.size(); i++)
-        {
-            if (script[i] == '\n')
-            {
-                lineCounter++;
-                if (lineCounter == lineNumber)
-                    return line;
-                line.clear();
-            }
-            else
-                line += script[i];
-        }
+        std::istringstream ss(script);
+        for (uint32_t i = 0; i < lineNumber; i++)
+            std::getline(ss, line);
+
         return line;
     }
 
