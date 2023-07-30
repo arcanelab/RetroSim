@@ -82,6 +82,6 @@ namespace RetroSim::ScriptManager
         for (int i = 0; i < error_desc.colno - 1; i++)
             printf(" ");
         printf("^");
+        abort();
     }
-
 }
