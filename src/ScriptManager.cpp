@@ -82,9 +82,12 @@ namespace RetroSim::ScriptManager
     {
         printf("Gravity error in line %d: %s\n", error_desc.lineno, message);
         printf("%s\n", GetScriptLine(script, error_desc.lineno).c_str());
-        for (int i = 0; i < error_desc.colno - 1; i++)
-            printf(" ");
-        printf("^");
+        if (error_desc.colno > 0 && error_desc.colno < 100)
+        {
+            for (int i = 0; i < error_desc.colno - 1; i++)
+                printf(" ");
+            printf("^");
+        }
         abort();
     }
 }
