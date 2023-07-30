@@ -1,6 +1,6 @@
 # RetroSim
 
-### A modern fantasy retro-computer similar to Picotron, PICO-8 or TIC-80.
+### A modern fantasy retro-computer (similar to Picotron, PICO-8 or TIC-80).
 
 ## Specifications
 
