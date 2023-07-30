@@ -1,3 +1,6 @@
+// RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
+// https://github.com/arcanelab
+
 #include <cstdint>
 #include "MMU.h"
 #include "gravity_compiler.h"
