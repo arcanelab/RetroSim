@@ -1,7 +1,7 @@
 // RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
 // https://github.com/arcanelab
 
-#include "ScriptManager.h"
+#include "GravityScripting.h"
 #include "FileUtils.h"
 #include "gravity_compiler.h"
 #include "gravity_macros.h"
@@ -10,7 +10,7 @@
 #include <string>
 #include <sstream>
 
-namespace RetroSim::ScriptManager
+namespace RetroSim::GravityScripting
 {
     // forward declarations
     std::string GetScriptLine(const std::string &script, uint32_t lineNumber);
@@ -29,7 +29,7 @@ namespace RetroSim::ScriptManager
     }
 
     // Compiles the script and transfers it to the VM
-    void ScriptManager::CompileScript(std::string _script)
+    void GravityScripting::CompileScript(std::string _script)
     {
         script = _script;
         const char *scriptCStr = script.c_str();
@@ -37,7 +37,7 @@ namespace RetroSim::ScriptManager
         gravity_compiler_transfer(compiler, vm);
     }
 
-    void ScriptManager::CompileScriptFromFile(std::string filename)
+    void GravityScripting::CompileScriptFromFile(std::string filename)
     {
         script = RetroSim::ReadTextFile(filename);
         if (script.empty())
@@ -47,7 +47,7 @@ namespace RetroSim::ScriptManager
         gravity_vm_loadclosure(vm, closure);
     }
 
-    void ScriptManager::RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs)
+    void GravityScripting::RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs)
     {
         gravity_value_t function = gravity_vm_getvalue(vm, functionName.c_str(), strlen(functionName.c_str()));
 
@@ -61,14 +61,14 @@ namespace RetroSim::ScriptManager
         gravity_vm_runclosure(vm, closure, VALUE_FROM_NULL, params, numArgs);
     }
 
-    void ScriptManager::Destroy()
+    void GravityScripting::Cleanup()
     {
         gravity_compiler_free(compiler);
         gravity_vm_free(vm);
         gravity_core_free();
     }
 
-    std::string ScriptManager::GetScriptLine(const std::string &script, uint32_t lineNumber)
+    std::string GravityScripting::GetScriptLine(const std::string &script, uint32_t lineNumber)
     {
         std::string line;
         std::istringstream ss(script);
@@ -78,7 +78,7 @@ namespace RetroSim::ScriptManager
         return line;
     }
 
-    void ScriptManager::ErrorCallback(gravity_vm *vm, error_type_t error_type, const char *message, error_desc_t error_desc, void *xdata)
+    void GravityScripting::ErrorCallback(gravity_vm *vm, error_type_t error_type, const char *message, error_desc_t error_desc, void *xdata)
     {
         printf("Gravity error in line %d: %s\n", error_desc.lineno, message);
         printf("%s\n", GetScriptLine(script, error_desc.lineno).c_str());

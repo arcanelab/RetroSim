@@ -1,7 +1,7 @@
 // RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
 // https://github.com/arcanelab
 
-#include "ScriptManager.h"
+#include "GravityScripting.h"
 #include "Application.h"
 #include "Config.h"
 #include "Core.h"
@@ -36,9 +36,9 @@ namespace RetroSim::Application
         if (Config::config.scriptPath.empty() == false)
         {
             printf("Running script: %s\n", Config::config.scriptPath.c_str());
-            ScriptManager::RegisterAPIFunctions();
-            ScriptManager::CompileScriptFromFile(Config::config.scriptPath);
-            ScriptManager::RunScript("start", {}, 0);
+            GravityScripting::RegisterAPIFunctions();
+            GravityScripting::CompileScriptFromFile(Config::config.scriptPath);
+            GravityScripting::RunScript("start", {}, 0);
             scriptingEnabled = true;
         }
         else
@@ -53,7 +53,7 @@ namespace RetroSim::Application
         while (!quit)
         {
             if (scriptingEnabled)
-                ScriptManager::RunScript("update", {}, 0);
+                GravityScripting::RunScript("update", {}, 0);
 
             uint32_t frameStartTime = SDL_GetTicks();
             Core::Render();
@@ -79,7 +79,7 @@ namespace RetroSim::Application
         }
 
         if (scriptingEnabled)
-            ScriptManager::Destroy();
+            GravityScripting::Cleanup();
 
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(renderer);
