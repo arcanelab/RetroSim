@@ -11,11 +11,9 @@ namespace RetroSim
 {
     std::string ReadTextFile(const std::string &filename)
     {
-        std::cout << "Reading file " << filename << std::endl;
-
         std::ifstream file(filename);
 
-        if(!file.good())
+        if (!file.good())
         {
             std::cout << "Error: couldn't open file " << filename << std::endl;
             return "";
