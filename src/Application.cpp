@@ -24,6 +24,8 @@ namespace RetroSim::Application
     void Run(std::string scriptFileName)
     {
         Config::Initialize();
+        if (scriptFileName.empty() == false)
+            Config::config.scriptPath = scriptFileName;
         Core::Initialize();
         CreateSDLWindow();
         RunMainLoop();
@@ -33,13 +35,16 @@ namespace RetroSim::Application
     {
         if (Config::config.scriptPath.empty() == false)
         {
+            printf("Running script: %s\n", Config::config.scriptPath.c_str());
             ScriptManager::RegisterAPIFunctions();
             ScriptManager::CompileScriptFromFile(Config::config.scriptPath);
             ScriptManager::RunScript("start", {}, 0);
             scriptingEnabled = true;
         }
-        // else
-        // scriptManager.CompileScript("func main() { System.print(\"Hello world from Gravity!\") return 42 }");
+        else
+        {
+            scriptingEnabled = false;
+        }
 
         SDL_Event event;
         bool quit = false;
@@ -73,7 +78,8 @@ namespace RetroSim::Application
             lastFrameTime = SDL_GetTicks() - frameStartTime;
         }
 
-        ScriptManager::Destroy();
+        if (scriptingEnabled)
+            ScriptManager::Destroy();
 
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(renderer);
