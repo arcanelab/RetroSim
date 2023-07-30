@@ -1,12 +1,41 @@
-var counter = 1234
+var counter = 0
+
+var log = System.print
+var state = "uninitialized"
 
 func start()
 {
     System.print("start")
 }
 
+var a = problemas
+
 func update()
 {
     counter = counter + 1
-    System.print(counter)
+
+    if(counter < 20)
+    {
+        if(!setState.isDone())
+        {
+            setState.call()
+            log(state)
+        }
+    }
+    else
+    {
+        log("end")
+        System.exit(0)
+    }
 }
+
+func _setState()
+{
+    for(var i in 1...10)
+    {
+        state = "state " + i
+        Fiber.yield()
+    }
+}
+
+var setState = Fiber.create(_setState)

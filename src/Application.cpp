@@ -33,6 +33,7 @@ namespace RetroSim::Application
     {
         if (Config::config.scriptPath.empty() == false)
         {
+            ScriptManager::RegisterAPIFunctions();
             ScriptManager::CompileScriptFromFile(Config::config.scriptPath);
             ScriptManager::RunScript("start", {}, 0);
             scriptingEnabled = true;

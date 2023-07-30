@@ -3,11 +3,7 @@
 
 #pragma once
 #include <string>
-#include "gravity_vm.h"
-#include "gravity_delegate.h"
-#include "gravity_compiler.h"
-#include "gravity_macros.h"
-#include "gravity_core.h"
+#include "gravity_value.h"
 #include <vector>
 #include <string>
 
@@ -18,4 +14,5 @@ namespace RetroSim::ScriptManager
     void CompileScript(std::string _script);
     void RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs);
     void CompileScriptFromFile(std::string filename);
+    void RegisterAPIFunctions();
 }

@@ -3,19 +3,30 @@
 
 #include "ScriptManager.h"
 #include "FileUtils.h"
+#include "gravity_compiler.h"
+#include "gravity_macros.h"
+#include "gravity_core.h"
+#include "GravityAPI.h"
 #include <string>
 #include <sstream>
 
 namespace RetroSim::ScriptManager
 {
-    std::string script;
+    // forward declarations
     std::string GetScriptLine(const std::string &script, uint32_t lineNumber);
-    // Gravity-related items
     void ErrorCallback(gravity_vm *vm, error_type_t error_type, const char *message, error_desc_t error_desc, void *xdata);
+
+    std::string script;
+
     gravity_delegate_t delegate = {.error_callback = ErrorCallback};
     gravity_compiler_t *compiler = gravity_compiler_create(&delegate);
     gravity_vm *vm = gravity_vm_new(&delegate);
     gravity_closure_t *closure;
+
+    void RegisterAPIFunctions()
+    {
+        GravityAPI::RegisterAPIFunctions(vm);
+    }
 
     // Compiles the script and transfers it to the VM
     void ScriptManager::CompileScript(std::string _script)

@@ -1,0 +1,13 @@
+extern var Memory;
+
+func start()
+{
+}
+
+var counter:Int = 0
+
+func update()
+{
+    counter += 1
+    Memory.PokeU8(0x2000, counter % 256)
+}
