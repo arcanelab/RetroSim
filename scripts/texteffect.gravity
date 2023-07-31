@@ -1,3 +1,4 @@
+// vim: syntax=Swift
 extern var Memory;
 
 func start() {}
@@ -19,6 +20,9 @@ var x = Math.random() * maxX
 var y = 0
 
 var screenCharCount = 16*60
+
+var offset = 0
+var address = 0
 
 func update()
 {
@@ -48,8 +52,9 @@ func update()
         clearScreen()
     }
 
-    var offset = Math.round(x) + Math.round(y) * 60
-    var address: Int = offset + 0x2000
+    offset = Math.round(x) + Math.round(y) * 60
+
+    address = offset + 0x2000
     // System.print("x: ", x, ", y: ", y, ", vy: ", vy, ", offset: ", offset, ", address: ", address)
 
     for var i in 0..<numChars    
