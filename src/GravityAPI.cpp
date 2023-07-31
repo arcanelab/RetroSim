@@ -18,10 +18,25 @@ namespace RetroSim::GravityAPI
         gravity_value_t address = GET_VALUE(1);
         gravity_value_t value = GET_VALUE(2);
 
-        // printf("[%d] = %d\n", (int)address.n, (int)value.n);
-        // TODO: type checks for address and value
+        if (VALUE_ISA_INT(address) == false)
+            RETURN_ERROR_SIMPLE("Address must be an integer.");
 
-        MMU::WriteMem<uint8_t>(address.n, (uint8_t)value.n);
+        if (VALUE_ISA_STRING(value))
+        {
+            INTERNAL_CONVERT_STRING(value, true);
+            gravity_string_t *s = VALUE_AS_STRING(value);
+            // printf("[%x] = %d\n", (int)address.n, s->s[0]);
+            MMU::WriteMem<uint8_t>(address.n, (uint8_t)s->s[0]);
+        }
+        else if (VALUE_ISA_INT(value))
+        {
+            // printf("[%x] = %d\n", (int)address.n, value.n);
+            MMU::WriteMem<uint8_t>(address.n, (uint8_t)value.n);
+        }
+        else
+        {
+            RETURN_ERROR_SIMPLE("Value must be an integer or a string.");
+        }
 
         RETURN_NOVALUE();
     }
@@ -38,11 +53,19 @@ namespace RetroSim::GravityAPI
 
     void RegisterAPIFunctions(gravity_vm *vm)
     {
-        gravity_class_t *c = gravity_class_new_pair(NULL, "Memory", NULL, 0, 0);
+        gravity_gc_setenabled(vm, false);
+        // class
+        gravity_class_t *c = gravity_class_new_pair(vm, "Memory", NULL, 0, 0);
         gravity_class_t *meta = gravity_class_get_meta(c);
-        gravity_function_t *pokeu8f = gravity_function_new_internal(NULL, NULL, PokeU8, 0);
-        gravity_closure_t *pokeu8c = gravity_closure_new(NULL, pokeu8f);
+
+        // method
+        gravity_function_t *pokeu8f = gravity_function_new_internal(vm, NULL, PokeU8, 0);
+        gravity_closure_t *pokeu8c = gravity_closure_new(vm, pokeu8f);
         gravity_class_bind(meta, "PokeU8", VALUE_FROM_OBJECT(pokeu8c));
+
+        // register class
         gravity_vm_setvalue(vm, "Memory", VALUE_FROM_OBJECT(c));
+
+        gravity_gc_setenabled(vm, true);
     }
 }
