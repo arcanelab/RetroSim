@@ -1,4 +1,4 @@
-// vim: syntax=Swift
+// vim: syntax=Gravity
 extern var Memory;
 
 func start() {}
