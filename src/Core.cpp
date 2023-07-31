@@ -20,13 +20,13 @@ namespace RetroSim::Core
         int tileHeight = 16;
 
         // Generate map data
-        int numTilesX = GPU::textureWidth / tileWidth;
-        int numTilesY = GPU::textureHeight / tileHeight;
-        for (int i = 0; i < numTilesX * numTilesY; i++)
-        {
-            // gpu->outputTexture[i] = (i % gpu->width) | (i << 8) || (i << 16) || (i << 24);
-            MMU::WriteMem<uint8_t>(Core::MAP_MEMORY_U8 + i, i % 256);
-        }
+        // int numTilesX = GPU::textureWidth / tileWidth;
+        // int numTilesY = GPU::textureHeight / tileHeight;
+        // for (int i = 0; i < numTilesX * numTilesY; i++)
+        // {
+        //     // gpu->outputTexture[i] = (i % gpu->width) | (i << 8) || (i << 16) || (i << 24);
+        //     MMU::WriteMem<uint8_t>(Core::MAP_MEMORY_U8 + i, i % 256);
+        // }
 
         if (MMU::LoadFile("data/unscii-16.tiledata", Core::TILE_MEMORY_U8) == -1)
         {
