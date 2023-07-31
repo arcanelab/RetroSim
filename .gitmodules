@@ -1,0 +1,3 @@
+[submodule "gravity"]
+	path = gravity
+	url = git@github.com:arcanelab/Gravity-RetroSim.git
