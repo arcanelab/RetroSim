@@ -18,8 +18,10 @@ namespace RetroSim::GravityAPI
         gravity_value_t address = GET_VALUE(1);
         gravity_value_t value = GET_VALUE(2);
 
-        if (VALUE_ISA_INT(address) == false)
-            RETURN_ERROR_SIMPLE("Address must be an integer.");
+        if (VALUE_ISA_FLOAT(address))
+            INTERNAL_CONVERT_INT(address, true);
+        else if (!VALUE_ISA_INT(address))
+            RETURN_ERROR("Address must be an integer.");
 
         if (VALUE_ISA_STRING(value))
         {
@@ -35,7 +37,7 @@ namespace RetroSim::GravityAPI
         }
         else
         {
-            RETURN_ERROR_SIMPLE("Value must be an integer or a string.");
+            RETURN_ERROR("Value must be an integer or a string.");
         }
 
         RETURN_NOVALUE();
