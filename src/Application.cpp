@@ -12,8 +12,6 @@ using namespace RetroSim;
 
 namespace RetroSim::Application
 {
-    bool scriptingEnabled = false;
-
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
@@ -33,17 +31,13 @@ namespace RetroSim::Application
 
     void RunMainLoop()
     {
-        if (Config::config.scriptPath.empty() == false)
+        bool scriptingEnabled = !Config::config.scriptPath.empty();
+        if (scriptingEnabled)
         {
             printf("Running script: %s\n", Config::config.scriptPath.c_str());
             GravityScripting::RegisterAPIFunctions();
             GravityScripting::CompileScriptFromFile(Config::config.scriptPath);
             GravityScripting::RunScript("start", {}, 0);
-            scriptingEnabled = true;
-        }
-        else
-        {
-            scriptingEnabled = false;
         }
 
         SDL_Event event;
