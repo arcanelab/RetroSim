@@ -2,12 +2,34 @@ extern var Memory;
 
 func start()
 {
+    var testText = "Hello, RetroSim! ^_^"
+    var numChars = testText.length
+    for var i in 0..<numChars
+    {
+        Memory.PokeU8(0x2000 + i, testText[i])
+    }
 }
 
-var counter:Int = 0
+var counter = 0
 
 func update()
 {
     counter += 1
-    Memory.PokeU8(0x2000, counter % 256)
+    if (counter < 32)
+    {
+        return
+    }
+    
+    var testText = "Hello, RetroSim! ^_^"
+    var numChars = testText.length
+
+    var x = Math.random(0,60)
+    var y = Math.random(0,16)
+
+    for var i in 0..<numChars    
+    {
+        Memory.PokeU8(0x2000 + x + y * 60 + i, testText[i])
+    }
+
+    counter = 0
 }

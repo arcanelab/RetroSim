@@ -1,0 +1,69 @@
+extern var Memory;
+
+func start() {}
+
+var testText = "Hello, RetroSim! ^_^"
+var numChars = testText.length
+
+var counter = 0
+
+var vx = Math.random(0.2, 0.7)
+var vy = 0.0
+var gravity = 9.8
+var t = 0.0
+
+var maxY = 16 - 1
+var maxX = 60 - numChars
+
+var x = Math.random() * maxX
+var y = 0
+
+var screenCharCount = 16*60
+
+func update()
+{
+    t += 0.00001
+
+    vx *= 0.996
+    vy += gravity * t
+
+    x += vx
+    y += vy
+
+    if(x > maxX)
+    {
+        x = maxX
+        vx = -1.0 * vx;
+    }
+    if(x < 0)
+    {
+        x = 0
+        vx = -1.0 * vx;
+    }
+
+    if(y >= maxY)
+    {
+        y = maxY
+        vy = -1.0 * vy;
+        clearScreen()
+    }
+
+    var offset = Math.round(x) + Math.round(y) * 60
+    var address: Int = offset + 0x2000
+    // System.print("x: ", x, ", y: ", y, ", vy: ", vy, ", offset: ", offset, ", address: ", address)
+
+    for var i in 0..<numChars    
+    {
+        Memory.PokeU8(address + i, testText[i])
+    }
+
+    counter = 0
+}
+
+func clearScreen()
+{
+    for var s in 0..<screenCharCount
+    {
+        Memory.PokeU8(0x2000 + s, 0)
+    }
+}
