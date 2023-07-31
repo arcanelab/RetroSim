@@ -4,6 +4,9 @@
 #include "GPU.h"
 #include "Core.h"
 #include "MMU.h"
+#ifdef __APPLE__ // or shall we use __clang__?
+#include <stddef.h>
+#endif
 
 namespace RetroSim::GPU
 {
