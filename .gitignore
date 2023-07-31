@@ -4,3 +4,7 @@ build/
 .DS_Store
 tmp
 PicoC/lib
+RetroSim.pdb
+compile.RetroSim.pdb
+RetroSim.exe
+RetroSim.ilk
