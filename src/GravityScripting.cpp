@@ -59,7 +59,6 @@ namespace RetroSim::GravityScripting
         }
 
         gravity_vm_runclosure(vm, closure, VALUE_FROM_NULL, params, numArgs);
-        gravity_gc_start(vm);
     }
 
     void GravityScripting::Cleanup()
