@@ -23,7 +23,7 @@ namespace RetroSim::GravityAPI
         else if (!VALUE_ISA_INT(address))
             RETURN_ERROR("Address must be an integer.");
 
-        if (VALUE_ISA_STRING(value))
+        if VALUE_ISA_STRING (value)
         {
             INTERNAL_CONVERT_STRING(value, true);
             gravity_string_t *s = VALUE_AS_STRING(value);

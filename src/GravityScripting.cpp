@@ -29,7 +29,7 @@ namespace RetroSim::GravityScripting
     }
 
     // Compiles the script and transfers it to the VM
-    void GravityScripting::CompileScript(std::string _script)
+    void CompileScript(std::string _script)
     {
         script = _script;
         const char *scriptCStr = script.c_str();
@@ -37,7 +37,7 @@ namespace RetroSim::GravityScripting
         gravity_compiler_transfer(compiler, vm);
     }
 
-    void GravityScripting::CompileScriptFromFile(std::string filename)
+    void CompileScriptFromFile(std::string filename)
     {
         script = RetroSim::ReadTextFile(filename);
         if (script.empty())
@@ -47,7 +47,7 @@ namespace RetroSim::GravityScripting
         gravity_vm_loadclosure(vm, closure);
     }
 
-    void GravityScripting::RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs)
+    void RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs)
     {
         gravity_value_t function = gravity_vm_getvalue(vm, functionName.c_str(), strlen(functionName.c_str()));
 
@@ -61,14 +61,14 @@ namespace RetroSim::GravityScripting
         gravity_vm_runclosure(vm, closure, VALUE_FROM_NULL, params, numArgs);
     }
 
-    void GravityScripting::Cleanup()
+    void Cleanup()
     {
         gravity_compiler_free(compiler);
         gravity_vm_free(vm);
         gravity_core_free();
     }
 
-    std::string GravityScripting::GetScriptLine(const std::string &script, uint32_t lineNumber)
+    std::string GetScriptLine(const std::string &script, uint32_t lineNumber)
     {
         std::string line;
         std::istringstream ss(script);
@@ -78,7 +78,7 @@ namespace RetroSim::GravityScripting
         return line;
     }
 
-    void GravityScripting::ErrorCallback(gravity_vm *vm, error_type_t error_type, const char *message, error_desc_t error_desc, void *xdata)
+    void ErrorCallback(gravity_vm *vm, error_type_t error_type, const char *message, error_desc_t error_desc, void *xdata)
     {
         printf("Gravity error in line %d: %s\n", error_desc.lineno, message);
         printf("%s\n", GetScriptLine(script, error_desc.lineno).c_str());
