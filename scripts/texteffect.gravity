@@ -49,8 +49,8 @@ func update()
     {
         y = maxY
         vy = -1.0 * vy;
-        clearScreen()
     }
+        clearScreen()
 
     offset = Math.round(x) + Math.round(y) * 60
 
@@ -62,7 +62,42 @@ func update()
         Memory.PokeU8(address + i, testText[i])
     }
 
-    counter = 0
+    var color = Int(Math.round(counter)) % 256
+
+    address = 0x108C
+    Memory.PokeU8(address + 0, (256 - color + 128) % 256) // B
+    Memory.PokeU8(address + 1, (256 - color + 64) % 256) // G
+    Memory.PokeU8(address + 2, (256 - color) % 256) // R
+    Memory.PokeU8(address + 3, 0) // A
+    address = 0x1000
+    // Memory.PokeU8(address + 0, color % 64)
+    // Memory.PokeU8(address + 1, 0)
+    // Memory.PokeU8(address + 2, 0)
+    // Memory.PokeU8(address + 3, 0)
+
+    Memory.PokeU8(address + 0, color % 64)
+    Memory.PokeU8(address + 1, color % 32)
+    Memory.PokeU8(address + 2, color % 16)
+    Memory.PokeU8(address + 3, 0)
+
+    corruptScreen()
+
+    counter += 0.1
+}
+
+func corruptScreen()
+{
+    if(Math.random() < 0.33)
+    {
+        var random: Int = Int(Math.random(0, 0x4000))
+        Memory.PokeU8(0x6000 + random, random % 256)
+        random *= 4
+        Memory.PokeU8(0x1000 + random, Int(Math.random(0, 255)))
+        Memory.PokeU8(0x1001 + random, Int(Math.random(0, 255)))
+        Memory.PokeU8(0x1002 + random, Int(Math.random(0, 255)))
+
+        Memory.PokeU8(0x2000 + ((random / 4) % screenCharCount), random % 256)
+    }
 }
 
 func clearScreen()
