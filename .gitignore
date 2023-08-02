@@ -1,9 +1,8 @@
-﻿.vscode
+﻿.vscode/
 .xmake/
 build/
 .DS_Store
-tmp
-PicoC/lib
+tmp/
 RetroSim.pdb
 compile.RetroSim.pdb
 RetroSim.exe
