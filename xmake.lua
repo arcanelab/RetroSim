@@ -3,6 +3,7 @@ set_version("0.2.0")
 set_languages("cxx20")
 add_rules("mode.debug", "mode.release")
 add_requires("libsdl 2.x")
+set_warnings("all")
 
 if is_mode("debug") then
     add_defines("DEBUG")
@@ -13,31 +14,28 @@ else
     set_optimize("fastest")
 end
 
--- if is_plat("windows") and is_kind("shared") and is_mode("release") then
-if is_plat("windows") and is_mode("release") then -- and is_kind("shared") then
-    -- add_cxflags("-MD -O2 -arch:AVX2 -Ob2 -DNDEBUG")
-    add_defines("NDEBUG")
-end
-
 if is_plat("windows") then
+    set_warnings("all")
     add_defines("WIN32")
+    add_cxflags("/wd4068")
+    -- add_ldflags("-subsystem:windows")
 elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
     add_defines("UNIX_HOST")
+    -- add_cxflags("-Wall")
 end
 
--- if is_plat("windows") then
---     add_ldflags("-subsystem:windows")
--- end
+add_subdirs("gravity")
 
 target("RetroSim")
+    add_deps("Gravity")
     set_kind("binary")
     add_files("src/**.cpp")
-    add_files("gravity/src/**.c")
     add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
     add_packages("libsdl")
     set_targetdir("bin")
 
 target("RetroSimCore")
+    add_deps("Gravity")
     set_kind("shared")
     add_files("src/**.cpp")
     add_files("gravity/src/**.c")
