@@ -4,6 +4,7 @@
 #include "GPU.h"
 #include "Core.h"
 #include "MMU.h"
+#include "Config.h"
 #include <cstring>
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,7 +29,8 @@ namespace RetroSim::Core
         //     MMU::WriteMem<uint8_t>(Core::MAP_MEMORY_U8 + i, i % 256);
         // }
 
-        if (MMU::LoadFile("data/unscii-16.tiledata", Core::TILE_MEMORY_U8) == -1)
+        const char *path = (Config::config.dataPath + "/unscii-16.tiledata").c_str();
+        if (MMU::LoadFile(path, Core::TILE_MEMORY_U8) == -1)
         {
             printf("Failed to load file\n");
         }

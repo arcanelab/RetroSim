@@ -9,6 +9,7 @@ namespace RetroSim::Config
     struct ConfigValues
     {
         std::string scriptPath;
+        std::string dataPath;
         bool fullscreen;
         int fpsOverride;
     };

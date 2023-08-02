@@ -35,8 +35,16 @@ target("RetroSim")
     add_files("gravity/src/**.c")
     add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
     add_packages("libsdl")
+    set_targetdir("bin")
 
-set_targetdir(".")
+target("RetroSimCore")
+    set_kind("shared")
+    add_files("src/**.cpp")
+    add_files("gravity/src/**.c")
+    add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
+    add_packages("libsdl")
+    set_targetdir("libretro")
+
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --

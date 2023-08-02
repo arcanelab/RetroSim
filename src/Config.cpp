@@ -21,6 +21,7 @@ namespace RetroSim::Config
     {
         // Set default values in case they can't be read from the config file.
         config.scriptPath = "";
+        config.dataPath = "";
         config.fullscreen = false;
         config.fpsOverride = 0;
 
@@ -67,6 +68,8 @@ namespace RetroSim::Config
                         config.fullscreen = (value == "true");
                     else if (key == "fpsOverride")
                         config.fpsOverride = stoi(value);
+                    else if (key == "dataPath")
+                        config.dataPath = value;
                     else
                         cout << "Unknown key in config file: " << key << endl;
                 }
