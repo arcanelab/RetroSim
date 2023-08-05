@@ -26,6 +26,13 @@ namespace RetroSim::Config
         config.fpsOverride = 0;
 
         LoadConfigFile();
+
+        if (config.fpsOverride > 0)
+            config.fps = config.fpsOverride;
+        else
+            config.fps = 60; // TODO: query current fps
+
+        config.isInitialized = true;
     }
 
     void LoadConfigFile()
