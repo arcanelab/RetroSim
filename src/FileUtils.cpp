@@ -5,7 +5,6 @@
 #include <iostream>
 #include <sstream>
 #include "FileUtils.h"
-#include <SDL.h>
 
 namespace RetroSim
 {
