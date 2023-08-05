@@ -26,23 +26,32 @@ end
 
 add_subdirs("gravity")
 
-target("RetroSim")
-    add_deps("Gravity")
-    set_kind("binary")
-    add_files("src/**.cpp")
-    add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
-    add_packages("libsdl")
-    set_targetdir("bin")
+Target =
+{
+    binary = 1,
+    libretro = 2
+}
 
-target("RetroSimCore")
-    add_deps("Gravity")
-    set_kind("shared")
-    add_files("src/**.cpp")
-    add_files("gravity/src/**.c")
-    add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
-    add_packages("libsdl")
-    set_targetdir("libretro")
+local _target = Target.binary
 
+if _target == Target.binary then
+    target("RetroSim")
+        add_deps("Gravity")
+        set_kind("binary")
+        add_files("src/**.cpp")
+        add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
+        add_packages("libsdl")
+        set_targetdir("bin")
+elseif _target == Target.libretro then
+    target("RetroSimCore")
+        add_deps("Gravity")
+        set_kind("shared")
+        add_files("src/**.cpp")
+        add_files("gravity/src/**.c")
+        add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
+        add_packages("libsdl")
+        set_targetdir("libretro")
+end
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
