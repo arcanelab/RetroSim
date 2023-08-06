@@ -22,22 +22,24 @@ namespace RetroSim::Application
     void Run(std::string scriptFileName)
     {
         char basePath[] = ".";
-        Config::Initialize(basePath);
+        Core::GetInstance()->Initialize(basePath);
         if (scriptFileName.empty() == false)
-            Config::config.scriptPath = scriptFileName;
-        Core::Initialize(basePath);
+        {
+            Core::GetInstance()->GetCoreConfig().OverrideScriptPath(scriptFileName);
+        }
         CreateSDLWindow();
         RunMainLoop();
     }
 
     void RunMainLoop()
     {
-        bool scriptingEnabled = !Config::config.scriptPath.empty();
+        CoreConfig config = Core::GetInstance()->GetCoreConfig();
+        bool scriptingEnabled = !config.GetScriptPath().empty();
         if (scriptingEnabled)
         {
-            printf("Running script: %s\n", Config::config.scriptPath.c_str());
+            printf("Running script: %s\n", config.GetScriptPath().c_str());
             GravityScripting::RegisterAPIFunctions();
-            GravityScripting::CompileScriptFromFile(Config::config.scriptPath);
+            GravityScripting::CompileScriptFromFile(config.GetScriptPath());
             GravityScripting::RunScript("start", {}, 0);
         }
 
@@ -51,7 +53,7 @@ namespace RetroSim::Application
                 GravityScripting::RunScript("update", {}, 0);
 
             uint32_t frameStartTime = SDL_GetTicks();
-            Core::Render();
+            Core::GetInstance()->RunNextFrame();
             SDL_UpdateTexture(texture, NULL, GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -111,7 +113,7 @@ namespace RetroSim::Application
         SDL_SetWindowSize(window, displayMode.w / 2, displayMode.h / 2);
         SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-        if (Config::config.fullscreen)
+        if (Core::GetInstance()->GetCoreConfig().IsFullScreen())
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
         // check for errors

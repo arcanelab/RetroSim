@@ -44,25 +44,27 @@ static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 static retro_environment_t environ_cb;
 
 bool scriptingEnabled;
+Core *coreInstance;
 
 void retro_init(void)
 {
     const char *dir = NULL;
     if (environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
     {
-        snprintf(retro_base_directory, sizeof(retro_base_directory), "%s", dir);
+        _snprintf_s(retro_base_directory, sizeof(retro_base_directory), "%s", dir);
     }
     // log_cb(RETRO_LOG_INFO, "retro_game_path = %s\n", retro_game_path);
 
-    Config::Initialize(retro_base_directory);
-    Core::Initialize(retro_base_directory);
+    coreInstance = Core::GetInstance();
+    coreInstance->Initialize(retro_base_directory);
+    CoreConfig config = coreInstance->GetCoreConfig();
 
-    scriptingEnabled = !Config::config.scriptPath.empty();
+    scriptingEnabled = !config.GetScriptPath().empty();
     if (scriptingEnabled)
     {
-        printf("Running script: %s\n", Config::config.scriptPath.c_str());
+        printf("Running script: %s\n", config.GetScriptPath().c_str());
         GravityScripting::RegisterAPIFunctions();
-        GravityScripting::CompileScriptFromFile(Config::config.scriptPath);
+        GravityScripting::CompileScriptFromFile(config.GetScriptPath());
         GravityScripting::RunScript("start", {}, 0);
     }
 }
@@ -92,7 +94,7 @@ void retro_run(void)
     if (scriptingEnabled)
         GravityScripting::RunScript("update", {}, 0);
 
-    Core::Render();
+    Core::GetInstance()->RunNextFrame();
 
     video_cb(GPU::outputTexture, GPU::textureWidth, GPU::textureHeight, GPU::textureWidth * sizeof(uint32_t));
 }

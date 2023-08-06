@@ -3,18 +3,43 @@
 
 #pragma once
 
-namespace RetroSim::Core
-{
-    void Initialize(char *);
-    void Render();
+#include <string>
+#include "Config.h"
 
-    enum MemoryMap
+namespace RetroSim
+{
+    class Core
     {
-        TILE_MODE_U8 = 0x100, // valid values = 0..3
-        MAP_OFFSET_U32 = 0x101,
-        PALETTE_OFFSET_U16 = 0x105,
-        PALETTE_MEMORY_U32 = 0x1000, // 256 RGBA elements
-        MAP_MEMORY_U8 = 0x2000,
-        TILE_MEMORY_U8 = 0x6000, // 256 elements
+    public:
+        static Core *GetInstance()
+        {
+            if (instance == nullptr)
+            {
+                instance = new Core();
+            }
+            return instance;
+        }
+
+        void Initialize(const std::string &basePath);
+        bool LoadCartridge(const std::string &path);
+        CoreConfig GetCoreConfig();
+        void RunNextFrame();
+        void Reset();
+
+        enum MemoryMap
+        {
+            TILE_MODE_U8 = 0x100, // valid values = 0..3
+            MAP_OFFSET_U32 = 0x101,
+            PALETTE_OFFSET_U16 = 0x105,
+            PALETTE_MEMORY_U32 = 0x1000, // 256 RGBA elements
+            MAP_MEMORY_U8 = 0x2000,
+            TILE_MEMORY_U8 = 0x6000, // 256 elements
+        };
+
+    private:
+        static Core *instance;
+        CoreConfig coreConfig;
+
+        void LoadFont();
     };
 }

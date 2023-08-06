@@ -4,21 +4,32 @@
 #pragma once
 #include <string>
 
-namespace RetroSim::Config
+namespace RetroSim
 {
-    struct ConfigValues
+    class CoreConfig
     {
-        bool isInitialized = false;
-        std::string scriptPath;
-        std::string dataPath;
+    public:
+        void Initialize(const std::string &basePath);
+        void OverrideScriptPath(const std::string &scriptPath);
+        bool IsFullScreen();
+
+        const int screenWidth = 480;
+        const int screenHeight = 256;
+
+        std::string GetDataPath();
+        std::string GetScriptPath();
+
+    private:
+        std::string basePath = "";   // All paths are relative to this. Supplied externally via Initialize().
+        std::string dataPath = "";   // This is where the font files are.
+        std::string scriptPath = ""; // The path to the script to be run on start.
         bool fullscreen = false;
-        int fpsOverride = 0;
-        const int width = 480;
-        const int height = 256;
-        int fps = 60;
+        int fpsOverride = 0;         // The user can override the default fps.
+        int fps = 60;                // The current fps. Set to the current freq. of the monitor.
+        int audioSampleRate = 48000; // The audio engine will output samples on this frequency.
+
+        bool isInitialized = false;
+
+        void LoadConfigFile();
     };
-
-    extern ConfigValues config;
-
-    void Initialize(char *);
 }

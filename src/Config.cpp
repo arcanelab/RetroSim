@@ -11,32 +11,42 @@
 
 using namespace std;
 
-namespace RetroSim::Config
+namespace RetroSim
 {
-    ConfigValues config;
-
-    void LoadConfigFile(std::string basePath);
-
-    void Initialize(char *basePath)
+    void CoreConfig::Initialize(const string &basePath)
     {
-        // Set default values in case they can't be read from the config file.
-        config.scriptPath = "";
-        config.dataPath = "";
-        config.fullscreen = false;
-        config.fpsOverride = 0;
+        this->basePath = basePath;
+        LoadConfigFile();
 
-        std::string path(basePath);
-        LoadConfigFile(path);
-
-        if (config.fpsOverride > 0)
-            config.fps = config.fpsOverride;
+        if (fpsOverride > 0)
+            fps = fpsOverride;
         else
-            config.fps = 60; // TODO: query current fps
+            fps = 60; // TODO: query current fps
 
-        config.isInitialized = true;
+        isInitialized = true;
     }
 
-    void LoadConfigFile(std::string basePath)
+    void CoreConfig::OverrideScriptPath(const string &scriptPath)
+    {
+        this->scriptPath = scriptPath;
+    }
+
+    string CoreConfig::GetDataPath()
+    {
+        return dataPath;
+    }
+
+    string CoreConfig::GetScriptPath()
+    {
+        return scriptPath;
+    }
+
+    bool CoreConfig::IsFullScreen()
+    {
+        return fullscreen;
+    }
+
+    void CoreConfig::LoadConfigFile()
     {
         const std::string fileName = basePath + "/retrosim.config";
 
@@ -71,13 +81,13 @@ namespace RetroSim::Config
                     // cout << key << ": " << value << endl;
 
                     if (key == "scriptPath")
-                        config.scriptPath = basePath + "/" + value;
+                        scriptPath = basePath + "/" + value;
                     else if (key == "fullscreen")
-                        config.fullscreen = (value == "true");
+                        fullscreen = (value == "true");
                     else if (key == "fpsOverride")
-                        config.fpsOverride = stoi(value);
+                        fpsOverride = stoi(value);
                     else if (key == "dataPath")
-                        config.dataPath = basePath + "/" + value;
+                        dataPath = basePath + "/" + value;
                     else
                         cout << "Unknown key in config file: " << key << endl;
                 }
