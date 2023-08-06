@@ -20,5 +20,5 @@ namespace RetroSim::Config
 
     extern ConfigValues config;
 
-    void Initialize();
+    void Initialize(char *);
 }

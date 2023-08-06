@@ -15,9 +15,9 @@ namespace RetroSim::Config
 {
     ConfigValues config;
 
-    void LoadConfigFile();
+    void LoadConfigFile(std::string basePath);
 
-    void Initialize()
+    void Initialize(char *basePath)
     {
         // Set default values in case they can't be read from the config file.
         config.scriptPath = "";
@@ -25,7 +25,8 @@ namespace RetroSim::Config
         config.fullscreen = false;
         config.fpsOverride = 0;
 
-        LoadConfigFile();
+        std::string path(basePath);
+        LoadConfigFile(path);
 
         if (config.fpsOverride > 0)
             config.fps = config.fpsOverride;
@@ -35,9 +36,9 @@ namespace RetroSim::Config
         config.isInitialized = true;
     }
 
-    void LoadConfigFile()
+    void LoadConfigFile(std::string basePath)
     {
-        const std::string fileName = "retrosim.config";
+        const std::string fileName = basePath + "/retrosim.config";
 
         // check if file exists
         if (!RetroSim::FileExists(fileName))
@@ -70,13 +71,13 @@ namespace RetroSim::Config
                     // cout << key << ": " << value << endl;
 
                     if (key == "scriptPath")
-                        config.scriptPath = value;
+                        config.scriptPath = basePath + "/" + value;
                     else if (key == "fullscreen")
                         config.fullscreen = (value == "true");
                     else if (key == "fpsOverride")
                         config.fpsOverride = stoi(value);
                     else if (key == "dataPath")
-                        config.dataPath = value;
+                        config.dataPath = basePath + "/" + value;
                     else
                         cout << "Unknown key in config file: " << key << endl;
                 }

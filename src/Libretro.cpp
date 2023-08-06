@@ -4,6 +4,10 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
+#include "Core.h"
+#include "Config.h"
+#include "GPU.h"
+#include "GravityScripting.h"
 
 #include <stdio.h>
 #if defined(_WIN32) && !defined(_XBOX)
@@ -11,9 +15,7 @@
 #endif
 #include "libretro/libretro-common/include/libretro.h"
 
-#define VIDEO_WIDTH 256
-#define VIDEO_HEIGHT 384
-#define VIDEO_PIXELS VIDEO_WIDTH *VIDEO_HEIGHT
+using namespace RetroSim;
 
 static uint8_t *frame_buf;
 static struct retro_log_callback logging;
@@ -23,6 +25,12 @@ static float last_aspect;
 static float last_sample_rate;
 char retro_base_directory[4096];
 char retro_game_path[4096];
+
+static retro_video_refresh_t video_cb;
+static retro_audio_sample_t audio_cb;
+static retro_audio_sample_batch_t audio_batch_cb;
+static retro_input_poll_t input_poll_cb;
+static retro_input_state_t input_state_cb;
 
 static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 {
@@ -35,13 +43,27 @@ static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 
 static retro_environment_t environ_cb;
 
+bool scriptingEnabled;
+
 void retro_init(void)
 {
-    frame_buf = (uint8_t *)malloc(VIDEO_PIXELS * sizeof(uint32_t));
     const char *dir = NULL;
     if (environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
     {
         snprintf(retro_base_directory, sizeof(retro_base_directory), "%s", dir);
+    }
+    // log_cb(RETRO_LOG_INFO, "retro_game_path = %s\n", retro_game_path);
+
+    Config::Initialize(retro_base_directory);
+    Core::Initialize(retro_base_directory);
+
+    scriptingEnabled = !Config::config.scriptPath.empty();
+    if (scriptingEnabled)
+    {
+        printf("Running script: %s\n", Config::config.scriptPath.c_str());
+        GravityScripting::RegisterAPIFunctions();
+        GravityScripting::CompileScriptFromFile(Config::config.scriptPath);
+        GravityScripting::RunScript("start", {}, 0);
     }
 }
 
@@ -49,6 +71,30 @@ void retro_deinit(void)
 {
     free(frame_buf);
     frame_buf = NULL;
+}
+
+static void update_input(void)
+{
+}
+
+static void check_variables(void)
+{
+}
+
+void retro_run(void)
+{
+    update_input();
+
+    bool updated = false;
+    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
+        check_variables();
+
+    if (scriptingEnabled)
+        GravityScripting::RunScript("update", {}, 0);
+
+    Core::Render();
+
+    video_cb(GPU::outputTexture, GPU::textureWidth, GPU::textureHeight, GPU::textureWidth * sizeof(uint32_t));
 }
 
 unsigned retro_api_version(void)
@@ -64,31 +110,31 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 void retro_get_system_info(struct retro_system_info *info)
 {
     memset(info, 0, sizeof(*info));
-    info->library_name = "skeleton";
+    info->library_name = "RetroSim";
     info->library_version = "0.1";
     info->need_fullpath = true;
-    info->valid_extensions = "";
+    info->valid_extensions = "rsx";
+    info->block_extract = false;
 }
-
-static retro_video_refresh_t video_cb;
-static retro_audio_sample_t audio_cb;
-static retro_audio_sample_batch_t audio_batch_cb;
-static retro_input_poll_t input_poll_cb;
-static retro_input_state_t input_state_cb;
 
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
-    float aspect = 0.0f;
-    float sampling_rate = 30000.0f;
+    float aspect = 0; // zero defaults to width/height
+    float sampling_rate = 48000.0f;
 
-    info->geometry.base_width = VIDEO_WIDTH;
-    info->geometry.base_height = VIDEO_HEIGHT;
-    info->geometry.max_width = VIDEO_WIDTH;
-    info->geometry.max_height = VIDEO_HEIGHT;
-    info->geometry.aspect_ratio = aspect;
+    info->geometry.base_width = GPU::textureWidth;
+    info->geometry.base_height = GPU::textureHeight;
+    info->geometry.max_width = GPU::textureWidth;
+    info->geometry.max_height = GPU::textureHeight;
+    info->geometry.aspect_ratio = 0;
+    info->timing.fps = 30;
 
     last_aspect = aspect;
     last_sample_rate = sampling_rate;
+
+    // TODO: check where the pixel format should be set at
+    // retro_pixel_format pixel_format = RETRO_PIXEL_FORMAT_XRGB8888;
+    // environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_format);
 }
 
 void retro_set_environment(retro_environment_t cb)
@@ -141,25 +187,20 @@ static unsigned phase;
 
 void retro_reset(void)
 {
-}
-
-static void update_input(void)
-{
-}
-
-static void check_variables(void)
-{
+    log_cb(RETRO_LOG_INFO, "retro_reset()\n");
+    retro_init();
 }
 
 static void audio_callback(void)
 {
-    for (unsigned i = 0; i < 30000 / 60; i++, phase++)
-    {
-        int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 30000.0f);
-        audio_cb(val, val);
-    }
+    // test sine wave
+    // for (unsigned i = 0; i < 48000 / 60; i++, phase++)
+    // {
+    //     int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 48000.0f);
+    //     audio_cb(val, val);
+    // }
 
-    phase %= 100;
+    // phase %= 100;
 }
 
 static void audio_set_state(bool enable)
@@ -167,17 +208,10 @@ static void audio_set_state(bool enable)
     (void)enable;
 }
 
-void retro_run(void)
-{
-    update_input();
-
-    bool updated = false;
-    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
-        check_variables();
-}
-
 bool retro_load_game(const struct retro_game_info *info)
 {
+    log_cb(RETRO_LOG_INFO, "retro_load_game()\n");
+
     struct retro_input_descriptor desc[] = {
         {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
         {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up"},
@@ -188,6 +222,7 @@ bool retro_load_game(const struct retro_game_info *info)
 
     environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
+    // Note: is this the right place for these environ callbacks?
     enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
     if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
     {
@@ -195,7 +230,6 @@ bool retro_load_game(const struct retro_game_info *info)
         return false;
     }
 
-    snprintf(retro_game_path, sizeof(retro_game_path), "%s", info->path);
     struct retro_audio_callback audio_cb = {audio_callback, audio_set_state};
     use_audio_cb = environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &audio_cb);
 
@@ -256,144 +290,3 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
     (void)enabled;
     (void)code;
 }
-
-/*
-#include "libretro/libretro-common/include/libretro.h"
-#include "Config.h"
-#include "Core.h"
-#include "GPU.h"
-#include "GravityScripting.h"
-
-using namespace RetroSim;
-
-RETRO_API void retro_init()
-{
-    printf("retro_init() called.\n");
-
-    Config::Initialize();
-    Core::Initialize();
-
-    bool scriptingEnabled = !Config::config.scriptPath.empty();
-    if (scriptingEnabled)
-    {
-        printf("Running script: %s\n", Config::config.scriptPath.c_str());
-        GravityScripting::RegisterAPIFunctions();
-        GravityScripting::CompileScriptFromFile(Config::config.scriptPath);
-        GravityScripting::RunScript("start", {}, 0);
-    }
-}
-
-void retro_get_system_info(retro_system_info *info)
-{
-    printf("retro_get_system_info() called.\n");
-
-    info->library_name = "RetroSim";
-    info->library_version = "0.2.0";
-    info->need_fullpath = false;
-    info->valid_extensions = "";
-    info->block_extract = false;
-}
-
-void retro_get_system_av_info(retro_system_av_info *info)
-{
-    printf("retro_get_system_av_info() called.\n");
-
-    if (Config::config.isInitialized == false)
-    {
-        Config::Initialize();
-    }
-    info->geometry.base_width = 480;
-    info->geometry.base_height = 256;
-    info->geometry.max_width = 480;
-    info->geometry.max_height = 256;
-    info->geometry.aspect_ratio = 256.0f / 480.0f;
-    info->timing.fps = 60;
-
-    // info->geometry.base_width = Config::config.width;
-    // info->geometry.base_height = Config::config.height;
-    // info->geometry.max_width = Config::config.width;
-    // info->geometry.max_height = Config::config.height;
-    // info->geometry.aspect_ratio = (float)Config::config.height / (float)Config::config.width;
-    // info->timing.fps = Config::config.fpsOverride;
-}
-
-void retro_set_environment(retro_environment_t cb)
-{
-    printf("retro_set_environment() called.\n");
-
-    bool yes = true;
-    cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &yes);
-}
-
-retro_video_refresh_t videoCallback;
-retro_input_poll_t inputPollCallback;
-retro_input_state_t inputStateCallback;
-retro_audio_sample_t audioCallback;
-retro_audio_sample_batch_t audioSampleBatchCallback;
-
-void retro_set_video_refresh(retro_video_refresh_t videoCB)
-{
-    // printf("retro_set_video_refresh() called.\n");
-
-    videoCallback = videoCB;
-}
-
-void retro_set_input_poll(retro_input_poll_t inputCB)
-{
-    inputPollCallback = inputCB;
-}
-
-void retro_set_input_state(retro_input_state_t inputStateCB)
-{
-    inputStateCallback = inputStateCB;
-}
-
-void retro_set_audio_sample(retro_audio_sample_t audioCB)
-{
-    audioCallback = audioCB;
-}
-
-void retro_set_audio_sample_batch(retro_audio_sample_batch_t audioSampleBatchCB)
-{
-    audioSampleBatchCallback = audioSampleBatchCB;
-}
-
-bool retro_load_game(const struct retro_game_info *game)
-{
-    printf("retro_load_game() called.\n");
-
-    return true;
-}
-
-void retro_unload_game()
-{
-    printf("retro_unload_game() called.\n");
-}
-
-void retro_run()
-{
-    // printf("retro_run() called.\n");
-    // Core::Render();
-    // videoCallback(GPU::outputTexture, 480, 256, 480 << 2);
-}
-
-void retro_reset()
-{
-    printf("retro_reset() called.\n");
-}
-
-void retro_deinit()
-{
-    printf("retro_deinit() called.\n");
-}
-
-unsigned retro_api_version()
-{
-    return RETRO_API_VERSION;
-}
-
-void retro_set_controller_port_device(unsigned port, unsigned device)
-{
-    printf("retro_set_controller_port_device() called.\n");
-}
-*/

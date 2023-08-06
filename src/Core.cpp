@@ -13,7 +13,7 @@ using namespace RetroSim;
 
 namespace RetroSim::Core
 {
-    void Initialize()
+    void Initialize(char *basePath)
     {
         MMU::WriteMem<uint8_t>(TILE_MODE_U8, GPU::TILE_MODE_8x16);
 
@@ -29,6 +29,7 @@ namespace RetroSim::Core
         //     MMU::WriteMem<uint8_t>(Core::MAP_MEMORY_U8 + i, i % 256);
         // }
 
+        std::string basePathStr(basePath);
         const char *path = (Config::config.dataPath + "/unscii-16.tiledata").c_str();
         if (MMU::LoadFile(path, Core::TILE_MEMORY_U8) == -1)
         {

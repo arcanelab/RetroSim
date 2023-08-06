@@ -21,10 +21,11 @@ namespace RetroSim::Application
 
     void Run(std::string scriptFileName)
     {
-        Config::Initialize();
+        char basePath[] = ".";
+        Config::Initialize(basePath);
         if (scriptFileName.empty() == false)
             Config::config.scriptPath = scriptFileName;
-        Core::Initialize();
+        Core::Initialize(basePath);
         CreateSDLWindow();
         RunMainLoop();
     }
