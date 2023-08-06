@@ -4,7 +4,7 @@
 #pragma once
 
 #include <string>
-#include "Config.h"
+#include "CoreConfig.h"
 
 namespace RetroSim
 {

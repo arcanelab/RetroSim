@@ -5,7 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include "Core.h"
-#include "Config.h"
+#include "CoreConfig.h"
 #include "GPU.h"
 #include "GravityScripting.h"
 

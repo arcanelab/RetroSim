@@ -3,7 +3,7 @@
 
 #include "GravityScripting.h"
 #include "Application.h"
-#include "Config.h"
+#include "CoreConfig.h"
 #include "Core.h"
 #include "GPU.h"
 #include <SDL.h>

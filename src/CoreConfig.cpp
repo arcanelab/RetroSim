@@ -6,7 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <regex>
-#include "Config.h"
+#include "CoreConfig.h"
 #include "FileUtils.h"
 
 using namespace std;
