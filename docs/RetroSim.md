@@ -36,6 +36,7 @@ RetroSim is an imaginary/virtual computer similar to Picotron, PICO-8 or TIC-80.
 * PCM Channels
 * Built-in synth chip (node-based?)
 * SID-chip support?
+* MIDI support?
 
 ## Input
 
@@ -194,3 +195,9 @@ File format schemas are versioned. Default is 1.0. Keyword: `schema`. Schemas co
 When RetroSim is launched, a virtual file system is created. The `retrosim.config` file can define mount points. When RetroSim is started with a ROM file in the arguments or a ROM file is loaded via libretro, the contents of the ROM file will be mounted under /rom/rom_name/.
 
 ## RAM Disk
+
+# Keyboard shortcuts
+
+F12: screenshot
+^+F12: screenshot without shader
+F11: toggle fullscreen/windowed mode

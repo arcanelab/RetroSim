@@ -5,7 +5,7 @@
 
 namespace RetroSim::Core
 {
-    void Initialize();
+    void Initialize(char *);
     void Render();
 
     enum MemoryMap

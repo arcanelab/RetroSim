@@ -8,13 +8,17 @@ namespace RetroSim::Config
 {
     struct ConfigValues
     {
+        bool isInitialized = false;
         std::string scriptPath;
         std::string dataPath;
-        bool fullscreen;
-        int fpsOverride;
+        bool fullscreen = false;
+        int fpsOverride = 0;
+        const int width = 480;
+        const int height = 256;
+        int fps = 60;
     };
 
     extern ConfigValues config;
 
-    void Initialize();
+    void Initialize(char *);
 }
