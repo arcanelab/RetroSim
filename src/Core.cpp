@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-using namespace RetroSim;
-
 namespace RetroSim
 {
     RetroSim::Core *RetroSim::Core::instance = nullptr;
