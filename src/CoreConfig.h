@@ -20,9 +20,9 @@ namespace RetroSim
         std::string GetScriptPath();
 
     private:
-        std::string basePath = "";   // All paths are relative to this. Supplied externally via Initialize().
-        std::string dataPath = "";   // This is where the font files are.
-        std::string scriptPath = ""; // The path to the script to be run on start.
+        std::string basePath = ".";   // All paths are relative to this. Supplied externally via Initialize().
+        std::string dataPath = ".";   // This is where the font files are.
+        std::string scriptPath = "."; // The path to the script to be run on start.
         bool fullscreen = false;
         int fpsOverride = 0;         // The user can override the default fps.
         int fps = 60;                // The current fps. Set to the current freq. of the monitor.

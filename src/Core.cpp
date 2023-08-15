@@ -7,6 +7,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 namespace RetroSim
 {
@@ -33,12 +34,13 @@ namespace RetroSim
 
     void Core::LoadFont()
     {
-        // std::string basePathStr(basePath);
-        const char *path = (coreConfig.GetDataPath() + "/unscii-16.tiledata").c_str();
-        if (MMU::LoadFile(path, Core::TILE_MEMORY_U8) == -1)
-        {
-            printf("Failed to load file\n");
-        }
+        // print current directory
+        char basePath[1024];
+        getcwd(basePath, 1024);
+        printf("Current directory: %s\n", basePath);
+        
+        std::string finalPath = coreConfig.GetDataPath() + "/unscii-16.tiledata";
+        MMU::LoadFile(finalPath.c_str(), Core::TILE_MEMORY_U8);
     }
 
     CoreConfig Core::GetCoreConfig()
