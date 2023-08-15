@@ -18,7 +18,7 @@ namespace RetroSim::GravityAPI
         gravity_value_t address = GET_VALUE(1);
         gravity_value_t value = GET_VALUE(2);
 
-        if (VALUE_ISA_FLOAT(address))
+        if VALUE_ISA_FLOAT(address)
             INTERNAL_CONVERT_INT(address, true);
         else if (!VALUE_ISA_INT(address))
             RETURN_ERROR("Address must be an integer.");
@@ -30,7 +30,7 @@ namespace RetroSim::GravityAPI
             // printf("[%x] = %d\n", (int)address.n, s->s[0]);
             MMU::WriteMem<uint8_t>(address.n, (uint8_t)s->s[0]);
         }
-        else if (VALUE_ISA_INT(value))
+        else if VALUE_ISA_INT(value)
         {
             // printf("[%x] = %d\n", (int)address.n, value.n);
             MMU::WriteMem<uint8_t>(address.n, (uint8_t)value.n);
