@@ -51,7 +51,11 @@ void retro_init(void)
     const char *dir = NULL;
     if (environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
     {
-        _snprintf_s(retro_base_directory, sizeof(retro_base_directory), "%s", dir);
+#ifdef _WIN32
+        _snprintf(retro_base_directory, sizeof(retro_base_directory), "%s\\", dir);
+#else
+        snprintf(retro_base_directory, sizeof(retro_base_directory), "%s/", dir);
+#endif
     }
     // log_cb(RETRO_LOG_INFO, "retro_game_path = %s\n", retro_game_path);
 
