@@ -189,8 +189,6 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
     video_cb = cb;
 }
 
-static unsigned phase;
-
 void retro_reset(void)
 {
     log_cb(RETRO_LOG_INFO, "retro_reset()\n");
