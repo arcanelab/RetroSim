@@ -9,10 +9,10 @@ namespace RetroSim::MMU
     const uint_fast32_t memorySize = 0x40000; // 256K;
 
     template <typename T>
-    inline T ReadMem(uint32_t address);
+    T ReadMem(uint32_t address);
 
     template <typename T>
-    inline void WriteMem(uint32_t address, T value);
+    void WriteMem(uint32_t address, T value);
 
     int LoadFile(const char *filename, uint32_t address);
 }
