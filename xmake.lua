@@ -24,7 +24,7 @@ elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
     -- add_cxflags("-Wall")
 end
 
-add_subdirs("gravity")
+includes("gravity")
 
 Target =
 {
