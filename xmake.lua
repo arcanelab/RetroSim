@@ -32,7 +32,7 @@ Target =
     libretro = 2
 }
 
-local _target = Target.binary
+local _target = Target.libretro
 
 if _target == Target.binary then
     target("RetroSim")
@@ -50,8 +50,13 @@ elseif _target == Target.libretro then
         add_files("gravity/src/**.c")
         add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
         add_packages("libsdl")
-        set_targetdir("libretro")
+        if os.getenv("RETROARCH_COREPATH") then
+            set_targetdir(os.getenv("RETROARCH_COREPATH"))
+        else 
+            set_targetdir("libretro")
+        end
 end
+
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
