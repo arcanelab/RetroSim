@@ -21,6 +21,10 @@ namespace RetroSim
         {
             SetupLogging();
             SetupControllers();
+
+            // Communicate to the frontend that we don't require a game before running the core.
+            bool noGameSupport = true;
+            envCallback(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &noGameSupport);
         }
 
     private:
