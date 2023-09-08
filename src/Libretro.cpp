@@ -35,15 +35,6 @@ static retro_audio_sample_batch_t audio_batch_cb;
 static retro_input_poll_t input_poll_cb;
 static retro_input_state_t input_state_cb;
 
-static void fallback_log(enum retro_log_level level, const char *fmt, ...)
-{
-    (void)level;
-    va_list va;
-    va_start(va, fmt);
-    vfprintf(stderr, fmt, va);
-    va_end(va);
-}
-
 static retro_environment_t environ_cb;
 
 void retro_set_environment(retro_environment_t cb)
@@ -66,6 +57,7 @@ void retro_init(void)
         snprintf(retro_base_directory, sizeof(retro_base_directory), "%s/", dir);
 #endif
     }
+    libretroCore.logger.Printf(RETRO_LOG_INFO, "System directory [kutya] = %s\n", retro_base_directory);
     // log_cb(RETRO_LOG_INFO, "retro_game_path = %s\n", retro_game_path);
 
     coreInstance = Core::GetInstance();
@@ -119,7 +111,7 @@ unsigned retro_api_version(void)
 
 void retro_set_controller_port_device(unsigned port, unsigned device)
 {
-    libretroCore.logger.Log(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
+    libretroCore.logger.Printf(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -179,7 +171,7 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 
 void retro_reset(void)
 {
-    libretroCore.logger.Log(RETRO_LOG_INFO, "retro_reset()\n");
+    libretroCore.logger.Printf(RETRO_LOG_INFO, "retro_reset()\n");
     retro_init();
 }
 
@@ -203,7 +195,7 @@ static void audio_set_state(bool enable)
 bool retro_load_game(const struct retro_game_info *info)
 {
     // log_cb(RETRO_LOG_INFO, "retro_load_game()\n");
-    libretroCore.logger.Log("retro_load_game()");
+    libretroCore.logger.Printf(RETRO_LOG_INFO, "retro_load_game()");
 
     struct retro_input_descriptor desc[] = {
         {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
@@ -219,7 +211,7 @@ bool retro_load_game(const struct retro_game_info *info)
     enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
     if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
     {
-        libretroCore.logger.Log(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
+        libretroCore.logger.Printf(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
         return false;
     }
 

@@ -18,6 +18,7 @@ namespace RetroSim
 
             SetupLogging();
             SetupControllers();
+            // GetSystemDirectory();
 
             // Communicate to the frontend that we don't require a game before running the core.
             bool noGameSupport = true;
@@ -27,8 +28,8 @@ namespace RetroSim
         Logger logger;
 
     private:
-        std::string systemDirectory;
-        std::string saveDirectory;
+        std::string systemDirectory = ".";
+        std::string saveDirectory = ".";
 
         retro_environment_t envCallback;
 
@@ -36,8 +37,6 @@ namespace RetroSim
         // If we fail, the Logger class falls back to stdio.
         void SetupLogging()
         {
-            logger.SetBackend(Logger::Backend::libretro);
-
             retro_log_callback logCallback;
 
             if (envCallback(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logCallback))
@@ -51,17 +50,31 @@ namespace RetroSim
         void SetupControllers()
         {
             static const struct retro_controller_description controllers[] =
-            {
-                {"Nintendo DS", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0)},
-            };
+                {
+                    {"Nintendo DS", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0)},
+                };
 
             static const struct retro_controller_info ports[] =
-            {
-                {controllers, 1},
-                {NULL, 0},
-            };
+                {
+                    {controllers, 1},
+                    {NULL, 0},
+                };
 
             envCallback(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void *)ports);
+        }
+
+        void GetSystemDirectory()
+        {
+            const char *dir = NULL;
+            if (envCallback(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
+            {
+                systemDirectory = dir;
+                logger.Printf(RETRO_LOG_DEBUG, "System directory: %s\n", systemDirectory.c_str());
+            }
+            else
+            {
+                logger.Printf(RETRO_LOG_ERROR, "Failed to get system directory.\n");
+            }
         }
     };
 }

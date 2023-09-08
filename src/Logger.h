@@ -3,6 +3,7 @@
 
 #pragma once
 #include <stdio.h>
+#include <iostream>
 #ifdef LIBRETRO
 #include "libretro/libretro-common/include/libretro.h"
 #endif
@@ -13,40 +14,12 @@ namespace RetroSim
     class Logger
     {
     public:
-        enum LogLevel
-        {
-            LOG_DEBUG = 0,
-            LOG_INFO,
-            LOG_WARN,
-            LOG_ERROR,
-        };
-
-        enum Backend
-        {
-            stdio,
-            libretro
-        };
-
-        Logger(Backend backend)
-        {
-            this->backend = backend;
-        }
-
-        Logger()
-        {
-        }
-
-        ~Logger()
-        {
-        }
-
 #ifdef LIBRETRO
-        void Log(enum retro_log_level level, const char *fmt, ...)
+        retro_log_printf_t Printf = nullptr;
+
+        void SetLibRetroCallback(retro_log_printf_t libRetroPrintf)
         {
-            va_list va;
-            va_start(va, fmt);
-            libRetroPrintf((retro_log_level)logLevel, fmt, va);
-            va_end(va);
+            this->Printf = libRetroPrintf;
         }
 #endif
 
@@ -55,30 +28,9 @@ namespace RetroSim
             printf("%s\n", message);
         }
 
-        void SetBackend(Backend backend)
+        void Log(std::string message)
         {
-            Logger::backend = backend;
+            std::cout << message << std::endl;
         }
-
-        void SetLogLevel(LogLevel logLevel)
-        {
-            Logger::logLevel = logLevel;
-        }
-
-#ifdef LIBRETRO
-        void SetLibRetroCallback(retro_log_printf_t libRetroPrintf)
-        {
-            this->libRetroPrintf = libRetroPrintf;
-        }
-#endif
-
-    private:
-        Backend backend = Backend::stdio;
-        LogLevel logLevel = LogLevel::LOG_DEBUG;
-
-#ifdef LIBRETRO
-        retro_log_printf_t libRetroPrintf;
-#endif
     };
-
 } // namespace RetroSim
