@@ -6,13 +6,13 @@
 #ifdef LIBRETRO
 #include "libretro/libretro-common/include/libretro.h"
 #endif
+#include "CoreConfig.h"
 
 namespace RetroSim
 {
     class Logger
     {
-        public:
-
+    public:
         enum LogLevel
         {
             LOG_DEBUG = 0,
@@ -23,7 +23,8 @@ namespace RetroSim
 
         enum Backend
         {
-            stdio, libretro
+            stdio,
+            libretro
         };
 
         Logger(Backend backend)
@@ -35,21 +36,23 @@ namespace RetroSim
         {
         }
 
-        void Log(const char* message)
+        ~Logger()
         {
-            switch (backend)
-            {   
-            case Backend::stdio:
-                printf("%s\n", message);
-                break;
+        }
+
 #ifdef LIBRETRO
-            case Backend::libretro:
-                libRetroPrintf((retro_log_level)logLevel, "%s\n", message);
-                break;
+        void Log(enum retro_log_level level, const char *fmt, ...)
+        {
+            va_list va;
+            va_start(va, fmt);
+            libRetroPrintf((retro_log_level)logLevel, fmt, va);
+            va_end(va);
+        }
 #endif
-            default:
-                break;
-            }
+
+        void Log(const char *message)
+        {
+            printf("%s\n", message);
         }
 
         void SetBackend(Backend backend)

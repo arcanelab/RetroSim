@@ -24,12 +24,13 @@ namespace RetroSim
             envCallback(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &noGameSupport);
         }
 
+        Logger logger;
+
     private:
         std::string systemDirectory;
         std::string saveDirectory;
 
         retro_environment_t envCallback;
-        Logger logger;
 
         // We try gettig a callback from the frontend and set it as a backend in our Logger class.
         // If we fail, the Logger class falls back to stdio.

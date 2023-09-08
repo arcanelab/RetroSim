@@ -18,7 +18,7 @@
 
 using namespace RetroSim;
 
-LibRetroCore core;
+LibRetroCore libretroCore;
 
 static uint8_t *frame_buf;
 static struct retro_log_callback logging;
@@ -48,7 +48,8 @@ static retro_environment_t environ_cb;
 
 void retro_set_environment(retro_environment_t cb)
 {
-    core.SetEnvironment(cb);
+    environ_cb = cb;
+    libretroCore.SetEnvironment(cb);
 }
 
 bool scriptingEnabled;
@@ -118,7 +119,7 @@ unsigned retro_api_version(void)
 
 void retro_set_controller_port_device(unsigned port, unsigned device)
 {
-    log_cb(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
+    libretroCore.logger.Log(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -178,7 +179,7 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 
 void retro_reset(void)
 {
-    log_cb(RETRO_LOG_INFO, "retro_reset()\n");
+    libretroCore.logger.Log(RETRO_LOG_INFO, "retro_reset()\n");
     retro_init();
 }
 
@@ -201,7 +202,8 @@ static void audio_set_state(bool enable)
 
 bool retro_load_game(const struct retro_game_info *info)
 {
-    log_cb(RETRO_LOG_INFO, "retro_load_game()\n");
+    // log_cb(RETRO_LOG_INFO, "retro_load_game()\n");
+    libretroCore.logger.Log("retro_load_game()");
 
     struct retro_input_descriptor desc[] = {
         {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
@@ -217,7 +219,7 @@ bool retro_load_game(const struct retro_game_info *info)
     enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
     if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
     {
-        log_cb(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
+        libretroCore.logger.Log(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
         return false;
     }
 
