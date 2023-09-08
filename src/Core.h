@@ -14,9 +14,8 @@ namespace RetroSim
         static Core *GetInstance()
         {
             if (instance == nullptr)
-            {
                 instance = new Core();
-            }
+
             return instance;
         }
 
