@@ -44,6 +44,7 @@ if _target == Target.binary then
         set_targetdir("bin")
 elseif _target == Target.libretro then
     target("RetroSimCore")
+        add_defines("LIBRETRO")
         add_deps("Gravity")
         set_kind("shared")
         add_files("src/**.cpp")
