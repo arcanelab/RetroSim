@@ -25,7 +25,7 @@ namespace RetroSim::Application
         Core::GetInstance()->Initialize(basePath);
         if (scriptFileName.empty() == false)
         {
-            Core::GetInstance()->GetCoreConfig().OverrideScriptPath(scriptFileName);
+            Core::GetInstance()->GetCoreConfig().SetScriptPath(scriptFileName);
         }
         CreateSDLWindow();
         RunMainLoop();

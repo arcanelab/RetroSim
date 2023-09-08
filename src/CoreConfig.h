@@ -10,7 +10,7 @@ namespace RetroSim
     {
     public:
         void Initialize(const std::string &basePath);
-        void OverrideScriptPath(const std::string &scriptPath);
+        void SetScriptPath(const std::string &scriptPath);
         bool IsFullScreen();
 
         const int screenWidth = 480;

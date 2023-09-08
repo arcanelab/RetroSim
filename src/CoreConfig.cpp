@@ -26,7 +26,7 @@ namespace RetroSim
         isInitialized = true;
     }
 
-    void CoreConfig::OverrideScriptPath(const string &scriptPath)
+    void CoreConfig::SetScriptPath(const string &scriptPath)
     {
         this->scriptPath = scriptPath;
     }
