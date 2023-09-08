@@ -18,6 +18,8 @@
 
 using namespace RetroSim;
 
+LibRetroCore core;
+
 static uint8_t *frame_buf;
 static struct retro_log_callback logging;
 static retro_log_printf_t log_cb;
@@ -46,26 +48,27 @@ static retro_environment_t environ_cb;
 
 void retro_set_environment(retro_environment_t cb)
 {
-    environ_cb = cb;
+    core.SetEnvironment(cb);
+    // environ_cb = cb;
 
-    if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
-        log_cb = logging.log;
-    else
-        log_cb = fallback_log;
+    // if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
+    //     log_cb = logging.log;
+    // else
+    //     log_cb = fallback_log;
 
-    static const struct retro_controller_description controllers[] = {
-        {"Nintendo DS", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0)},
-    };
+    // static const struct retro_controller_description controllers[] = {
+    //     {"Nintendo DS", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0)},
+    // };
 
-    static const struct retro_controller_info ports[] = {
-        {controllers, 1},
-        {NULL, 0},
-    };
+    // static const struct retro_controller_info ports[] = {
+    //     {controllers, 1},
+    //     {NULL, 0},
+    // };
 
-    cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void *)ports);
+    // cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void *)ports);
 
-    bool noGameSupport = true;
-    cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &noGameSupport);
+    // bool noGameSupport = true;
+    // cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &noGameSupport);
 }
 
 bool scriptingEnabled;

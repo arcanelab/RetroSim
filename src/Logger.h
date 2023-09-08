@@ -74,7 +74,7 @@ namespace RetroSim
         LogLevel logLevel = LogLevel::LOG_DEBUG;
 
 #ifdef LIBRETRO
-        static retro_log_printf_t libRetroPrintf;
+        retro_log_printf_t libRetroPrintf;
 #endif
     };
 

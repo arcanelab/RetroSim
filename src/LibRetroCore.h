@@ -11,14 +11,11 @@ namespace RetroSim
 {
     class LibRetroCore
     {
-        std::string systemDirectory;
-        std::string saveDirectory;
-
-        retro_environment_t envCallback;
-        Logger logger;
-
+    public:
         void SetEnvironment(retro_environment_t envCallback)
         {
+            this->envCallback = envCallback;
+
             SetupLogging();
             SetupControllers();
 
@@ -28,6 +25,12 @@ namespace RetroSim
         }
 
     private:
+        std::string systemDirectory;
+        std::string saveDirectory;
+
+        retro_environment_t envCallback;
+        Logger logger;
+
         // We try gettig a callback from the frontend and set it as a backend in our Logger class.
         // If we fail, the Logger class falls back to stdio.
         void SetupLogging()
@@ -35,9 +38,6 @@ namespace RetroSim
             logger.SetBackend(Logger::Backend::libretro);
 
             retro_log_callback logCallback;
-            retro_log_printf_t logPrintf;
-
-            this->envCallback = envCallback;
 
             if (envCallback(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logCallback))
             {
