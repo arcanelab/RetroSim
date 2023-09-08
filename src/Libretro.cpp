@@ -21,13 +21,9 @@ using namespace RetroSim;
 LibRetroCore libretroCore;
 
 static uint8_t *frame_buf;
-static struct retro_log_callback logging;
-static retro_log_printf_t log_cb;
 static bool use_audio_cb;
 static float last_aspect;
 static float last_sample_rate;
-char retro_base_directory[4096];
-char retro_game_path[4096];
 
 static retro_video_refresh_t video_cb;
 static retro_audio_sample_t audio_cb;
@@ -43,35 +39,9 @@ void retro_set_environment(retro_environment_t cb)
     libretroCore.SetEnvironment(cb);
 }
 
-bool scriptingEnabled;
-Core *coreInstance;
-
 void retro_init(void)
 {
-    const char *dir = NULL;
-    if (environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
-    {
-#ifdef _WIN32
-        _snprintf(retro_base_directory, sizeof(retro_base_directory), "%s\\", dir);
-#else
-        snprintf(retro_base_directory, sizeof(retro_base_directory), "%s/", dir);
-#endif
-    }
-    libretroCore.logger.Printf(RETRO_LOG_INFO, "System directory [kutya] = %s\n", retro_base_directory);
-    // log_cb(RETRO_LOG_INFO, "retro_game_path = %s\n", retro_game_path);
-
-    coreInstance = Core::GetInstance();
-    coreInstance->Initialize(retro_base_directory);
-    CoreConfig config = coreInstance->GetCoreConfig();
-
-    scriptingEnabled = !config.GetScriptPath().empty();
-    if (scriptingEnabled)
-    {
-        printf("Running script: %s\n", config.GetScriptPath().c_str());
-        GravityScripting::RegisterAPIFunctions();
-        GravityScripting::CompileScriptFromFile(config.GetScriptPath());
-        GravityScripting::RunScript("start", {}, 0);
-    }
+    libretroCore.Init();
 }
 
 void retro_deinit(void)
@@ -96,7 +66,7 @@ void retro_run(void)
     if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
         check_variables();
 
-    if (scriptingEnabled)
+    if (libretroCore.IsScriptingEnabled())
         GravityScripting::RunScript("update", {}, 0);
 
     Core::GetInstance()->RunNextFrame();

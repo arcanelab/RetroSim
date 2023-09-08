@@ -3,6 +3,10 @@
 
 #pragma once
 #ifdef LIBRETRO
+#include <execinfo.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <string>
 #include "libretro/libretro-common/include/libretro.h"
 #include "Logger.h"
@@ -18,11 +22,32 @@ namespace RetroSim
 
             SetupLogging();
             SetupControllers();
-            // GetSystemDirectory();
+            GetSystemDirectory();
 
             // Communicate to the frontend that we don't require a game before running the core.
             bool noGameSupport = true;
             envCallback(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &noGameSupport);
+        }
+
+        void Init()
+        {
+            // GetSystemDirectory();
+            SetupCore();
+            
+            CoreConfig config = coreInstance->GetCoreConfig();
+            scriptingEnabled = !config.GetScriptPath().empty();
+            if (scriptingEnabled)
+            {
+                printf("Running script: %s\n", config.GetScriptPath().c_str());
+                GravityScripting::RegisterAPIFunctions();
+                GravityScripting::CompileScriptFromFile(config.GetScriptPath());
+                GravityScripting::RunScript("start", {}, 0);
+            }
+        }
+
+        bool IsScriptingEnabled()
+        {
+            return scriptingEnabled;
         }
 
         Logger logger;
@@ -30,6 +55,9 @@ namespace RetroSim
     private:
         std::string systemDirectory = ".";
         std::string saveDirectory = ".";
+
+        Core *coreInstance = nullptr;
+        bool scriptingEnabled;
 
         retro_environment_t envCallback;
 
@@ -75,6 +103,13 @@ namespace RetroSim
             {
                 logger.Printf(RETRO_LOG_ERROR, "Failed to get system directory.\n");
             }
+        }
+
+        void SetupCore()
+        {
+            coreInstance = Core::GetInstance();
+            coreInstance->Initialize(systemDirectory.c_str());
+            // CoreConfig config = coreInstance->GetCoreConfig();
         }
     };
 }
