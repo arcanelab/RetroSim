@@ -8,6 +8,7 @@
 #include "CoreConfig.h"
 #include "GPU.h"
 #include "GravityScripting.h"
+#include "LibRetroCore.h"
 
 #include <stdio.h>
 #if defined(_WIN32) && !defined(_XBOX)
@@ -42,6 +43,30 @@ static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 }
 
 static retro_environment_t environ_cb;
+
+void retro_set_environment(retro_environment_t cb)
+{
+    environ_cb = cb;
+
+    if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
+        log_cb = logging.log;
+    else
+        log_cb = fallback_log;
+
+    static const struct retro_controller_description controllers[] = {
+        {"Nintendo DS", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0)},
+    };
+
+    static const struct retro_controller_info ports[] = {
+        {controllers, 1},
+        {NULL, 0},
+    };
+
+    cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void *)ports);
+
+    bool noGameSupport = true;
+    cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &noGameSupport);
+}
 
 bool scriptingEnabled;
 Core *coreInstance;
@@ -141,27 +166,6 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     // TODO: check where the pixel format should be set at
     // retro_pixel_format pixel_format = RETRO_PIXEL_FORMAT_XRGB8888;
     // environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_format);
-}
-
-void retro_set_environment(retro_environment_t cb)
-{
-    environ_cb = cb;
-
-    if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
-        log_cb = logging.log;
-    else
-        log_cb = fallback_log;
-
-    static const struct retro_controller_description controllers[] = {
-        {"Nintendo DS", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0)},
-    };
-
-    static const struct retro_controller_info ports[] = {
-        {controllers, 1},
-        {NULL, 0},
-    };
-
-    cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void *)ports);
 }
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
