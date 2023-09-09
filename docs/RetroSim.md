@@ -201,3 +201,9 @@ When RetroSim is launched, a virtual file system is created. The `retrosim.confi
 F12: screenshot
 ^+F12: screenshot without shader
 F11: toggle fullscreen/windowed mode
+
+## Random API Ideas
+
+- Frame number generator
+- Random number generator
+- Perlin noise generator
