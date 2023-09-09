@@ -5,6 +5,9 @@
 
 using namespace RetroSim;
 
+// Note: This class is a wrapper around the LibRetro C API callbacks.
+// We forward the callbacks to the LibRetroCore instance.
+// TODO: implement all callbacks
 LibRetroCore libretroCore;
 
 static retro_input_poll_t input_poll_cb;

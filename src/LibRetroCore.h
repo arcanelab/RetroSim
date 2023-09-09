@@ -11,6 +11,7 @@
 
 namespace RetroSim
 {
+    // This class is a wrapper around the LibRetro C API callbacks.
     class LibRetroCore
     {
     public:
