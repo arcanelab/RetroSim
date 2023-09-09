@@ -25,7 +25,6 @@ static bool use_audio_cb;
 static float last_aspect;
 static float last_sample_rate;
 
-static retro_video_refresh_t video_cb;
 static retro_audio_sample_t audio_cb;
 static retro_audio_sample_batch_t audio_batch_cb;
 static retro_input_poll_t input_poll_cb;
@@ -60,18 +59,7 @@ static void check_variables(void)
 
 void retro_run(void)
 {
-    update_input();
-
-    bool updated = false;
-    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
-        check_variables();
-
-    if (libretroCore.IsScriptingEnabled())
-        GravityScripting::RunScript("update", {}, 0);
-
-    Core::GetInstance()->RunNextFrame();
-
-    video_cb(GPU::outputTexture, GPU::textureWidth, GPU::textureHeight, GPU::textureWidth * sizeof(uint32_t));
+    libretroCore.Run();
 }
 
 unsigned retro_api_version(void)
@@ -136,7 +124,7 @@ void retro_set_input_state(retro_input_state_t cb)
 
 void retro_set_video_refresh(retro_video_refresh_t cb)
 {
-    video_cb = cb;
+    libretroCore.SetVideoRefreshCallback(cb);
 }
 
 void retro_reset(void)

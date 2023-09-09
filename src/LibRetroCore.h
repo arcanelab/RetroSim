@@ -33,7 +33,7 @@ namespace RetroSim
         {
             // GetSystemDirectory();
             SetupCore();
-            
+
             CoreConfig config = coreInstance->GetCoreConfig();
             scriptingEnabled = !config.GetScriptPath().empty();
             if (scriptingEnabled)
@@ -45,9 +45,22 @@ namespace RetroSim
             }
         }
 
-        bool IsScriptingEnabled()
+        void SetVideoRefreshCallback(retro_video_refresh_t renderCallback)
         {
-            return scriptingEnabled;
+            this->renderCallback = renderCallback;
+        }
+
+        void Run()
+        {
+            // TODO: check for input
+            // TODO: check for variable changes via RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE
+
+            if (scriptingEnabled)
+                GravityScripting::RunScript("update", {}, 0);
+
+            Core::GetInstance()->RunNextFrame();
+
+            renderCallback(GPU::outputTexture, GPU::textureWidth, GPU::textureHeight, GPU::textureWidth * sizeof(uint32_t));
         }
 
         Logger logger;
@@ -58,6 +71,8 @@ namespace RetroSim
 
         Core *coreInstance = nullptr;
         bool scriptingEnabled;
+        
+        retro_video_refresh_t renderCallback;
 
         retro_environment_t envCallback;
 
