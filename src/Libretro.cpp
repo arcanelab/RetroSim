@@ -71,12 +71,7 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 
 void retro_get_system_info(struct retro_system_info *info)
 {
-    memset(info, 0, sizeof(*info));
-    info->library_name = "RetroSim";
-    info->library_version = "0.1";
-    info->need_fullpath = true;
-    info->valid_extensions = "rsx";
-    info->block_extract = false;
+    libretroCore.GetSystemInfo(info);
 }
 
 void retro_get_system_av_info(struct retro_system_av_info *info)

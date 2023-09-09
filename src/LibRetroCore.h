@@ -63,6 +63,16 @@ namespace RetroSim
             renderCallback(GPU::outputTexture, GPU::textureWidth, GPU::textureHeight, GPU::textureWidth * sizeof(uint32_t));
         }
 
+        void GetSystemInfo(struct retro_system_info *info)
+        {
+            memset(info, 0, sizeof(*info));
+            info->library_name = "RetroSim";
+            info->library_version = "0.1";
+            info->need_fullpath = true;
+            info->valid_extensions = "rsx";
+            info->block_extract = false;
+        }
+
         Logger logger;
 
     private:
@@ -71,7 +81,7 @@ namespace RetroSim
 
         Core *coreInstance = nullptr;
         bool scriptingEnabled;
-        
+
         retro_video_refresh_t renderCallback;
 
         retro_environment_t envCallback;
