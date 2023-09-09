@@ -1,15 +1,14 @@
 // RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
 // https://github.com/arcanelab
 
+#ifdef LIBRETRO
 #include "LibRetroCore.h"
 
-using namespace RetroSim;
-
-// Note: LibRetroCore is a wrapper around the LibRetro C API callbacks.
+// LibRetroCore is a wrapper around the LibRetro C API callbacks.
 // We forward the callbacks to the LibRetroCore instance.
-// TODO: implement all callbacks
-LibRetroCore libretroCore;
+RetroSim::LibRetroCore libretroCore;
 
+// TODO: implement all callbacks
 static retro_input_poll_t input_poll_cb;
 static retro_input_state_t input_state_cb;
 
@@ -153,3 +152,5 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
     (void)enabled;
     (void)code;
 }
+
+#endif

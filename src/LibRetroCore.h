@@ -1,8 +1,8 @@
 // RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
 // https://github.com/arcanelab
 
-#pragma once
 #ifdef LIBRETRO
+#pragma once
 
 #include <string>
 #include "libretro/libretro-common/include/libretro.h"
