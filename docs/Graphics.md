@@ -80,6 +80,7 @@ Sprites are drawn from an atlas
 
 ## Graphics API
 
+- `setfont(width, height, offset)`
 - `print(text, x, y, color, scale)`
 - `cls()`
 - `line(x0, y0, x1, y1, color)`
@@ -98,7 +99,16 @@ Sprites are drawn from an atlas
 - `palcolor(index, r, g, b)`
 - `bitmap(x, y, bitmapx, bitmapy, width, height)`
 
+### setfont(width, height, offset)
+
+Selects the font to be used with `print`. It defines the fixed-width dimensions of the font and the byte offset in the Character tile data memory (CHARSET). The memory is 128K long, and can host multiple character sets.
+
+- `width, height`: the font size
+- `offset`: the start of the font tile data within the CHARSET memory area.
+
 ### print(text, x, y, color, scale)
+
+Draws text on the screen at the given pixel coordinates using the system font.
 
 - text: the text to be printed.
 - x, y: screen coordinates. Can be negative, in which case pixels with negative coordinates get clipped.
