@@ -20,7 +20,6 @@ using namespace RetroSim;
 
 LibRetroCore libretroCore;
 
-static uint8_t *frame_buf;
 static bool use_audio_cb;
 static float last_aspect;
 static float last_sample_rate;
@@ -45,8 +44,6 @@ void retro_init(void)
 
 void retro_deinit(void)
 {
-    free(frame_buf);
-    frame_buf = NULL;
 }
 
 static void update_input(void)
