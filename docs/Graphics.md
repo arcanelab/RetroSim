@@ -4,46 +4,28 @@
 
 **Screen resolution: 480x256**
 
+256 Colors
+
 (Later: Half-res mode: 240x128)
 
 ### Map memory
 
-A memory area containing an array of (u8) indices into the tile-memory. The tile-memory can contain any kind of bitmap data, both text and non-text characters/tiles. The tile memory is initialized with the default font data.
+Each byte in the map memory is an index into the tile-memory.
 
-The element size of the map memory is configurable. By default the element size is 8-bits. However, this can be changed to 16 or 32 bits via a configuration register.
-
-Depending on this setting, the maximum number of addressable tiles are limited. See table for details.
-
-| Index size in bits | Addressable tiles | Size of tile memory |
-| - | - | - |
-| 8   | 256 | 1024 (0x400) |
-| 16  | 65536 | 256Kb (40000) |
-| 32  | 4294967296 | More than enough |
-
-
-#### Map memory size
-
-Depending on the selected tile mode, the length/dimension of the Map RAM changes as such:
-
-For example, in 8x8 tile mode we have a grid of 60x32 tiles in the map RAM.
+The size of the map is defined by MAP_WIDTH and MAP_HEIGHT at memory 0x102 and 0x103.
 
 | Tile mode | Horizontal tiles | Vertical tiles|
-| - | - | - |
+| ----- | -- | -- |
 | 8x8   | 60 | 32 |
 | 8x16  | 60 | 16 |
 | 16x8  | 30 | 32 |
 | 16x16 | 30 | 16 |
 
-Later a scrollable map that is larger than the window will also be supported.
-
 ### Tile memory
 
-This is where the bitmaps for the tiles are stored. Depending on the tile mode selected, the contents of this memory area will be interpreted as tiles of the following sizes:
+This is where the bitmaps for the tiles are stored. The width and height of an individual tile is specified by graphics registers at addresses 0x100 and 0x101.
 
-* 8x8
-* 8x16
-* 16x8
-* 16x16
+The tile-memory can contain any kind of bitmap data, both text and non-text characters/tiles. The tile memory is initialized with the default font data.
 
 Each byte contains an index to the palette RAM, which contains 256 colors.
 
@@ -53,53 +35,99 @@ This is where the RGBA (32-bit) values are defined for the 256 colors in the pal
 
 The palette RAM is initialized with the default palette, but it's writeable so it can be modified.
 
+### Sprite memory (atlas)
+
+A rectangular area of size 128*128 containing an array of indices into the color palette. Can be thought of as a bitmap atlas, comprising of indices.
+
 ### Sprites
 
+Sprites are drawn from an atlas
+
+### Bitmap
+
+480x256 byte array containing indices to the palette.
+
+## Memory layout
+
+| Address     | Size  |   Symbol           |   Description
+| ----------- | ----- | ------------------ | ---------------------
+|    $0-$FF   |       |                    |  65K vectors
+|  $100-$1FF  | u8    |                    |  65xx stack
+|  $200-$FFF  |       |                    |  Free/user RAM (3.5K)
+| $1000-$1FFF | u32   | PALETTE            |  Color palette memory (4K)
+| $2000-$5FFF | u8    | MAP                |  Map memory (16K)
+| $6000-$9FFF | u8    | TILES              |  Tile memory bank (16K)
+| $A000-$CFFF | u8    | SPRITE_ATLAS       |  Sprite atlas/memory bank (16K)
+| $D000-$DFFF |       |                    |  Registers
+| $E000-$FEFF |       |                    |  Free/user RAM (8K)
+| $FF00-$FFFF | u16   |                    |  65xx CPU vectors
+|$10000-$2DFFF| u8    | BITMAP             |  Bitmap memory (120K)
+|$30000-$3FFFF|       | CHARSET            |  Character tile data (128K)
+|$40000-      |       |                    |  
+
+### Registers
+
+| Address     | Size  |   Symbol           |   Description
+| ----------- | ----- | ------------------ | ---------------------
+| $D000       | u8    | TILE_WIDTH         |  Tile width (default: 8)
+| $D001       | u8    | TILE_HEIGHT        |  Tile height (default: 8)
+| $D002       | u8    | MAP_WIDTH          |  Map width (default: 60, max 128)
+| $D003       | u8    | MAP_HEIGHT         |  Map height (default: 16, max 128)
+| $D004       | u8    | PALETTE_BANK       |  Palette bank selector
+| $D005       | u8    | MAP_BANK           |  Map bank selector
+| $D006       | u8    | TILE_BANK          |  Tile bank selector
+| $D007       | u8    | SPRITE_BANK        |  Sprite bank selector
+
+## Graphics API
+
+- `print(text, x, y, color, scale)`
+- `cls()`
+- `line(x0, y0, x1, y1, color)`
+- `circle(x, y, radius, color, filled)`
+- `rect(x, y, width, height, color, filled)`
+- `tri(x0, y0, x1, y1, x2, y2, color, filled)`
+- `tex(x0, y0, x1, y1, x2, y2, u1, v1, u2, v2, u3, v3)`
+- `pixel(x, y, color)`
+- `clip(x0, y0, x1, y1)`
+- `map(x, y, mapx, mapy, width, height)`
+- `sprite(x, y, spritex, spritey, width, height)`
+- `palette(bank)`
+- `tiles(bank)`
+- `sprite(bank)`
+- `palcolor(index, r, g, b)`
 
 
-## Graphics registers
 
-|Address     | Size  |  Description
-|------------|-------|------------
-|$100        | u8    | Tile-mode
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
 |            |       | 00:  8x8  (60x32 tiles, 480x256)
 |            |       | 01:  8x16 (60x16 tiles, 480x256)
 |            |       | 10: 16x8  (30x32 tiles, 480x256)
 |            |       | 11: 16x16 (30x16 tiles, 480x256)
-|$101-$104   | u32   | Map memory offset (later can divide it up to x/y, 16 bits each)
-|$105-$106   | u16   | Palette memory offset
-|$107        | u8    | Map memory element size. 0: 8-bit, 1: 16-bit, 2: 32-bit
-|$1000-$1fff | u32   | Palette memory
-|$2000-$5fff | u8    | Map memory
-|$6000-$6780 | u8    | Tile memory
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ -->
 
 <!--
 ## Memory Map
