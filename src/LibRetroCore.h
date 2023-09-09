@@ -73,6 +73,27 @@ namespace RetroSim
             info->block_extract = false;
         }
 
+        void GetSystemAudioVideoInfo(struct retro_system_av_info *info)
+        {
+            float aspect = 0; // zero defaults to width/height
+            float sampling_rate = 48000.0f;
+
+            info->geometry.base_width = GPU::textureWidth;
+            info->geometry.base_height = GPU::textureHeight;
+            info->geometry.max_width = GPU::textureWidth;
+            info->geometry.max_height = GPU::textureHeight;
+            info->geometry.aspect_ratio = 0;
+            info->timing.fps = coreInstance->GetCoreConfig().GetFPS();
+
+            last_aspect = aspect;
+            last_sample_rate = sampling_rate;
+
+            // Note: this might not even be necessary as the core runs fine without this call.
+            // Leaving it here for good measure.
+            retro_pixel_format pixel_format = RETRO_PIXEL_FORMAT_XRGB8888;
+            envCallback(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_format);
+        }
+
         Logger logger;
 
     private:
@@ -83,8 +104,9 @@ namespace RetroSim
         bool scriptingEnabled;
 
         retro_video_refresh_t renderCallback;
-
         retro_environment_t envCallback;
+        float last_aspect;
+        float last_sample_rate;
 
         // We try gettig a callback from the frontend and set it as a backend in our Logger class.
         // If we fail, the Logger class falls back to stdio.

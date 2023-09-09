@@ -41,6 +41,11 @@ namespace RetroSim
         return scriptPath;
     }
 
+    int CoreConfig::GetFPS()
+    {
+        return fps;
+    }
+
     bool CoreConfig::IsFullScreen()
     {
         return fullscreen;

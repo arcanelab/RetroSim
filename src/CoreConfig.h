@@ -18,6 +18,7 @@ namespace RetroSim
 
         std::string GetDataPath();
         std::string GetScriptPath();
+        int GetFPS();
 
     private:
         std::string basePath = ".";   // All paths are relative to this. Supplied externally via Initialize().

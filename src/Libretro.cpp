@@ -21,8 +21,6 @@ using namespace RetroSim;
 LibRetroCore libretroCore;
 
 static bool use_audio_cb;
-static float last_aspect;
-static float last_sample_rate;
 
 static retro_audio_sample_t audio_cb;
 static retro_audio_sample_batch_t audio_batch_cb;
@@ -76,22 +74,7 @@ void retro_get_system_info(struct retro_system_info *info)
 
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
-    float aspect = 0; // zero defaults to width/height
-    float sampling_rate = 48000.0f;
-
-    info->geometry.base_width = GPU::textureWidth;
-    info->geometry.base_height = GPU::textureHeight;
-    info->geometry.max_width = GPU::textureWidth;
-    info->geometry.max_height = GPU::textureHeight;
-    info->geometry.aspect_ratio = 0;
-    info->timing.fps = 30;
-
-    last_aspect = aspect;
-    last_sample_rate = sampling_rate;
-
-    // TODO: check where the pixel format should be set at
-    // retro_pixel_format pixel_format = RETRO_PIXEL_FORMAT_XRGB8888;
-    // environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_format);
+    libretroCore.GetSystemAudioVideoInfo(info);
 }
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
