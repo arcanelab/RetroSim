@@ -5,7 +5,7 @@
 
 using namespace RetroSim;
 
-// Note: This class is a wrapper around the LibRetro C API callbacks.
+// Note: LibRetroCore is a wrapper around the LibRetro C API callbacks.
 // We forward the callbacks to the LibRetroCore instance.
 // TODO: implement all callbacks
 LibRetroCore libretroCore;
