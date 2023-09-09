@@ -3,13 +3,18 @@
 
 #pragma once
 #ifdef LIBRETRO
-#include <execinfo.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include <string>
 #include "libretro/libretro-common/include/libretro.h"
 #include "Logger.h"
+#include "Core.h"
+#include "GravityScripting.h"
+#include "GPU.h"
+
+// TODO: test if this is needed on Windows.
+#if defined(_WIN32) && !defined(_XBOX)
+#include <windows.h>
+#endif
 
 namespace RetroSim
 {
@@ -94,6 +99,71 @@ namespace RetroSim
             envCallback(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_format);
         }
 
+        bool LoadGame(const struct retro_game_info *info)
+        {
+            // log_cb(RETRO_LOG_INFO, "retro_load_game()\n");
+            logger.Printf(RETRO_LOG_INFO, "retro_load_game()");
+
+            struct retro_input_descriptor desc[] = {
+                {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
+                {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up"},
+                {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "Down"},
+                {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right"},
+                {0},
+            };
+
+            envCallback(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
+
+            // Note: is this the right place for these environ callbacks?
+            enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
+            if (!envCallback(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
+            {
+                logger.Printf(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
+                return false;
+            }
+
+            // struct retro_audio_callback audio_cb = {audio_callback, audio_set_state};
+            struct retro_audio_callback audio_cb = {GenerateAudio, SetAudioState};
+            use_audio_cb = envCallback(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &audio_cb);
+
+            // check_variables();
+
+            (void)info;
+            return true;
+        }
+
+        void UnloadGame()
+        {
+            logger.Printf(RETRO_LOG_INFO, "retro_unload_game()\n");            
+        }
+
+        static void GenerateAudio()
+        {
+            // test sine wave
+            for (unsigned i = 0; i < 48000 / 60; i++, phase++)
+            {
+                int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 48000.0f);
+                audioCallback(val, val);
+            }
+
+            phase %= 100;
+        }
+
+        static void SetAudioState(bool value)
+        {
+            (void)value;
+        }
+
+        void SetAudioSampleCallback(retro_audio_sample_t _audioCallback)
+        {
+            LibRetroCore::audioCallback = _audioCallback;
+        }
+
+        void SetBatchedAudioCallback(retro_audio_sample_batch_t _batchedAudioCallback)
+        {
+            LibRetroCore::batchedAudioCallback = _batchedAudioCallback;
+        }
+
         Logger logger;
 
     private:
@@ -105,8 +175,14 @@ namespace RetroSim
 
         retro_video_refresh_t renderCallback;
         retro_environment_t envCallback;
+        static retro_audio_sample_t audioCallback;
+        static retro_audio_sample_batch_t batchedAudioCallback;
+
         float last_aspect;
         float last_sample_rate;
+        bool use_audio_cb;
+
+        static int phase;
 
         // We try gettig a callback from the frontend and set it as a backend in our Logger class.
         // If we fail, the Logger class falls back to stdio.
@@ -158,6 +234,11 @@ namespace RetroSim
             coreInstance->Initialize(systemDirectory.c_str());
             // CoreConfig config = coreInstance->GetCoreConfig();
         }
-    };
-}
+    }; // class LibRetroCore
+
+    retro_audio_sample_t LibRetroCore::audioCallback = nullptr;
+    retro_audio_sample_batch_t LibRetroCore::batchedAudioCallback = nullptr;
+    int LibRetroCore::phase = 0;
+} // namespace RetroSim
+
 #endif

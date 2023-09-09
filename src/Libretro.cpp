@@ -1,37 +1,17 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <math.h>
-#include "Core.h"
-#include "CoreConfig.h"
-#include "GPU.h"
-#include "GravityScripting.h"
-#include "LibRetroCore.h"
+// RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
+// https://github.com/arcanelab
 
-#include <stdio.h>
-#if defined(_WIN32) && !defined(_XBOX)
-#include <windows.h>
-#endif
-#include "libretro/libretro-common/include/libretro.h"
+#include "LibRetroCore.h"
 
 using namespace RetroSim;
 
 LibRetroCore libretroCore;
 
-static bool use_audio_cb;
-
-static retro_audio_sample_t audio_cb;
-static retro_audio_sample_batch_t audio_batch_cb;
 static retro_input_poll_t input_poll_cb;
 static retro_input_state_t input_state_cb;
 
-static retro_environment_t environ_cb;
-
 void retro_set_environment(retro_environment_t cb)
 {
-    environ_cb = cb;
     libretroCore.SetEnvironment(cb);
 }
 
@@ -79,12 +59,12 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
 {
-    audio_cb = cb;
+    libretroCore.SetAudioSampleCallback(cb);
 }
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
-    audio_batch_cb = cb;
+    libretroCore.SetBatchedAudioCallback(cb);
 }
 
 void retro_set_input_poll(retro_input_poll_t cb)
@@ -108,57 +88,19 @@ void retro_reset(void)
     retro_init();
 }
 
-static void audio_callback(void)
-{
-    // test sine wave
-    // for (unsigned i = 0; i < 48000 / 60; i++, phase++)
-    // {
-    //     int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 48000.0f);
-    //     audio_cb(val, val);
-    // }
-
-    // phase %= 100;
-}
-
 static void audio_set_state(bool enable)
 {
-    (void)enable;
+    libretroCore.SetAudioState(enable);
 }
 
 bool retro_load_game(const struct retro_game_info *info)
 {
-    // log_cb(RETRO_LOG_INFO, "retro_load_game()\n");
-    libretroCore.logger.Printf(RETRO_LOG_INFO, "retro_load_game()");
-
-    struct retro_input_descriptor desc[] = {
-        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
-        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up"},
-        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "Down"},
-        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right"},
-        {0},
-    };
-
-    environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
-
-    // Note: is this the right place for these environ callbacks?
-    enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
-    if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
-    {
-        libretroCore.logger.Printf(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
-        return false;
-    }
-
-    struct retro_audio_callback audio_cb = {audio_callback, audio_set_state};
-    use_audio_cb = environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &audio_cb);
-
-    check_variables();
-
-    (void)info;
-    return true;
+    return libretroCore.LoadGame(info);
 }
 
 void retro_unload_game(void)
 {
+    libretroCore.UnloadGame();
 }
 
 unsigned retro_get_region(void)
