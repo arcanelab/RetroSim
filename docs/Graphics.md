@@ -62,7 +62,7 @@ Sprites are drawn from an atlas
 | $E000-$FEFF |       |                    |  Free/user RAM (8K)
 | $FF00-$FFFF | u16   |                    |  65xx CPU vectors
 |$10000-$2DFFF| u8    | BITMAP             |  Bitmap memory (120K)
-|$30000-$3FFFF|       | CHARSET            |  Character tile data (128K)
+|$30000-$3FFFF|       | CHARSET            |  Character tile data (64K)
 |$40000-      |       |                    |  
 
 ### Registers
@@ -101,7 +101,7 @@ Sprites are drawn from an atlas
 
 ### setfont(width, height, offset)
 
-Selects the font to be used with `print`. It defines the fixed-width dimensions of the font and the byte offset in the Character tile data memory (CHARSET). The memory is 128K long, and can host multiple character sets.
+Selects the font to be used with `print`. It defines the fixed-width dimensions of the font and the byte offset in the character tile data memory (CHARSET). The character memory is 64K long, and can host multiple character sets of different dimensions.
 
 - `width, height`: the font size
 - `offset`: the start of the font tile data within the CHARSET memory area.
