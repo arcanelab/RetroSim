@@ -22,7 +22,7 @@ namespace RetroSim::GPU
     void Rect(int x, int y, int width, int height, int color, bool filled);
     void Tri(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool filled);
     void Tex(int x0, int y0, int x1, int y1, int x2, int y2, int u0, int v0, int u1, int v1, int u2, int v2);
-    void Pixel(int x, int y, int color);
+    void Pixel(int x, int y, uint8_t colorIndex);
     void Clip(int x0, int y0, int x1, int y1);
     void NoClip();
     void Map(int x, int y, int mapx, int mapy, int width, int height);

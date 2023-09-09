@@ -58,30 +58,30 @@ namespace RetroSim::GPU
     //     }
     // }
 
-    uint8_t fontWidth;
-    uint8_t fontHeight;
-    uint32_t fontOffset; // defines how many characters to skip at the start of CHARSET
+    uint8_t fontWidth = 8;
+    uint8_t fontHeight = 16;
+    uint32_t fontOffset = 0; // defines how many characters to skip at the start of CHARSET
 
-    void SetFont(int width, int height, int offset)
+    void SetFont(int width, int height, int offset = 0)
     {
         fontWidth = width;
         fontHeight = height;
         fontOffset = offset;
     }
 
-    void Print(const char *text, int x, int y, int color, int scale)
+    void Print(const char *text, int x, int y, int color, int scale = 1)
     {
-        while(char c = *text++)
+        int characterCount = 0;
+        while (char c = *text++)
         {
-            for(int y=0; y<fontHeight; y++)
-                for(int x=0; x<fontWidth; x++)
+            for (int k = 0; k < fontHeight; k++)
+                for (int j = 0; j < fontWidth; j++)
                 {
-                    uint8_t colorIndex = MMU::MemoryMap::CHARSET + fontOffset + c * fontWidth * fontHeight + y * fontWidth + x;
-                    uint32_t color = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
-                    for(int sy=0; sy<scale; sy++)
-                        for(int sx=0; sx<scale; sx++)
-                            Pixel(x * scale + sx, y * scale + sy, color);
+                    uint8_t colorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
+                    Pixel(x + j, y + k, colorIndex);
                 }
+            
+            x += fontWidth * scale;
         }
     }
 
@@ -190,7 +190,7 @@ namespace RetroSim::GPU
     {
     }
 
-    void Pixel(int x, int y, int color)
+    void Pixel(int x, int y, uint8_t colorIndex)
     {
         if (x < 0 || x >= textureWidth || y < 0 || y >= textureHeight)
             return;
@@ -199,7 +199,7 @@ namespace RetroSim::GPU
             if (x < clipX0 || x > clipX1 || y < clipY0 || y > clipY1)
                 return;
 
-        outputTexture[x + y * textureWidth] = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + color * 4);
+        outputTexture[x + y * textureWidth] = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
     }
 
     void Clip(int x0, int y0, int x1, int y1)

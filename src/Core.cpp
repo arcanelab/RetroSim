@@ -39,7 +39,7 @@ namespace RetroSim
         printf("Current directory: %s\n", basePath);
         
         std::string finalPath = coreConfig.GetDataPath() + "/unscii-16.tiledata";
-        MMU::LoadFile(finalPath.c_str(), MMU::TILES_U8);
+        MMU::LoadFile(finalPath.c_str(), MMU::CHARSET);
     }
 
     CoreConfig Core::GetCoreConfig()
@@ -73,7 +73,7 @@ namespace RetroSim
         // GPU::Tex(0, 0, 100, 0, 0, 100, 0, 0, 100, 0, 0, 100);
         // GPU::Pixel(200, 200, 8);
         
-        GPU::Clip(50, 50, 480-50, 256-50);
+        GPU::Clip(100, 100, 480-100, 256-50);
         GPU::Cls();
         GPU::NoClip();
 
@@ -100,6 +100,8 @@ namespace RetroSim
 
         uint32_t randomColor = randomR << 16 | randomG << 8 | randomB;
         MMU::WriteMem<uint32_t>(MMU::PALETTE_U32 + 2 * 4, randomColor);
+
+        GPU::Print("RetroSim", 0, 0, 1, 1);
     }
 
     void Core::Reset()
