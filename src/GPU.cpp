@@ -11,107 +11,238 @@
 namespace RetroSim::GPU
 {
     uint32_t *outputTexture = new uint32_t[textureWidth * textureHeight]; // ARGB8888;
+    uint16_t clipX0 = 0;
+    uint16_t clipY0 = 0;
+    uint16_t clipX1 = 0;
+    uint16_t clipY1 = 0;
 
-#if 0
-// TODO: make outputTexture a parameter
-// TODO: use SIMD instrinsics
-// Optimized version
-void Render(const uint8_t tileWidth, const uint8_t tileHeight)
-{
-    const uint_fast8_t numTilesX = width / tileWidth;
-    const uint_fast8_t numTilesY = height / tileHeight;
-    const uint_fast16_t lastTileMapIndex = numTilesX * numTilesY;
-    const uint_fast32_t tilePixelNum = tileWidth * tileHeight;
-    uint_fast32_t tileMapAddress = Core::MAP_MEMORY_U8; // as we iterate through the tile map, this address will be incremented
+    bool isClippingEnabled = false;
 
-    assert(outputTexture != nullptr);
+    uint32_t frameNumber = 0;
 
-    for (uint_fast16_t tileMapIndex = 0; tileMapIndex < lastTileMapIndex; tileMapIndex++)
+    // void Render(const uint8_t tileWidth, const uint8_t tileHeight)
+    // {
+    //     const uint8_t numTilesX = textureWidth / tileWidth;
+    //     const uint8_t numTilesY = textureHeight / tileHeight;
+
+    //     uint8_t tileIndex;
+    //     uint8_t colorIndex;
+    //     uint32_t color;
+
+    //     size_t pixelCoordX;
+    //     size_t pixelCoordY;
+
+    //     uint16_t tileBitmapAddress;
+
+    //     for (size_t tileMapY = 0; tileMapY < numTilesY; tileMapY++)
+    //     {
+    //         for (size_t tileMapX = 0; tileMapX < numTilesX; tileMapX++)
+    //         {
+    //             tileIndex = MMU::ReadMem<uint8_t>(uint32_t(Core::MAP_MEMORY_U8 + tileMapX + tileMapY * (size_t)numTilesX));
+    //             tileBitmapAddress = Core::TILE_MEMORY_U8 + tileIndex * tileWidth * tileHeight;
+
+    //             for (size_t tileMemY = 0; tileMemY < tileHeight; tileMemY++)
+    //             {
+    //                 for (size_t tileMemX = 0; tileMemX < tileWidth; tileMemX++)
+    //                 {
+    //                     colorIndex = MMU::ReadMem<uint8_t>(uint32_t(tileBitmapAddress + tileMemX + tileMemY * tileWidth));
+    //                     color = MMU::ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + colorIndex * 4);
+
+    //                     pixelCoordX = tileMapX * tileWidth + tileMemX;
+    //                     pixelCoordY = tileMapY * tileHeight + tileMemY;
+
+    //                     outputTexture[pixelCoordX + pixelCoordY * textureWidth] = color;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+    uint8_t fontWidth;
+    uint8_t fontHeight;
+    uint32_t fontOffset; // defines how many characters to skip at the start of CHARSET
+
+    void SetFont(int width, int height, int offset)
     {
-        uint_fast8_t tileIndex = core.mmu->ReadMem<uint8_t>(tileMapAddress);
-        const uint_fast32_t tileBitmapAddressBase = Core::TILE_MEMORY_U8 + tileIndex * tilePixelNum;
-        // textureOffset will be incremented as we iterate through the tile bitmap
-        uint_fast32_t textureOffset = (tileMapIndex % numTilesX * tileWidth) + (tileMapIndex / numTilesX * tileHeight * width);
-        uint_fast32_t tileBitmapAddress = tileBitmapAddressBase;
+        fontWidth = width;
+        fontHeight = height;
+        fontOffset = offset;
+    }
 
-        for (uint_fast8_t y = 0; y < tileHeight; y++)
+    void Print(const char *text, int x, int y, int color, int scale)
+    {
+        while(char c = *text++)
         {
-            for (uint_fast8_t x = 0; x < tileWidth; x++)
+            for(int y=0; y<fontHeight; y++)
+                for(int x=0; x<fontWidth; x++)
+                {
+                    uint8_t colorIndex = MMU::MemoryMap::CHARSET + fontOffset + c * fontWidth * fontHeight + y * fontWidth + x;
+                    uint32_t color = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
+                    for(int sy=0; sy<scale; sy++)
+                        for(int sx=0; sx<scale; sx++)
+                            Pixel(x * scale + sx, y * scale + sy, color);
+                }
+        }
+    }
+
+    void Cls()
+    {
+        // clear screen using Pixel()
+        for (int y = 0; y < textureHeight; y++)
+            for (int x = 0; x < textureWidth; x++)
+                Pixel(x, y, 0);
+    }
+
+    void Line(int x0, int y0, int x1, int y1, int color)
+    {
+        int dx = abs(x1 - x0);
+        int dy = abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+
+        while (true)
+        {
+            Pixel(x0, y0, color);
+
+            if (x0 == x1 && y0 == y1)
+                break;
+
+            int e2 = 2 * err;
+            if (e2 > -dy)
             {
-                const uint_fast8_t colorIndex = core.mmu->ReadMem<uint8_t>(tileBitmapAddress);
-                uint32_t color = core.mmu->ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + (colorIndex * 4)); // * 4: one color is 4 bytes
-                outputTexture[textureOffset] = color;
-                textureOffset++;
-                tileBitmapAddress++;
+                err -= dy;
+                x0 += sx;
             }
 
-            textureOffset += width - tileWidth;
+            if (e2 < dx)
+            {
+                err += dx;
+                y0 += sy;
+            }
         }
 
-        tileMapAddress++;
+        Pixel(x1, y1, color);
     }
-}
-#else
-    void Render(const uint8_t tileWidth, const uint8_t tileHeight)
+
+    void Circle(int x, int y, int radius, int color, bool filled)
     {
-        const uint8_t numTilesX = textureWidth / tileWidth;
-        const uint8_t numTilesY = textureHeight / tileHeight;
+        // Compute the coordinates of the center of the circle
+        int cx = x;
+        int cy = y;
 
-        uint8_t tileIndex;
-        uint8_t colorIndex;
-        uint32_t color;
+        // Compute the squared radius of the circle
+        int r2 = radius * radius;
 
-        size_t pixelCoordX;
-        size_t pixelCoordY;
-
-        uint16_t tileBitmapAddress;
-
-        for (size_t tileMapY = 0; tileMapY < numTilesY; tileMapY++)
+        // Loop over the pixels in the bounding box of the circle
+        for (int py = y - radius; py <= y + radius; py++)
         {
-            for (size_t tileMapX = 0; tileMapX < numTilesX; tileMapX++)
+            for (int px = x - radius; px <= x + radius; px++)
             {
-                tileIndex = MMU::ReadMem<uint8_t>(uint32_t(Core::MAP_MEMORY_U8 + tileMapX + tileMapY * (size_t)numTilesX));
-                tileBitmapAddress = Core::TILE_MEMORY_U8 + tileIndex * tileWidth * tileHeight;
+                // Compute the distance between the pixel and the center of the circle
+                int dx = px - cx;
+                int dy = py - cy;
+                int dx2 = dx * dx;
+                int dy2 = dy * dy;
+                int d2 = dx2 + dy2;
 
-                for (size_t tileMemY = 0; tileMemY < tileHeight; tileMemY++)
+                // Check if the pixel is inside the circle
+                if (d2 <= r2)
                 {
-                    for (size_t tileMemX = 0; tileMemX < tileWidth; tileMemX++)
+                    // Draw the pixel
+                    if (filled || d2 >= r2 - 2 * radius)
                     {
-                        colorIndex = MMU::ReadMem<uint8_t>(uint32_t(tileBitmapAddress + tileMemX + tileMemY * tileWidth));
-                        color = MMU::ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + colorIndex * 4);
-
-                        pixelCoordX = tileMapX * tileWidth + tileMemX;
-                        pixelCoordY = tileMapY * tileHeight + tileMemY;
-
-                        outputTexture[pixelCoordX + pixelCoordY * textureWidth] = color;
+                        Pixel(px, py, color);
+                    }
+                    else if ((dx2 + (dy - 1) * (dy - 1)) > r2 || (dx2 + (dy + 1) * (dy + 1)) > r2 || ((dx - 1) * (dx - 1) + dy2) > r2 || ((dx + 1) * (dx + 1) + dy2) > r2)
+                    {
+                        Pixel(px, py, color);
                     }
                 }
             }
         }
     }
-#endif
 
-    void RenderTileMode()
+    void Rect(int x, int y, int width, int height, int color, bool filled)
     {
-        uint8_t tileMode = RetroSim::MMU::ReadMem<uint8_t>(RetroSim::Core::TILE_MODE_U8);
-
-        // TODO: Remove TILE_MODE and make the tile size freely configurable.
-        //       This could also possibly increase run-time performance as it would
-        //       remove the need for the switch, which has to run every frame.
-        switch (tileMode)
+        if (filled)
         {
-        case TILE_MODE_8x8:
-            Render(8, 8);
-            break;
-        case TILE_MODE_8x16:
-            Render(8, 16);
-            break;
-        case TILE_MODE_16x8:
-            Render(16, 8);
-            break;
-        case TILE_MODE_16x16:
-            Render(16, 16);
-            break;
+            for (int y = 0; y < height; y++)
+                Line(x, y, x + width, y, color);
         }
+        else
+        {
+            Line(x, y, x + width, y, color);
+            Line(x + width, y, x + width, y + height, color);
+            Line(x + width, y + height, x, y + height, color);
+            Line(x, y + height, x, y, color);
+        }
+    }
+
+    void Tri(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool filled)
+    {
+        Line(x0, y0, x1, y1, color);
+        Line(x1, y1, x2, y2, color);
+        Line(x2, y2, x0, y0, color);
+    }
+
+    void Tex(int x0, int y0, int x1, int y1, int x2, int y2, int u0, int v0, int u1, int v1, int u2, int v2)
+    {
+    }
+
+    void Pixel(int x, int y, int color)
+    {
+        if (x < 0 || x >= textureWidth || y < 0 || y >= textureHeight)
+            return;
+
+        if (isClippingEnabled)
+            if (x < clipX0 || x > clipX1 || y < clipY0 || y > clipY1)
+                return;
+
+        outputTexture[x + y * textureWidth] = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + color * 4);
+    }
+
+    void Clip(int x0, int y0, int x1, int y1)
+    {
+        clipX0 = x0;
+        clipY0 = y0;
+        clipX1 = x1;
+        clipY1 = y1;
+
+        isClippingEnabled = true;
+    }
+
+    void NoClip()
+    {
+        isClippingEnabled = false;
+    }
+
+    void Map(int x, int y, int mapx, int mapy, int width, int height)
+    {
+    }
+
+    void Sprite(int x, int y, int spritex, int spritey, int width, int height)
+    {
+    }
+
+    void Palette(int bank)
+    {
+    }
+
+    void Tiles(int bank)
+    {
+    }
+
+    void Sprite(int bank)
+    {
+    }
+
+    void PalColor(int index, int r, int g, int b)
+    {
+        MMU::WriteMem<uint32_t>(MMU::PALETTE_U32 + index * 4, r << 16 | g << 8 | b);
+    }
+
+    void Bitmap(int x, int y, int bitmapx, int bitmapy, int width, int height)
+    {
     }
 }

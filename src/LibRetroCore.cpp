@@ -6,6 +6,7 @@
 #include "LibRetroCore.h"
 #include "GravityScripting.h"
 #include "GPU.h"
+#include "MMU.h"
 
 // TODO: test if this is needed on Windows.
 #if defined(_WIN32) && !defined(_XBOX)
@@ -110,7 +111,7 @@ namespace RetroSim
 
         envCallback(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
-        // Note: This can be called eirther here or in GetSystemAudioVideoInfo().
+        // Note: This can be called either here or in GetSystemAudioVideoInfo().
         enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
         if (!envCallback(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
         {
@@ -135,13 +136,13 @@ namespace RetroSim
     void LibRetroCore::GenerateAudio()
     {
         // test sine wave
-        // for (unsigned i = 0; i < 48000 / 60; i++, phase++)
-        // {
-        //     int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 48000.0f);
-        //     audioCallback(val, val);
-        // }
+        for (unsigned i = 0; i < 48000 / 60; i++, phase++)
+        {
+            int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 48000.0f);
+            // audioCallback(val, val);
+        }
 
-        // phase %= 100;
+        phase %= 100;
     }
 
     void LibRetroCore::SetAudioState(bool value)
