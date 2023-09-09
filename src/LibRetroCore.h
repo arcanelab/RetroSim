@@ -114,7 +114,7 @@ namespace RetroSim
 
             envCallback(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
-            // Note: is this the right place for these environ callbacks?
+            // Note: This can be called eirther here or in GetSystemAudioVideoInfo().
             enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
             if (!envCallback(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
             {
