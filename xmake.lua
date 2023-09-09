@@ -54,7 +54,7 @@ elseif _target == Target.libretro then
         if os.getenv("RETROARCH_COREPATH") then
             set_targetdir(os.getenv("RETROARCH_COREPATH"))
         else 
-            set_targetdir("libretro")
+            set_targetdir("bin")
         end
 end
 
