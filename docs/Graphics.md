@@ -86,25 +86,130 @@ Sprites are drawn from an atlas
 - `circle(x, y, radius, color, filled)`
 - `rect(x, y, width, height, color, filled)`
 - `tri(x0, y0, x1, y1, x2, y2, color, filled)`
-- `tex(x0, y0, x1, y1, x2, y2, u1, v1, u2, v2, u3, v3)`
+- `tex(x0, y0, x1, y1, x2, y2, u0, v0, u1, v1, u2, v2)`
 - `pixel(x, y, color)`
 - `clip(x0, y0, x1, y1)`
+- `noclip()`
 - `map(x, y, mapx, mapy, width, height)`
 - `sprite(x, y, spritex, spritey, width, height)`
 - `palette(bank)`
 - `tiles(bank)`
 - `sprite(bank)`
 - `palcolor(index, r, g, b)`
+- `bitmap(x, y, bitmapx, bitmapy, width, height)`
 
+### print(text, x, y, color, scale)
 
+- text: the text to be printed.
+- x, y: screen coordinates. Can be negative, in which case pixels with negative coordinates get clipped.
+- color: the index into the color palette.
+- scale: an integer scaler.
 
+### cls()
 
+Clears the screen.
 
+### line(x0, y0, x1, y1, color)
 
+Draws a line.
 
+- `x0, y0`: start screen coordinates.
+- `x1, y1`: end screen coordinates.
+- `color`: the index into the color palette.
 
+### circle(x, y, radius, color, filled)
 
+Draws a circle.
 
+- `x, y`: screen coordinates of the circle's origin.
+- `radius`: the radius of the circle in pixels.
+- `color`: the index into the color palette.
+- `filled`: whether to fill the area with the selected color.
+
+### rect(x, y, width, height, color, filled)
+
+Draws a rectangle.
+
+- `x, y`: screen coordinates of the top left corner of the rectangle.
+- `width, height`: the size of the rectangle in pixels.
+- `color`: the index into the color palette.
+- `filled`: whether to fill the area with the selected color.
+
+### tri(x0, y0, x1, y1, x2, y2, color, filled)
+
+Draws a triangle.
+
+- `x0, y0`: coordinates of the first point.
+- `x1, y1`: coordinates of the second point.
+- `x2, y2`: coordinates of the third point.
+- `color`: the index into the color palette.
+- `filled`: whether to fill the area with the selected color.
+
+### tex(x0, y0, x1, y1, x2, y2, u0, v0, u1, v1, u2, v2, sprite)
+
+Draws a textured triangle. The texture is taken from either the sprite or bitmap area.
+
+- `x0, y0`: coordinates of the first point.
+- `x1, y1`: coordinates of the second point.
+- `x2, y2`: coordinates of the third point.
+- `u0, v0`: coordinates of the first point.
+- `u1, v1`: coordinates of the second point.
+- `u2, v2`: coordinates of the third point.
+- `sprite` [bool]: if the source should be the sprite atlas. If false, the source is the bitmap area.
+
+### pixel(x, y, color)
+
+Draws a single pixel.
+
+- `x, y`: screen coordinate.
+- `color`: the index into the color palette.
+
+### clip(x0, y0, x1, y1)
+
+Sets the clipping region. Once set, all subsequent drawing operations will respect the selected area.
+
+- `x0, y0`: top left corner of clipping rectangle.
+- `x1, y1`: bottom right corner of the clipping rectangle.
+
+### noclip()
+
+Disables clipping.
+
+### map(x, y, mapx, mapy, width, height)
+
+Draws the tile map on the screen on the given position.
+
+- `x, y`: top left corner of the rectangular area. Can be negative.
+- `mapx, mapy`: the **tile coordinates** of the top left corner of the map area to be drawn.
+- `width, height`: the width of the map to be drawn **in tiles**.
+
+### sprite(x, y, spritex, spritey, width, height)
+
+Draws a sprite on the screen. The sprite memory/atlas is of a fixed size of 128x128 pixels, so that defines the maximum size of a single sprite. Sprites can of course be smaller.
+
+- `x, y`: screen coordinates of the top left corner of the sprite.
+- `spritex, spritey`: the pixel coordinates of the sprite's top left corner.
+- `width, height`: the size of the sprite in pixels.
+
+### palette(bank)
+
+Selects the palette bank.
+
+### tiles(bank)
+
+Selects the tile bank.
+
+### sprite(bank)
+
+Selects the sprite bank.
+
+### palcolor(index, r, g, b)
+
+Sets an entry in the color palette to a given RGB value. The RGB value is specified in the range of 0..255.
+
+### bitmap(x, y, bitmapx, bitmapy, width, height)
+
+Same as sprite(), but works on the bitmap area.
 
 
 
