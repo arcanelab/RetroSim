@@ -202,8 +202,11 @@ F12: screenshot
 ^+F12: screenshot without shader
 F11: toggle fullscreen/windowed mode
 
-## Random API Ideas
+## Random Ideas
 
 - Frame number generator
 - Random number generator
 - Perlin noise generator
+
+- Add transparency for every texture-based graphics operation
+- The bitmap() call could support streching
