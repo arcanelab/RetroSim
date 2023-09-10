@@ -80,44 +80,44 @@ Sprites are drawn from an atlas
 
 ## Graphics API
 
-- `setfont(width, height, offset)`
-- `print(text, x, y, color, scale)`
-- `cls()`
-- `line(x0, y0, x1, y1, color)`
-- `circle(x, y, radius, color, filled)`
-- `rect(x, y, width, height, color, filled)`
-- `tri(x0, y0, x1, y1, x2, y2, color, filled)`
-- `tex(x0, y0, x1, y1, x2, y2, u0, v0, u1, v1, u2, v2)`
-- `pixel(x, y, color)`
-- `clip(x0, y0, x1, y1)`
-- `noclip()`
-- `map(x, y, mapx, mapy, width, height)`
-- `sprite(x, y, spritex, spritey, width, height)`
-- `palette(bank)`
-- `tiles(bank)`
-- `sprite(bank)`
-- `palcolor(index, r, g, b)`
-- `bitmap(x, y, bitmapx, bitmapy, width, height)`
-
-### setfont(width, height, offset)
-
-Selects the font to be used with `print`. It defines the fixed-width dimensions of the font and the byte offset in the character tile data memory (CHARSET). The character memory is 64K long, and can host multiple character sets of different dimensions.
-
-- `width, height`: the font size
-- `offset`: the start of the font tile data within the CHARSET memory area.
-
-### print(text, x, y, color, scale)
-
-Draws text on the screen at the given pixel coordinates using the system font.
-
-- text: the text to be printed.
-- x, y: screen coordinates. Can be negative, in which case pixels with negative coordinates get clipped.
-- color: the index into the color palette.
-- scale: an integer scaler.
+- `cls()` - clear screen
+- `clsnoclip()` - clear screen ignoring clipping
+- `pixel(x, y, color)` - draw a pixel
+- `palcolor(index, r, g, b)` - change a color in the palette
+- `line(x0, y0, x1, y1, color)` - draw a line
+- `circle(x, y, radius, color, filled)` - draw a circle
+- `rect(x, y, width, height, color, filled)` - draw a rectangle
+- `tri(x0, y0, x1, y1, x2, y2, color, filled)` - draw a triangle
+- `tex(x0, y0, x1, y1, x2, y2, u0, v0, u1, v1, u2, v2)` - draw a textured triangle
+- `clip(x0, y0, x1, y1)` - set clipping rectangle
+- `noclip()` - disable clipping
+- `setfont(width, height, offset)` - select font for `print()`
+- `print(text, x, y, color, scale)` - print text on screen
+- `map(x, y, mapx, mapy, width, height)` - draw the tile map on screen
+- `sprite(x, y, spritex, spritey, width, height)` - draw a sprite
+- `bitmap(x, y, bitmapx, bitmapy, width, height)` - draw an image
+- `palette(bank)` - select palette bank
+- `tiles(bank)` - select tile bank
+- `sprite(bank)` - select sprite bank
 
 ### cls()
 
-Clears the screen.
+Clears the screen. Respects the clipping area, i.e., clears only the writable pixels.
+
+### clsnoclip()
+
+Clears the screen, ignoring the clipping area. Faster than cls().
+
+### pixel(x, y, color)
+
+Draws a single pixel.
+
+- `x, y`: screen coordinate.
+- `color`: the index into the color palette.
+
+### palcolor(index, r, g, b)
+
+Sets an entry in the color palette to a given RGB value. The RGB value is specified in the range of 0..255.
 
 ### line(x0, y0, x1, y1, color)
 
@@ -167,13 +167,6 @@ Draws a textured triangle. The texture is taken from either the sprite or bitmap
 - `u2, v2`: coordinates of the third point.
 - `sprite` [bool]: if the source should be the sprite atlas. If false, the source is the bitmap area.
 
-### pixel(x, y, color)
-
-Draws a single pixel.
-
-- `x, y`: screen coordinate.
-- `color`: the index into the color palette.
-
 ### clip(x0, y0, x1, y1)
 
 Sets the clipping region. Once set, all subsequent drawing operations will respect the selected area.
@@ -185,6 +178,23 @@ Sets the clipping region. Once set, all subsequent drawing operations will respe
 
 Disables clipping.
 
+### setfont(width, height, offset)
+
+Selects the font to be used with `print`. It defines the fixed-width dimensions of the font and the byte offset in the character tile data memory (CHARSET). The character memory is 64K long and can host multiple character sets of different dimensions.
+
+- `width, height`: the font size
+- `offset`: the start of the font tile data within the CHARSET memory area, in bytes.
+
+### print(text, x, y, color, transparent_color, scale)
+
+Draws text on the screen at the given pixel coordinates using the system font.
+
+- `text`: the text to be printed.
+- `x, y`: screen coordinates. Can be negative, in which case pixels with negative coordinates get clipped.
+- `color`: the index into the color palette.
+- `scale`: an integer scaler.
+- `transparent_color`: the index of the transparent color. -1 for no transparency.
+
 ### map(x, y, mapx, mapy, width, height)
 
 Draws the tile map on the screen on the given position.
@@ -193,13 +203,22 @@ Draws the tile map on the screen on the given position.
 - `mapx, mapy`: the **tile coordinates** of the top left corner of the map area to be drawn.
 - `width, height`: the width of the map to be drawn **in tiles**.
 
-### sprite(x, y, spritex, spritey, width, height)
+### sprite(x, y, spritex, spritey, width, height, transparent_color)
 
 Draws a sprite on the screen. The sprite memory/atlas is of a fixed size of 128x128 pixels, so that defines the maximum size of a single sprite. Sprites can of course be smaller.
 
 - `x, y`: screen coordinates of the top left corner of the sprite.
 - `spritex, spritey`: the pixel coordinates of the sprite's top left corner.
 - `width, height`: the size of the sprite in pixels.
+- `transparent_color`: the index of the transparent color. -1 for no transparency.
+
+### bitmap(x, y, bitmapx, bitmapy, width, height)
+
+Draws an image from the bitmap area.
+
+- `x, y`: screen coordinates of the top left corner of the image.
+- `bitmapx, bitmapy`: the pixel coordinates of the image's top left corner in the bitmap area.
+- `width, height`: the size of the image in pixels.
 
 ### palette(bank)
 
@@ -212,17 +231,6 @@ Selects the tile bank.
 ### sprite(bank)
 
 Selects the sprite bank.
-
-### palcolor(index, r, g, b)
-
-Sets an entry in the color palette to a given RGB value. The RGB value is specified in the range of 0..255.
-
-### bitmap(x, y, bitmapx, bitmapy, width, height)
-
-Same as sprite(), but works on the bitmap area.
-
-
-
 
 
 
