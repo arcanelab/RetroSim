@@ -16,8 +16,6 @@ namespace RetroSim::GPU
     uint16_t clipX1 = 0;
     uint16_t clipY1 = 0;
 
-    bool isClippingEnabled = false;
-
     uint32_t frameNumber = 0;
 
     // void Render(const uint8_t tileWidth, const uint8_t tileHeight)
@@ -199,7 +197,6 @@ namespace RetroSim::GPU
         if (x < 0 || x >= textureWidth || y < 0 || y >= textureHeight)
             return;
 
-        if (isClippingEnabled)
             if (x < clipX0 || x > clipX1 || y < clipY0 || y > clipY1)
                 return;
 
@@ -212,13 +209,14 @@ namespace RetroSim::GPU
         clipY0 = y0;
         clipX1 = x1;
         clipY1 = y1;
-
-        isClippingEnabled = true;
     }
 
     void NoClip()
     {
-        isClippingEnabled = false;
+        clipX0 = 0;
+        clipY0 = 0;
+        clipX1 = textureWidth - 1;
+        clipY1 = textureHeight - 1;
     }
 
     void Map(int x, int y, int mapx, int mapy, int width, int height)
