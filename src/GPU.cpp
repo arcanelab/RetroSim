@@ -56,6 +56,19 @@ namespace RetroSim::GPU
     //     }
     // }
 
+    void Initialize()
+    {
+        memset(outputTexture, 0, textureSize);
+        MMU::WriteMem<uint8_t>(MMU::TILE_WIDTH, 8);
+        MMU::WriteMem<uint8_t>(MMU::TILE_HEIGHT, 16);
+        MMU::WriteMem<uint8_t>(MMU::MAP_WIDTH, 30);
+        MMU::WriteMem<uint8_t>(MMU::MAP_HEIGHT, 16);
+        MMU::WriteMem<uint8_t>(MMU::PALETTE_BANK, 0);
+        MMU::WriteMem<uint8_t>(MMU::MAP_BANK, 0);
+        MMU::WriteMem<uint8_t>(MMU::TILE_BANK, 0);
+        MMU::WriteMem<uint8_t>(MMU::SPRITE_BANK, 0);
+    }
+
     uint8_t fontWidth = 8;
     uint8_t fontHeight = 16;
     uint32_t fontOffset = 0; // defines how many characters to skip at the start of CHARSET
@@ -77,12 +90,12 @@ namespace RetroSim::GPU
                 {
                     uint8_t colorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
 
-                    if(colorIndex == transparent)
+                    if (colorIndex == transparent)
                         continue;
 
                     Pixel(x + j, y + k, color);
                 }
-            
+
             x += fontWidth * scale;
         }
     }
@@ -93,6 +106,11 @@ namespace RetroSim::GPU
         for (int y = 0; y < textureHeight; y++)
             for (int x = 0; x < textureWidth; x++)
                 Pixel(x, y, 0);
+    }
+
+    void ClsNoClip()
+    {
+        memset(outputTexture, 0, textureSize);
     }
 
     void Line(int x0, int y0, int x1, int y1, int color)
@@ -197,10 +215,11 @@ namespace RetroSim::GPU
         if (x < 0 || x >= textureWidth || y < 0 || y >= textureHeight)
             return;
 
-            if (x < clipX0 || x > clipX1 || y < clipY0 || y > clipY1)
-                return;
+        if (x < clipX0 || x > clipX1 || y < clipY0 || y > clipY1)
+            return;
 
-        outputTexture[x + y * textureWidth] = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
+        uint32_t color = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
+        outputTexture[x + y * textureWidth] = color;
     }
 
     void Clip(int x0, int y0, int x1, int y1)
@@ -219,8 +238,37 @@ namespace RetroSim::GPU
         clipY1 = textureHeight - 1;
     }
 
-    void Map(int x, int y, int mapx, int mapy, int width, int height)
+    void Map(int screenX, int screenY, int mapX, int mapY, int width, int height, int transparentColor = -1)
     {
+        uint8_t tileWidth = MMU::ReadMem<uint8_t>(MMU::TILE_WIDTH);
+        uint8_t tileHeight = MMU::ReadMem<uint8_t>(MMU::TILE_HEIGHT);
+        uint8_t mapWidth = MMU::ReadMem<uint8_t>(MMU::MAP_WIDTH);
+        uint8_t mapHeight = MMU::ReadMem<uint8_t>(MMU::MAP_HEIGHT);
+
+        for(int tileY = mapY; tileY < mapY + height; tileY++)
+        {
+            for(int tileX = mapX; tileX < mapX + width; tileX++)
+            {
+                int tileIndex = MMU::ReadMem<uint8_t>(MMU::MAP_U8 + tileX + tileY * mapWidth);
+                int tileBitmapAddress = MMU::TILES_U8 + tileIndex * tileWidth * tileHeight;
+
+                for(int tileMemY = 0; tileMemY < tileHeight; tileMemY++)
+                {
+                    for(int tileMemX = 0; tileMemX < tileWidth; tileMemX++)
+                    {
+                        int colorIndex = MMU::ReadMem<uint8_t>(tileBitmapAddress + tileMemX + tileMemY * tileWidth);
+                        if(colorIndex == transparentColor)
+                            continue;
+                        int color = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
+
+                        int pixelCoordX = screenX + (tileX - mapX) * tileWidth + tileMemX;
+                        int pixelCoordY = screenY + (tileY - mapY) * tileHeight + tileMemY;
+
+                        Pixel(pixelCoordX, pixelCoordY, colorIndex);
+                    }
+                }
+            }
+        }
     }
 
     void Sprite(int x, int y, int spritex, int spritey, int width, int height)

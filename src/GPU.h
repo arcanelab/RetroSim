@@ -15,8 +15,11 @@ namespace RetroSim::GPU
 
     extern uint32_t frameNumber;
 
+    void Initialize();
+
     void Print(const char *text, int x, int y, int color, int transparent, int scale);
     void Cls();
+    void ClsNoClip();
     void Line(int x0, int y0, int x1, int y1, int color);
     void Circle(int x, int y, int radius, int color, bool filled);
     void Rect(int x, int y, int width, int height, int color, bool filled);
@@ -25,7 +28,7 @@ namespace RetroSim::GPU
     void Pixel(int x, int y, uint8_t colorIndex);
     void Clip(int x0, int y0, int x1, int y1);
     void NoClip();
-    void Map(int x, int y, int mapx, int mapy, int width, int height);
+    void Map(int screenX, int screenY, int mapX, int mapY, int width, int height, int transparentColor);
     void Sprite(int x, int y, int spritex, int spritey, int width, int height);
     void Palette(int bank);
     void Tiles(int bank);
