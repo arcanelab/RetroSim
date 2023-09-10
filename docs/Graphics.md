@@ -71,8 +71,8 @@ Sprites are drawn from an atlas
 | ----------- | ----- | ------------------ | ---------------------
 | $D000       | u8    | TILE_WIDTH         |  Tile width (default: 8)
 | $D001       | u8    | TILE_HEIGHT        |  Tile height (default: 8)
-| $D002       | u8    | MAP_WIDTH          |  Map width (default: 60, max 128)
-| $D003       | u8    | MAP_HEIGHT         |  Map height (default: 16, max 128)
+| $D002       | u8    | MAP_WIDTH          |  Map width in tiles (default: 60, max 128)
+| $D003       | u8    | MAP_HEIGHT         |  Map height in tiles (default: 16, max 128)
 | $D004       | u8    | PALETTE_BANK       |  Palette bank selector
 | $D005       | u8    | MAP_BANK           |  Map bank selector
 | $D006       | u8    | TILE_BANK          |  Tile bank selector
