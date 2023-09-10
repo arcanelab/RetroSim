@@ -15,7 +15,7 @@ namespace RetroSim::GPU
 
     extern uint32_t frameNumber;
 
-    void Print(const char *text, int x, int y, int color, int scale);
+    void Print(const char *text, int x, int y, int color, int transparent, int scale);
     void Cls();
     void Line(int x0, int y0, int x1, int y1, int color);
     void Circle(int x, int y, int radius, int color, bool filled);

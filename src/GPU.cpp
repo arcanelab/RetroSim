@@ -69,7 +69,7 @@ namespace RetroSim::GPU
         fontOffset = offset;
     }
 
-    void Print(const char *text, int x, int y, int color, int scale = 1)
+    void Print(const char *text, int x, int y, int color, int transparent = 0, int scale = 1)
     {
         int characterCount = 0;
         while (char c = *text++)
@@ -78,7 +78,11 @@ namespace RetroSim::GPU
                 for (int j = 0; j < fontWidth; j++)
                 {
                     uint8_t colorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
-                    Pixel(x + j, y + k, colorIndex);
+
+                    if(colorIndex == transparent)
+                        continue;
+
+                    Pixel(x + j, y + k, color);
                 }
             
             x += fontWidth * scale;
