@@ -101,7 +101,8 @@ namespace RetroSim
         uint32_t randomColor = randomR << 16 | randomG << 8 | randomB;
         MMU::WriteMem<uint32_t>(MMU::PALETTE_U32 + 2 * 4, randomColor);
 
-        GPU::Print("RetroSim", 0, 0, 2, 0, 1);
+        // GPU::Cls();
+        GPU::Print("RetroSim", GPU::frameNumber % GPU::textureWidth, 150, 2, 0, 1);
     }
 
     void Core::Reset()
