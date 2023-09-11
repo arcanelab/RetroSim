@@ -43,7 +43,7 @@ namespace RetroSim::GPU
         fontOffset = offset;
     }
 
-    void PrintText(const char *text, int x, int y, int color, int scale, int16_t transparentColorIndex)
+    void PrintText(const char *text, int x, int y, int color, int16_t transparentColorIndex, int16_t backgroundColorIndex)
     {
         int characterCount = 0;
         while (char c = *text++)
@@ -53,13 +53,18 @@ namespace RetroSim::GPU
                 {
                     uint8_t colorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
 
-                    if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
-                        continue;
+                    if (colorIndex == transparentColorIndex)
+                    {
+                        if (backgroundColorIndex == -1)
+                            continue;
 
+                        DrawPixel(x + j, y + k, backgroundColorIndex);
+                        continue;
+                    }
                     DrawPixel(x + j, y + k, color);
                 }
 
-            x += fontWidth * scale;
+            x += fontWidth;
         }
     }
 
@@ -199,7 +204,7 @@ namespace RetroSim::GPU
         clipY1 = textureHeight - 1;
     }
 
-    void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex)
+    void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex = -1)
     {
         uint8_t tileWidth = MMU::ReadMem<uint8_t>(MMU::TILE_WIDTH);
         uint8_t tileHeight = MMU::ReadMem<uint8_t>(MMU::TILE_HEIGHT);
@@ -231,7 +236,7 @@ namespace RetroSim::GPU
         }
     }
 
-    void DrawSprite(int screenPosX, int screenPosY, int spritePosX, int spritePosY, int width, int height, int16_t transparentColorIndex)
+    void DrawSprite(int screenPosX, int screenPosY, int spritePosX, int spritePosY, int width, int height, int16_t transparentColorIndex = -1)
     {
         const int atlasWidth = 128;
         const uint16_t spriteDataOffset = spritePosX + spritePosY * atlasWidth;
@@ -248,7 +253,7 @@ namespace RetroSim::GPU
         }
     }
 
-    void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int pitch, int16_t transparentColorIndex)
+    void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int pitch = textureWidth, int16_t transparentColorIndex)
     {
         for (int y = 0; y < height; y++)
         {

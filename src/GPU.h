@@ -17,7 +17,7 @@ namespace RetroSim::GPU
 
     // API
     void SetFont(int width, int height, int offset);
-    void PrintText(const char *text, int x, int y, int color, int scale, int16_t transparentColorIndex = -1);
+    void PrintText(const char *text, int x, int y, int color, int16_t transparentColorIndex = 0, int16_t backgroundColorIndex = -1);
     void ClearScreen();
     void ClearScreenIgnoreClipping();
     void DrawLine(int x0, int y0, int x1, int y1, int color);
@@ -28,10 +28,9 @@ namespace RetroSim::GPU
     void DrawPixel(int x, int y, uint8_t colorIndex);
     void SetClipping(int x0, int y0, int x1, int y1);
     void DisableClipping();
-    void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex = -1);
-    void DrawSprite(int x, int y, int spritex, int spritey, int width, int height, int16_t transparentColorIndex = -1);
-    void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int pitch = textureWidth, int16_t transparentColorIndex = -1);
-    void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int16_t transparentColorIndex = -1);
+    void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex);
+    void DrawSprite(int x, int y, int spritex, int spritey, int width, int height, int16_t transparentColorIndex);
+    void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int pitch, int16_t transparentColorIndex = -1);
     void SetPaletteBank(int bank);
     void SetTileBank(int bank);
     void SetSpriteBank(int bank);
