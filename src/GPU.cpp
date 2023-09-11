@@ -149,8 +149,8 @@ namespace RetroSim::GPU
     {
         if (filled)
         {
-            for (int y = 0; y < height; y++)
-                DrawLine(x, y, x + width, y, color);
+            for (int i = 0; i < height; i++)
+                DrawLine(x, y + i, x + width, y + i, color);
         }
         else
         {
