@@ -55,7 +55,7 @@ namespace RetroSim
         MMU::LoadFile("data/freedom.png.pal", MMU::PALETTE_U32);
 
         // load image bitmap
-        MMU::LoadFile("data/freedom.png.bitmap", MMU::BITMAP);
+        MMU::LoadFile("data/freedom.png.bitmap", MMU::BITMAP_U8);
     }
 
     void Core::LoadFonts()

@@ -65,7 +65,6 @@ namespace RetroSim::GPU
 
     void ClearScreen()
     {
-        // clear screen using Pixel()
         for (int y = 0; y < textureHeight; y++)
             for (int x = 0; x < textureWidth; x++)
                 DrawPixel(x, y, 0);
@@ -241,7 +240,7 @@ namespace RetroSim::GPU
         {
             for (int spriteX = 0; spriteX < width; spriteX++)
             {
-                int colorIndex = MMU::ReadMem<uint8_t>(MMU::SPRITE_ATLAS + spriteDataOffset + spriteX + spriteY * atlasWidth);
+                int colorIndex = MMU::ReadMem<uint8_t>(MMU::SPRITE_ATLAS_U8 + spriteDataOffset + spriteX + spriteY * atlasWidth);
                 if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
                     continue;
                 DrawPixel(screenPosX + spriteX, screenPosY + spriteY, GetPaletteColor(colorIndex));
@@ -251,10 +250,9 @@ namespace RetroSim::GPU
 
     void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int pitch, int16_t transparentColorIndex)
     {
-        // Take color index from bitmap memory and draw it on the screen
         for (int y = 0; y < height; y++)
         {
-            int bitmapAddress = MMU::BITMAP + bitmapPosX + (bitmapPosY + y) * pitch;
+            int bitmapAddress = MMU::BITMAP_U8 + bitmapPosX + (bitmapPosY + y) * pitch;
             for (int x = 0; x < width; x++)
             {
                 int colorIndex = MMU::ReadMem<uint8_t>(bitmapAddress + x);
