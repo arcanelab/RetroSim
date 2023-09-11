@@ -15,23 +15,28 @@ namespace RetroSim::GPU
 
     void Initialize();
 
+    // API
     void SetFont(int width, int height, int offset);
-    void Print(const char *text, int x, int y, int color, int transparent, int scale);
-    void Cls();
-    void ClsNoClip();
-    void Line(int x0, int y0, int x1, int y1, int color);
-    void Circle(int x, int y, int radius, int color, bool filled);
-    void Rect(int x, int y, int width, int height, int color, bool filled);
-    void Tri(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool filled);
-    void Tex(int x0, int y0, int x1, int y1, int x2, int y2, int u0, int v0, int u1, int v1, int u2, int v2);
-    void Pixel(int x, int y, uint8_t colorIndex);
-    void Clip(int x0, int y0, int x1, int y1);
-    void NoClip();
-    void Map(int screenX, int screenY, int mapX, int mapY, int width, int height, int transparentColor);
-    void Sprite(int x, int y, int spritex, int spritey, int width, int height);
-    void Palette(int bank);
-    void Tiles(int bank);
-    void Sprite(int bank);
-    void PalColor(int index, int r, int g, int b);
-    void Bitmap(int x, int y, int bitmapx, int bitmapy, int width, int height);
+    void PrintText(const char *text, int x, int y, int color, int scale, int16_t transparentColorIndex = -1);
+    void ClearScreen();
+    void ClearScreenIgnoreClipping();
+    void DrawLine(int x0, int y0, int x1, int y1, int color);
+    void DrawCircle(int x, int y, int radius, int color, bool filled);
+    void DrawRect(int x, int y, int width, int height, int color, bool filled);
+    void DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool filled);
+    void DrawTexturedTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int u0, int v0, int u1, int v1, int u2, int v2);
+    void DrawPixel(int x, int y, uint8_t colorIndex);
+    void SetClipping(int x0, int y0, int x1, int y1);
+    void DisableClipping();
+    void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex = -1);
+    void DrawSprite(int x, int y, int spritex, int spritey, int width, int height, int16_t transparentColorIndex = -1);
+    void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int pitch = textureWidth, int16_t transparentColorIndex = -1);
+    void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int16_t transparentColorIndex = -1);
+    void SetPaletteBank(int bank);
+    void SetTileBank(int bank);
+    void SetSpriteBank(int bank);
+    void SetPaletteColor(int index, int r, int g, int b);
+
+    // Helper functions
+    uint32_t GetPaletteColor(uint8_t colorIndex);
 }

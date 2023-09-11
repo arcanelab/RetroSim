@@ -7,6 +7,7 @@
 #include "GravityScripting.h"
 #include "GPU.h"
 #include "MMU.h"
+#include "Logger.h"
 
 // TODO: test if this is needed on Windows.
 #if defined(_WIN32) && !defined(_XBOX)
@@ -24,8 +25,8 @@ namespace RetroSim
         this->envCallback = envCallback;
 
         SetupLogging();
-        SetupControllers();
-        GetSystemDirectory();
+        // SetupControllers();
+        // GetSystemDirectory();
 
         // Communicate to the frontend that we don't require a game before running the core.
         bool noGameSupport = true;
@@ -99,7 +100,7 @@ namespace RetroSim
 
     bool LibRetroCore::LoadGame(const struct retro_game_info *info)
     {
-        logger.Printf(RETRO_LOG_INFO, "retro_load_game()");
+        Logger::RSPrintf(RETRO_LOG_INFO, "retro_load_game()");
 
         struct retro_input_descriptor desc[] = {
             {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
@@ -115,7 +116,7 @@ namespace RetroSim
         enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
         if (!envCallback(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
         {
-            logger.Printf(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
+            Logger::RSPrintf(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
             return false;
         }
 
@@ -130,7 +131,7 @@ namespace RetroSim
 
     void LibRetroCore::UnloadGame()
     {
-        logger.Printf(RETRO_LOG_INFO, "retro_unload_game()\n");
+        Logger::RSPrintf(RETRO_LOG_INFO, "retro_unload_game()\n");
     }
 
     void LibRetroCore::GenerateAudio()
@@ -168,7 +169,8 @@ namespace RetroSim
 
         if (envCallback(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logCallback))
         {
-            logger.SetLibRetroCallback(logCallback.log);
+            Logger::SetLibRetroCallback(logCallback.log);
+            Logger::RSPrintf(RETRO_LOG_DEBUG, "Logging initialized.\n");
         }
     }
 
@@ -196,11 +198,11 @@ namespace RetroSim
         if (envCallback(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
         {
             systemDirectory = dir;
-            logger.Printf(RETRO_LOG_DEBUG, "System directory: %s\n", systemDirectory.c_str());
+            Logger::RSPrintf(RETRO_LOG_DEBUG, "System directory: %s\n", systemDirectory.c_str());
         }
         else
         {
-            logger.Printf(RETRO_LOG_ERROR, "Failed to get system directory.\n");
+            Logger::RSPrintf(RETRO_LOG_ERROR, "Failed to get system directory.\n");
         }
     }
 

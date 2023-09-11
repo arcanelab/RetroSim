@@ -6,7 +6,6 @@
 
 #include <string>
 #include "libretro/libretro-common/include/libretro.h"
-#include "Logger.h"
 #include "Core.h"
 
 namespace RetroSim
@@ -15,8 +14,6 @@ namespace RetroSim
     class LibRetroCore
     {
     public:
-        Logger logger;
-
         void SetEnvironment(retro_environment_t envCallback);
         void Init();
         void SetVideoRefreshCallback(retro_video_refresh_t renderCallback);

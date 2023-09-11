@@ -1,36 +1,32 @@
-// RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
-// https://github.com/arcanelab
-
 #pragma once
-#include <stdio.h>
 #include <iostream>
 #ifdef LIBRETRO
 #include "libretro/libretro-common/include/libretro.h"
 #endif
-#include "CoreConfig.h"
 
-namespace RetroSim
+namespace RetroSim::Logger
 {
-    class Logger
-    {
-    public:
 #ifdef LIBRETRO
-        retro_log_printf_t Printf = nullptr;
+    extern retro_log_printf_t RSPrintf;
 
-        void SetLibRetroCallback(retro_log_printf_t libRetroPrintf)
-        {
-            this->Printf = libRetroPrintf;
-        }
+    void SetLibRetroCallback(retro_log_printf_t libRetroPrintf);
+#else
+    typedef void (*log_printf_t)(enum retro_log_level level, const char *fmt, ...);
+    extern log_printf_t RSPrintf;
+
+    enum retro_log_level
+    {
+        RETRO_LOG_DEBUG = 0,
+        RETRO_LOG_INFO,
+        RETRO_LOG_WARN,
+        RETRO_LOG_ERROR,
+
+        RETRO_LOG_DUMMY = INT_MAX
+    };
+
+    void log_printf(enum retro_log_level level, const char *fmt, ...);
 #endif
 
-        void Log(const char *message)
-        {
-            printf("%s\n", message);
-        }
-
-        void Log(std::string message)
-        {
-            std::cout << message << std::endl;
-        }
-    };
-} // namespace RetroSim
+    void Log(const char *message);
+    void Log(std::string message);
+}; // namespace RetroSim::Logger

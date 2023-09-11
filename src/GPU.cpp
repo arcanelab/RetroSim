@@ -11,7 +11,7 @@
 namespace RetroSim::GPU
 {
     uint32_t *outputTexture = new uint32_t[textureWidth * textureHeight]; // ARGB8888;
-    
+
     // clipping rectangle
     uint16_t clipX0 = 0;
     uint16_t clipY0 = 0;
@@ -43,7 +43,7 @@ namespace RetroSim::GPU
         fontOffset = offset;
     }
 
-    void Print(const char *text, int x, int y, int color, int transparent = 0, int scale = 1)
+    void PrintText(const char *text, int x, int y, int color, int scale, int16_t transparentColorIndex)
     {
         int characterCount = 0;
         while (char c = *text++)
@@ -53,30 +53,30 @@ namespace RetroSim::GPU
                 {
                     uint8_t colorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
 
-                    if (colorIndex == transparent)
+                    if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
                         continue;
 
-                    Pixel(x + j, y + k, color);
+                    DrawPixel(x + j, y + k, color);
                 }
 
             x += fontWidth * scale;
         }
     }
 
-    void Cls()
+    void ClearScreen()
     {
         // clear screen using Pixel()
         for (int y = 0; y < textureHeight; y++)
             for (int x = 0; x < textureWidth; x++)
-                Pixel(x, y, 0);
+                DrawPixel(x, y, 0);
     }
 
-    void ClsNoClip()
+    void ClearScreenIgnoreClipping()
     {
         memset(outputTexture, 0, textureSize);
     }
 
-    void Line(int x0, int y0, int x1, int y1, int color)
+    void DrawLine(int x0, int y0, int x1, int y1, int color)
     {
         int dx = abs(x1 - x0);
         int dy = abs(y1 - y0);
@@ -86,7 +86,7 @@ namespace RetroSim::GPU
 
         while (true)
         {
-            Pixel(x0, y0, color);
+            DrawPixel(x0, y0, color);
 
             if (x0 == x1 && y0 == y1)
                 break;
@@ -105,10 +105,10 @@ namespace RetroSim::GPU
             }
         }
 
-        Pixel(x1, y1, color);
+        DrawPixel(x1, y1, color);
     }
 
-    void Circle(int x, int y, int radius, int color, bool filled)
+    void DrawCircle(int x, int y, int radius, int color, bool filled)
     {
         // Compute the coordinates of the center of the circle
         int cx = x;
@@ -135,45 +135,45 @@ namespace RetroSim::GPU
                     // Draw the pixel
                     if (filled || d2 >= r2 - 2 * radius)
                     {
-                        Pixel(px, py, color);
+                        DrawPixel(px, py, color);
                     }
                     else if ((dx2 + (dy - 1) * (dy - 1)) > r2 || (dx2 + (dy + 1) * (dy + 1)) > r2 || ((dx - 1) * (dx - 1) + dy2) > r2 || ((dx + 1) * (dx + 1) + dy2) > r2)
                     {
-                        Pixel(px, py, color);
+                        DrawPixel(px, py, color);
                     }
                 }
             }
         }
     }
 
-    void Rect(int x, int y, int width, int height, int color, bool filled)
+    void DrawRect(int x, int y, int width, int height, int color, bool filled)
     {
         if (filled)
         {
             for (int y = 0; y < height; y++)
-                Line(x, y, x + width, y, color);
+                DrawLine(x, y, x + width, y, color);
         }
         else
         {
-            Line(x, y, x + width, y, color);
-            Line(x + width, y, x + width, y + height, color);
-            Line(x + width, y + height, x, y + height, color);
-            Line(x, y + height, x, y, color);
+            DrawLine(x, y, x + width, y, color);
+            DrawLine(x + width, y, x + width, y + height, color);
+            DrawLine(x + width, y + height, x, y + height, color);
+            DrawLine(x, y + height, x, y, color);
         }
     }
 
-    void Tri(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool filled)
+    void DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool filled)
     {
-        Line(x0, y0, x1, y1, color);
-        Line(x1, y1, x2, y2, color);
-        Line(x2, y2, x0, y0, color);
+        DrawLine(x0, y0, x1, y1, color);
+        DrawLine(x1, y1, x2, y2, color);
+        DrawLine(x2, y2, x0, y0, color);
     }
 
-    void Tex(int x0, int y0, int x1, int y1, int x2, int y2, int u0, int v0, int u1, int v1, int u2, int v2)
+    void DrawTexturedTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int u0, int v0, int u1, int v1, int u2, int v2)
     {
     }
 
-    void Pixel(int x, int y, uint8_t colorIndex)
+    void DrawPixel(int x, int y, uint8_t colorIndex)
     {
         if (x < 0 || x >= textureWidth || y < 0 || y >= textureHeight)
             return;
@@ -181,11 +181,10 @@ namespace RetroSim::GPU
         if (x < clipX0 || x > clipX1 || y < clipY0 || y > clipY1)
             return;
 
-        uint32_t color = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
-        outputTexture[x + y * textureWidth] = color;
+        outputTexture[x + y * textureWidth] = GetPaletteColor(colorIndex);
     }
 
-    void Clip(int x0, int y0, int x1, int y1)
+    void SetClipping(int x0, int y0, int x1, int y1)
     {
         clipX0 = x0;
         clipY0 = y0;
@@ -193,7 +192,7 @@ namespace RetroSim::GPU
         clipY1 = y1;
     }
 
-    void NoClip()
+    void DisableClipping()
     {
         clipX0 = 0;
         clipY0 = 0;
@@ -201,61 +200,90 @@ namespace RetroSim::GPU
         clipY1 = textureHeight - 1;
     }
 
-    void Map(int screenX, int screenY, int mapX, int mapY, int width, int height, int transparentColor = -1)
+    void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex)
     {
         uint8_t tileWidth = MMU::ReadMem<uint8_t>(MMU::TILE_WIDTH);
         uint8_t tileHeight = MMU::ReadMem<uint8_t>(MMU::TILE_HEIGHT);
         uint8_t mapWidth = MMU::ReadMem<uint8_t>(MMU::MAP_WIDTH);
         uint8_t mapHeight = MMU::ReadMem<uint8_t>(MMU::MAP_HEIGHT);
 
-        for(int tileY = mapY; tileY < mapY + height; tileY++)
+        for (int tileY = mapY; tileY < mapY + height; tileY++)
         {
-            for(int tileX = mapX; tileX < mapX + width; tileX++)
+            for (int tileX = mapX; tileX < mapX + width; tileX++)
             {
                 int tileIndex = MMU::ReadMem<uint8_t>(MMU::MAP_U8 + tileX + tileY * mapWidth);
                 int tileBitmapAddress = MMU::TILES_U8 + tileIndex * tileWidth * tileHeight;
 
-                for(int tileMemY = 0; tileMemY < tileHeight; tileMemY++)
+                for (int tileMemY = 0; tileMemY < tileHeight; tileMemY++)
                 {
-                    for(int tileMemX = 0; tileMemX < tileWidth; tileMemX++)
+                    for (int tileMemX = 0; tileMemX < tileWidth; tileMemX++)
                     {
                         int colorIndex = MMU::ReadMem<uint8_t>(tileBitmapAddress + tileMemX + tileMemY * tileWidth);
-                        if(colorIndex == transparentColor)
+                        if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
                             continue;
-                        int color = MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
 
                         int pixelCoordX = screenX + (tileX - mapX) * tileWidth + tileMemX;
                         int pixelCoordY = screenY + (tileY - mapY) * tileHeight + tileMemY;
 
-                        Pixel(pixelCoordX, pixelCoordY, colorIndex);
+                        DrawPixel(pixelCoordX, pixelCoordY, colorIndex);
                     }
                 }
             }
         }
     }
 
-    void Sprite(int x, int y, int spritex, int spritey, int width, int height)
+    void DrawSprite(int screenPosX, int screenPosY, int spritePosX, int spritePosY, int width, int height, int16_t transparentColorIndex)
+    {
+        const int atlasWidth = 128;
+        const uint16_t spriteDataOffset = spritePosX + spritePosY * atlasWidth;
+
+        for (int spriteY = 0; spriteY < height; spriteY++)
+        {
+            for (int spriteX = 0; spriteX < width; spriteX++)
+            {
+                int colorIndex = MMU::ReadMem<uint8_t>(MMU::SPRITE_ATLAS + spriteDataOffset + spriteX + spriteY * atlasWidth);
+                if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
+                    continue;
+                DrawPixel(screenPosX + spriteX, screenPosY + spriteY, GetPaletteColor(colorIndex));
+            }
+        }
+    }
+
+    void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int pitch, int16_t transparentColorIndex)
+    {
+        // Take color index from bitmap memory and draw it on the screen
+        for (int y = 0; y < height; y++)
+        {
+            int bitmapAddress = MMU::BITMAP + bitmapPosX + (bitmapPosY + y) * pitch;
+            for (int x = 0; x < width; x++)
+            {
+                int colorIndex = MMU::ReadMem<uint8_t>(bitmapAddress + x);
+                if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
+                    continue;
+                DrawPixel(screenPosX + x, screenPosY + y, colorIndex);
+            }
+        }
+    }
+
+    void SetPaletteBank(int bank)
     {
     }
 
-    void Palette(int bank)
+    void SetTileBank(int bank)
     {
     }
 
-    void Tiles(int bank)
+    void SetSpriteBank(int bank)
     {
     }
 
-    void Sprite(int bank)
-    {
-    }
-
-    void PalColor(int index, int r, int g, int b)
+    void SetPaletteColor(int index, int r, int g, int b)
     {
         MMU::WriteMem<uint32_t>(MMU::PALETTE_U32 + index * 4, r << 16 | g << 8 | b);
     }
 
-    void Bitmap(int x, int y, int bitmapx, int bitmapy, int width, int height)
+    uint32_t GetPaletteColor(uint8_t colorIndex)
     {
+        return MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
     }
 }

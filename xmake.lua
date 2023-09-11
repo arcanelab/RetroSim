@@ -32,7 +32,7 @@ Target =
     libretro = 2
 }
 
-local _target = Target.standalone
+local _target = Target.libretro
 
 if _target == Target.standalone then
     target("RetroSim")

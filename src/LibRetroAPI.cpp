@@ -3,6 +3,7 @@
 
 #ifdef LIBRETRO
 #include "LibRetroCore.h"
+#include "Logger.h"
 
 // LibRetroCore is a wrapper around the LibRetro C API callbacks.
 // We forward the callbacks to the LibRetroCore instance.
@@ -11,6 +12,8 @@ RetroSim::LibRetroCore libretroCore;
 // TODO: implement all callbacks
 static retro_input_poll_t input_poll_cb;
 static retro_input_state_t input_state_cb;
+
+using namespace RetroSim;
 
 void retro_set_environment(retro_environment_t cb)
 {
@@ -46,7 +49,7 @@ unsigned retro_api_version(void)
 
 void retro_set_controller_port_device(unsigned port, unsigned device)
 {
-    libretroCore.logger.Printf(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
+    Logger::RSPrintf(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -86,7 +89,7 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 
 void retro_reset(void)
 {
-    libretroCore.logger.Printf(RETRO_LOG_INFO, "retro_reset()\n");
+    Logger::RSPrintf(RETRO_LOG_INFO, "retro_reset()\n");
     retro_init();
 }
 

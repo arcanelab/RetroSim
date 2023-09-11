@@ -11,6 +11,7 @@
 #include "unscii-8.h"
 #include "unscii-16.h"
 #include "palette.h"
+#include "Logger.h"
 
 namespace RetroSim
 {
@@ -20,6 +21,16 @@ namespace RetroSim
 
     void Core::Initialize(const std::string &basePath)
     {
+        Logger::RSPrintf(RETRO_LOG_INFO, "Initializing RetroSim...\n");
+        Logger::RSPrintf(RETRO_LOG_INFO, "Base path: %s\n", basePath.c_str());
+
+        // print current directory
+        char cwd[1024];
+        if (getcwd(cwd, sizeof(cwd)) != nullptr)
+            Logger::RSPrintf(RETRO_LOG_INFO, "Current working dir: %s\n", cwd);
+        else
+            Logger::RSPrintf(RETRO_LOG_ERROR, "getcwd() error\n");
+
         coreConfig.Initialize(basePath);
         GPU::Initialize();
 
@@ -39,6 +50,12 @@ namespace RetroSim
         {
             MMU::WriteMem<uint8_t>(MMU::MAP_U8 + i, i % 256);
         }
+
+        // load image palette
+        MMU::LoadFile("data/freedom.png.pal", MMU::PALETTE_U32);
+
+        // load image bitmap
+        MMU::LoadFile("data/freedom.png.bitmap", MMU::BITMAP);
     }
 
     void Core::LoadFonts()
@@ -80,18 +97,18 @@ namespace RetroSim
         // Test all GPU functions. The color parameter is an index into a 256-long palette.
         // All drawings must be visible on the screen of 480x256 pixels.
         // GPU::Cls();
-        GPU::Clip(100, 150, 480 - 100, 256 - 50);
-        GPU::Rect(0, 0, 479, 255, 0, true);
-        GPU::Line(0, 0, 479, 255, 1);
-        GPU::Circle(480 / 2, 256 / 2, 128, 2, false);
-        GPU::Circle(240, 128, 50, 3, true);
-        GPU::Rect(100, 100, 100, 100, 4, false);
-        GPU::NoClip();
-        GPU::Rect(100, 100, 50, 50, 5, true);
-        GPU::Tri(200, 200, 300, 200, 250, 100, 6, false);
-        GPU::Tri(200, 200, 300, 200, 250, 100, 7, true);
-        GPU::Tex(0, 0, 100, 0, 0, 100, 0, 0, 100, 0, 0, 100);
-        GPU::Pixel(200, 200, 8);
+        GPU::SetClipping(100, 150, 480 - 100, 256 - 50);
+        GPU::DrawRect(0, 0, 479, 255, 0, true);
+        GPU::DrawLine(0, 0, 479, 255, 1);
+        GPU::DrawCircle(480 / 2, 256 / 2, 128, 2, false);
+        GPU::DrawCircle(240, 128, 50, 3, true);
+        GPU::DrawRect(100, 100, 100, 100, 4, false);
+        GPU::DisableClipping();
+        GPU::DrawRect(100, 100, 50, 50, 5, true);
+        GPU::DrawTriangle(200, 200, 300, 200, 250, 100, 6, false);
+        GPU::DrawTriangle(200, 200, 300, 200, 250, 100, 7, true);
+        GPU::DrawTexturedTriangle(0, 0, 100, 0, 0, 100, 0, 0, 100, 0, 0, 100);
+        GPU::DrawPixel(200, 200, 8);
 
         // GPU::Clip(100, 150, 480 - 150, 256 - 150);
         // GPU::Cls();
@@ -111,15 +128,20 @@ namespace RetroSim
             dx = -dx;
         if (y < 0 || y > 256)
             dy = -dy;
-        GPU::Circle(x, y, radius, colorIndex, true);
+        GPU::DrawCircle(x, y, radius, colorIndex, true);
 
         // GPU::Cls();
-        GPU::Print("RetroSim", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 150, colorIndex, 0, 1);
+        GPU::PrintText("RetroSim", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 150, colorIndex, 0, 1);
         // GPU::Map(frameNumber % GPU::textureWidth, 40, 0, 0, 20, 3, 0);
 
         GPU::SetFont(8, 8, 0x8000);
-        GPU::Print("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex, 0, 1);
+        GPU::PrintText("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex, 0, 1);
         GPU::SetFont(8, 16, 0);
+
+        GPU::ClearScreen();
+        int centerX = (GPU::textureWidth - 320) / 2;
+        int centerY = (GPU::textureHeight -256 )/ 2;
+        GPU::DrawBitmap(centerX, centerY, 0, 0, 320, 256, 320);
     }
 
     void Core::Reset()

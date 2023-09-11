@@ -2,6 +2,7 @@
 // https://github.com/arcanelab
 
 #include "MMU.h"
+#include "Logger.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -26,7 +27,7 @@ namespace RetroSim::MMU
         }
         else
         {
-            printf("ReadMem: invalid address: %08X\n", address);
+            Logger::RSPrintf(RETRO_LOG_ERROR, "ReadMem: invalid address: %08X\n", address);
             return 0;
         }
     }
@@ -40,7 +41,7 @@ namespace RetroSim::MMU
         }
         else
         {
-            printf("WriteMem: invalid address: %08X\n", address);
+            Logger::RSPrintf(RETRO_LOG_ERROR, "WriteMem: invalid address: %08X\n", address);
         }
     }
 
@@ -49,7 +50,7 @@ namespace RetroSim::MMU
         FILE *file = fopen(filename, "rb");
         if (file == nullptr)
         {
-            printf("Failed to open file: %s\n", filename);
+            Logger::RSPrintf(RETRO_LOG_ERROR, "Failed to open file: %s\n", filename);
             return -1;
         }
 
@@ -59,12 +60,14 @@ namespace RetroSim::MMU
 
         if (address + fileSize > memorySize)
         {
-            printf("LoadFile: file size exceeds memory size: %08X\n", address + fileSize);
+            Logger::RSPrintf(RETRO_LOG_ERROR, "LoadFile: file size exceeds memory size: %08X\n", address + fileSize);
             return -1;
         }
 
         fread(memory + address, 1, fileSize, file);
         fclose(file);
+
+        Logger::RSPrintf(RETRO_LOG_INFO, "Loaded %d bytes to $%x from %s\n", fileSize, address, filename);
 
         return 0;
     }
