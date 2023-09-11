@@ -197,9 +197,6 @@ namespace RetroSim::GPU
 
     void DrawPixel(int x, int y, uint8_t colorIndex)
     {
-        if (x < 0 || x >= textureWidth || y < 0 || y >= textureHeight)
-            return;
-
         if (x < clipX0 || x > clipX1 || y < clipY0 || y > clipY1)
             return;
 
