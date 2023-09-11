@@ -39,12 +39,13 @@ namespace RetroSim
         int tileWidth = 8;
         int tileHeight = 16;
 
-        // Generate palette
+        // Copy palette to memory
         for (int i = 0; i < 256; i++)
         {
             MMU::WriteMem<uint32_t>(MMU::PALETTE_U32 + i * 4, palette_64[i % 64]); // 0xAARRGGBB
         }
 
+        // Generate test map pattern
         int numTiles = (GPU::textureWidth / tileWidth) * (GPU::textureHeight / tileHeight);
         for (int i = 0; i < numTiles; i++)
         {
@@ -102,9 +103,9 @@ namespace RetroSim
         GPU::DrawLine(0, 0, 479, 255, 1);
         GPU::DrawCircle(480 / 2, 256 / 2, 128, 2, false);
         GPU::DrawCircle(240, 128, 50, 3, true);
-        GPU::DrawRect(100, 100, 100, 100, 4, false);
+        // GPU::DrawRect(100, 100, 100, 100, 4, false);
         GPU::DisableClipping();
-        GPU::DrawRect(100, 100, 50, 50, 5, true);
+        // GPU::DrawRect(100, 100, 50, 50, 5, true);
         GPU::DrawTriangle(200, 200, 300, 200, 250, 100, 6, false);
         GPU::DrawTriangle(200, 200, 300, 200, 250, 100, 7, true);
         GPU::DrawTexturedTriangle(0, 0, 100, 0, 0, 100, 0, 0, 100, 0, 0, 100);
@@ -131,17 +132,24 @@ namespace RetroSim
         GPU::DrawCircle(x, y, radius, colorIndex, true);
 
         // GPU::Cls();
-        GPU::PrintText("RetroSim", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 150, colorIndex, 0, 1);
+        GPU::PrintText("RetroSim", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 150, colorIndex, 0, 20);
         // GPU::Map(frameNumber % GPU::textureWidth, 40, 0, 0, 20, 3, 0);
 
         GPU::SetFont(8, 8, 0x8000);
-        GPU::PrintText("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex, 0, 1);
+        GPU::PrintText("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex);
         GPU::SetFont(8, 16, 0);
 
-        GPU::ClearScreen();
-        int centerX = (GPU::textureWidth - 320) / 2;
-        int centerY = (GPU::textureHeight -256 )/ 2;
-        GPU::DrawBitmap(centerX, centerY, 0, 0, 320, 256, 320);
+        // GPU::ClearScreen();
+
+        // move bitmap around in a CIRCLE, use sinus
+        int bitmapX = 100 + sin(frameNumber / 60.0) * 100;
+        int bitmapY = 50 + cos(frameNumber / 60.0) * 100;
+
+        GPU::DrawBitmap(bitmapX, bitmapY, 0, 0, 320, 256, 320, 1);
+
+        int topLeftX = (GPU::textureWidth - 320) / 2;
+        int topLeftY = (GPU::textureHeight - 256) / 2;
+        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);
     }
 
     void Core::Reset()
