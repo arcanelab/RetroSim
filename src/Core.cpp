@@ -149,7 +149,7 @@ namespace RetroSim
         GPU::RenderText("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex);
         GPU::SetFont(8, 16, 0);
 
-        GPU::ClearScreenIgnoreClipping((frameNumber / 30) % 256);
+        // GPU::ClearScreenIgnoreClipping((frameNumber / 30) % 256);
 
         // move bitmap around in a CIRCLE, use sinus
         int bitmapX = 100 + sin(frameNumber / 60.0) * 100;
@@ -160,7 +160,7 @@ namespace RetroSim
 
         int topLeftX = (GPU::textureWidth - 320) / 2;
         int topLeftY = (GPU::textureHeight - 256) / 2;
-        // GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);
+        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);
     }
 
     void Core::Reset()
