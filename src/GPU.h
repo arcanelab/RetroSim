@@ -13,10 +13,9 @@ namespace RetroSim::GPU
 
     extern uint32_t *outputTexture; // ARGB8888;
 
-    extern uint32_t frameNumber;
-
     void Initialize();
 
+    void SetFont(int width, int height, int offset);
     void Print(const char *text, int x, int y, int color, int transparent, int scale);
     void Cls();
     void ClsNoClip();

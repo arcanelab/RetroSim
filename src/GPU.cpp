@@ -11,50 +11,17 @@
 namespace RetroSim::GPU
 {
     uint32_t *outputTexture = new uint32_t[textureWidth * textureHeight]; // ARGB8888;
+    
+    // clipping rectangle
     uint16_t clipX0 = 0;
     uint16_t clipY0 = 0;
     uint16_t clipX1 = 0;
     uint16_t clipY1 = 0;
 
-    uint32_t frameNumber = 0;
-
-    // void Render(const uint8_t tileWidth, const uint8_t tileHeight)
-    // {
-    //     const uint8_t numTilesX = textureWidth / tileWidth;
-    //     const uint8_t numTilesY = textureHeight / tileHeight;
-
-    //     uint8_t tileIndex;
-    //     uint8_t colorIndex;
-    //     uint32_t color;
-
-    //     size_t pixelCoordX;
-    //     size_t pixelCoordY;
-
-    //     uint16_t tileBitmapAddress;
-
-    //     for (size_t tileMapY = 0; tileMapY < numTilesY; tileMapY++)
-    //     {
-    //         for (size_t tileMapX = 0; tileMapX < numTilesX; tileMapX++)
-    //         {
-    //             tileIndex = MMU::ReadMem<uint8_t>(uint32_t(Core::MAP_MEMORY_U8 + tileMapX + tileMapY * (size_t)numTilesX));
-    //             tileBitmapAddress = Core::TILE_MEMORY_U8 + tileIndex * tileWidth * tileHeight;
-
-    //             for (size_t tileMemY = 0; tileMemY < tileHeight; tileMemY++)
-    //             {
-    //                 for (size_t tileMemX = 0; tileMemX < tileWidth; tileMemX++)
-    //                 {
-    //                     colorIndex = MMU::ReadMem<uint8_t>(uint32_t(tileBitmapAddress + tileMemX + tileMemY * tileWidth));
-    //                     color = MMU::ReadMem<uint32_t>(Core::PALETTE_MEMORY_U32 + colorIndex * 4);
-
-    //                     pixelCoordX = tileMapX * tileWidth + tileMemX;
-    //                     pixelCoordY = tileMapY * tileHeight + tileMemY;
-
-    //                     outputTexture[pixelCoordX + pixelCoordY * textureWidth] = color;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    // for print()
+    uint8_t fontWidth = 8;
+    uint8_t fontHeight = 16;
+    uint32_t fontOffset = 0; // defines how many characters to skip at the start of CHARSET
 
     void Initialize()
     {
@@ -68,10 +35,6 @@ namespace RetroSim::GPU
         MMU::WriteMem<uint8_t>(MMU::TILE_BANK, 0);
         MMU::WriteMem<uint8_t>(MMU::SPRITE_BANK, 0);
     }
-
-    uint8_t fontWidth = 8;
-    uint8_t fontHeight = 16;
-    uint32_t fontOffset = 0; // defines how many characters to skip at the start of CHARSET
 
     void SetFont(int width, int height, int offset = 0)
     {
