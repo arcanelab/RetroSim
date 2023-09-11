@@ -17,7 +17,8 @@ namespace RetroSim::GPU
 
     // API
     void SetFont(int width, int height, int offset);
-    void PrintText(const char *text, int x, int y, int color, int16_t transparentColorIndex = 0, int16_t backgroundColorIndex = -1);
+    void RenderOpaqueText(const char *text, int x, int y, int colorIndex, int16_t backgroundColorIndex);
+    void RenderText(const char *text, int x, int y, int colorIndex);
     void ClearScreen();
     void ClearScreenIgnoreClipping();
     void DrawLine(int x0, int y0, int x1, int y1, int color);

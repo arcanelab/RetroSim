@@ -132,11 +132,11 @@ namespace RetroSim
         GPU::DrawCircle(x, y, radius, colorIndex, true);
 
         // GPU::Cls();
-        GPU::PrintText("RetroSim", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 150, colorIndex, 0, 20);
+        GPU::RenderOpaqueText("RetroSim", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 150, colorIndex, 20);
         // GPU::Map(frameNumber % GPU::textureWidth, 40, 0, 0, 20, 3, 0);
 
         GPU::SetFont(8, 8, 0x8000);
-        GPU::PrintText("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex);
+        GPU::RenderText("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex);
         GPU::SetFont(8, 16, 0);
 
         // GPU::ClearScreen();

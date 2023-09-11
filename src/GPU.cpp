@@ -43,7 +43,7 @@ namespace RetroSim::GPU
         fontOffset = offset;
     }
 
-    void PrintText(const char *text, int x, int y, int color, int16_t transparentColorIndex, int16_t backgroundColorIndex)
+    void RenderOpaqueText(const char *text, int x, int y, int colorIndex, int16_t backgroundColorIndex)
     {
         int characterCount = 0;
         while (char c = *text++)
@@ -51,17 +51,30 @@ namespace RetroSim::GPU
             for (int k = 0; k < fontHeight; k++)
                 for (int j = 0; j < fontWidth; j++)
                 {
-                    uint8_t colorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
+                    uint8_t currentPixelColorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
 
-                    if (colorIndex == transparentColorIndex)
-                    {
-                        if (backgroundColorIndex == -1)
-                            continue;
-
+                    if (currentPixelColorIndex == 0)
                         DrawPixel(x + j, y + k, backgroundColorIndex);
+                    else
+                        DrawPixel(x + j, y + k, colorIndex);
+                }
+
+            x += fontWidth;
+        }
+    }
+
+    void RenderText(const char *text, int x, int y, int colorIndex)
+    {
+        int characterCount = 0;
+        while (char c = *text++)
+        {
+            for (int k = 0; k < fontHeight; k++)
+                for (int j = 0; j < fontWidth; j++)
+                {
+                    uint8_t currentPixelColorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
+                    if (currentPixelColorIndex == 0)
                         continue;
-                    }
-                    DrawPixel(x + j, y + k, color);
+                    DrawPixel(x + j, y + k, colorIndex);
                 }
 
             x += fontWidth;
