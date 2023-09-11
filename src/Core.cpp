@@ -80,7 +80,7 @@ namespace RetroSim
         // Test all GPU functions. The color parameter is an index into a 256-long palette.
         // All drawings must be visible on the screen of 480x256 pixels.
         // GPU::Cls();
-        GPU::Clip(50, 50, 480 - 50, 256 - 50);
+        GPU::Clip(100, 150, 480 - 100, 256 - 50);
         GPU::Rect(0, 0, 479, 255, 0, true);
         GPU::Line(0, 0, 479, 255, 1);
         GPU::Circle(480 / 2, 256 / 2, 128, 2, false);
@@ -93,13 +93,12 @@ namespace RetroSim
         GPU::Tex(0, 0, 100, 0, 0, 100, 0, 0, 100, 0, 0, 100);
         GPU::Pixel(200, 200, 8);
 
-        GPU::Clip(100, 150, 480 - 150, 256 - 150);
-        GPU::Cls();
-        GPU::NoClip();
+        // GPU::Clip(100, 150, 480 - 150, 256 - 150);
+        // GPU::Cls();
+        // GPU::NoClip();
 
         srand(frameNumber / 20);
-        int radius = rand() % 40 + 10;
-
+        int radius = sin(frameNumber / 30.0) * 30 + 50;
         int colorIndex = (frameNumber / 20) % 64;
 
         static int x = 0;
@@ -116,7 +115,7 @@ namespace RetroSim
 
         // GPU::Cls();
         GPU::Print("RetroSim", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 150, colorIndex, 0, 1);
-        GPU::Map(frameNumber % GPU::textureWidth, 40, 0, 0, 30, 5, 0);
+        // GPU::Map(frameNumber % GPU::textureWidth, 40, 0, 0, 20, 3, 0);
 
         GPU::SetFont(8, 8, 0x8000);
         GPU::Print("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex, 0, 1);
