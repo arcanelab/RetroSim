@@ -57,6 +57,16 @@ namespace RetroSim
 
         // load image bitmap
         MMU::LoadFile("data/freedom.png.bitmap", MMU::BITMAP_U8);
+
+        // copy image from BITMAP_U8 to SPRITE_ATLAS_U8, crop at 128x128
+        for (int y = 0; y < 128; y++)
+        {
+            for (int x = 0; x < 128; x++)
+            {
+                uint8_t value = MMU::ReadMem<uint8_t>(MMU::BITMAP_U8 + y * 320 + x);
+                MMU::WriteMem<uint8_t>(MMU::SPRITE_ATLAS_U8 + y * 128 + x, value);
+            }
+        }
     }
 
     void Core::LoadFonts()
@@ -145,11 +155,12 @@ namespace RetroSim
         int bitmapX = 100 + sin(frameNumber / 60.0) * 100;
         int bitmapY = 50 + cos(frameNumber / 60.0) * 100;
 
-        GPU::DrawBitmap(bitmapX, bitmapY, 0, 0, 320, 256, 320, 1);
+        // GPU::DrawBitmap(bitmapX, bitmapY, 0, 0, 320, 256, 320, 1);
+        GPU::DrawSprite(bitmapX, bitmapY, 0, 0, 128, 128, 1);
 
         int topLeftX = (GPU::textureWidth - 320) / 2;
         int topLeftY = (GPU::textureHeight - 256) / 2;
-        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);
+        // GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);
     }
 
     void Core::Reset()

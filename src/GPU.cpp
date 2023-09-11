@@ -256,17 +256,16 @@ namespace RetroSim::GPU
 
     void DrawSprite(int screenPosX, int screenPosY, int spritePosX, int spritePosY, int width, int height, int16_t transparentColorIndex = -1)
     {
-        const int atlasWidth = 128;
-        const uint16_t spriteDataOffset = spritePosX + spritePosY * atlasWidth;
-
-        for (int spriteY = 0; spriteY < height; spriteY++)
+        int pitch = 128;
+        for (int y = 0; y < height; y++)
         {
-            for (int spriteX = 0; spriteX < width; spriteX++)
+            int spriteAddress = MMU::SPRITE_ATLAS_U8 + spritePosX + (spritePosY + y) * pitch;
+            for (int x = 0; x < width; x++)
             {
-                int colorIndex = MMU::ReadMem<uint8_t>(MMU::SPRITE_ATLAS_U8 + spriteDataOffset + spriteX + spriteY * atlasWidth);
+                int colorIndex = MMU::ReadMem<uint8_t>(spriteAddress + x);
                 if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
                     continue;
-                DrawPixel(screenPosX + spriteX, screenPosY + spriteY, GetPaletteColor(colorIndex));
+                DrawPixel(screenPosX + x, screenPosY + y, colorIndex);
             }
         }
     }
