@@ -25,7 +25,7 @@ namespace RetroSim::GPU
 
     void Initialize()
     {
-        memset(outputTexture, 0, textureSize);
+        memset(outputTexture, 0, textureSizeInBytes);
         MMU::WriteMem<uint8_t>(MMU::TILE_WIDTH, 8);
         MMU::WriteMem<uint8_t>(MMU::TILE_HEIGHT, 16);
         MMU::WriteMem<uint8_t>(MMU::MAP_WIDTH, 30);
@@ -81,16 +81,21 @@ namespace RetroSim::GPU
         }
     }
 
-    void ClearScreen()
+    void ClearScreen(uint8_t colorIndex)
     {
         for (int y = 0; y < textureHeight; y++)
             for (int x = 0; x < textureWidth; x++)
-                DrawPixel(x, y, 0);
+                DrawPixel(x, y, colorIndex);
     }
 
-    void ClearScreenIgnoreClipping()
+    void ClearScreenIgnoreClipping(uint8_t colorIndex)
     {
-        memset(outputTexture, 0, textureSize);
+        uint32_t color = GetPaletteColor(colorIndex);
+        size_t pixelCount = textureWidth * textureHeight;
+        for (size_t i = 0; i < pixelCount; i++)
+        {
+            outputTexture[i] = color;
+        }
     }
 
     void DrawLine(int x0, int y0, int x1, int y1, int color)

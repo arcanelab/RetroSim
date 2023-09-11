@@ -9,7 +9,7 @@ namespace RetroSim::GPU
     const uint_fast16_t textureWidth = 480;
     const uint_fast16_t textureHeight = 256;
     const uint_fast32_t pixelCount = textureWidth * textureHeight;
-    const uint_fast32_t textureSize = pixelCount * 4;
+    const uint_fast32_t textureSizeInBytes = pixelCount * 4;
 
     extern uint32_t *outputTexture; // ARGB8888;
 
@@ -19,8 +19,8 @@ namespace RetroSim::GPU
     void SetFont(int width, int height, int offset);
     void RenderOpaqueText(const char *text, int x, int y, int colorIndex, int16_t backgroundColorIndex);
     void RenderText(const char *text, int x, int y, int colorIndex);
-    void ClearScreen();
-    void ClearScreenIgnoreClipping();
+    void ClearScreen(uint8_t colorIndex = 0);
+    void ClearScreenIgnoreClipping(uint8_t colorIndex = 0);
     void DrawLine(int x0, int y0, int x1, int y1, int color);
     void DrawCircle(int x, int y, int radius, int color, bool filled);
     void DrawRect(int x, int y, int width, int height, int color, bool filled);
