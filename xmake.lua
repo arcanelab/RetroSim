@@ -28,13 +28,13 @@ includes("gravity")
 
 Target =
 {
-    binary = 1,
+    standalone = 1,
     libretro = 2
 }
 
-local _target = Target.libretro
+local _target = Target.standalone
 
-if _target == Target.binary then
+if _target == Target.standalone then
     target("RetroSim")
         add_deps("Gravity")
         set_kind("binary")
