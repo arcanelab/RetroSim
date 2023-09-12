@@ -1,77 +1,77 @@
-# Graphics in RetroSim
+# RetroSim Graphics Technical Reference
 
 ## General
 
-**Screen resolution: 480x256**
+- **Screen Resolution:** 480x256 pixels
+- **Graphics Mode:** Palette-based with 256 colors
+- **Half-res Mode:** 240x128 pixels (optional)
 
-Palette-based graphics with 256 colors.
+### Palette Memory
 
-(Later: Half-res mode: 240x128)
+- RGBA (32-bit) values define the 256 colors in the palette.
+- Palette memory size: 1024 bytes (256 colors * 4 bytes each).
+- Palette RAM is writable and can be modified.
 
-### Palette memory
+### Map Memory
 
-This is where the RGBA (32-bit) values are defined for the 256 colors in the palette. Since a color is defined by four bytes (one bye for the reg, green, blue and alpha components each), the palette memory is 256*4 = 1024 bytes long.
+- Defines which tiles are displayed on the map.
+- Each byte represents an index into the tile memory.
+- Map dimensions adjustable using MAP_WIDTH and MAP_HEIGHT.
 
-The palette RAM is initialized with the default palette, but it's writeable so it can be modified.
+#### Tile Count for Various Tile Sizes
 
-### Map memory
+| Tile Mode | Horizontal Tiles | Vertical Tiles |
+| --------- | ---------------- | -------------- |
+| 8x8       | 60               | 32             |
+| 8x16      | 60               | 16             |
+| 16x8      | 30               | 32             |
+| 16x16     | 30               | 16             |
 
-The map memory defines what tiles are shown on the map. Each byte-sized element in the map memory is an index into the tile-memory.
+### Tile Memory
 
-The dimensions of the map can be changed by setting the values at MAP_WIDTH and MAP_HEIGHT.
+- Stores color indices for individual tiles.
+- Tile size specified by TILE_WIDTH and TILE_HEIGHT registers.
+- Each byte contains an index to the palette RAM (256 colors).
 
-Here's a table of the number of tiles fitting on the screen for a few example tile sizes.
+### Sprite Memory (Atlas)
 
-| Tile mode | Horizontal tiles | Vertical tiles|
-| ----- | -- | -- |
-| 8x8   | 60 | 32 |
-| 8x16  | 60 | 16 |
-| 16x8  | 30 | 32 |
-| 16x16 | 30 | 16 |
+- Contains sprite color data.
+- Rectangular area of 128x128 pixels.
+- Multiple sprites can be drawn by specifying the top-left corner and dimensions.
 
-### Tile memory
+### Bitmap Memory
 
-This is where the color indices for the tiles are stored. The width and height of an individual tile is specified by graphics registers at addresses TILE_WIDTH and TILE_HEIGHT.
+- Similar to sprite memory, can be up to 120K in size.
+- Contains a 480x256 byte array with indices referring to the palette.
 
-Each byte contains an index to the palette RAM, which contains 256 colors.
+## Memory Layout
 
-### Sprite memory (atlas)
+| Address       | Size | Symbol        | Description              | Region Size (bytes) |
+| ------------- | ---- | ------------- | ------------------------ | ------------------- |
+| $0-$FF        |      |               | 65K vectors               | 256                 |
+| $100-$1FF     | u8   |               | 65xx stack                | 256                 |
+| $200-$FFF     |      |               | Free/user RAM             | 3.5K                |
+| $1000-$1FFF   | u32  | PALETTE       | Color palette memory      | 4K                  |
+| $2000-$5FFF   | u8   | MAP           | Map memory (16K)         | 16K                 |
+| $6000-$9FFF   | u8   | TILES         | Tile data memory          | 16K                 |
+| $A000-$CFFF   | u8   | SPRITE_ATLAS  | Sprite atlas/memory       | 16K                 |
+| $D000-$DFFF   |      |               | Registers                 | 4K                  |
+| $E000-$FEFF   |      |               | Free/user RAM             | 8K                  |
+| $FF00-$FFFF   | u16  |               | 65xx CPU vectors          | 256                 |
+| $10000-$2DFFF | u8   | BITMAP        | Bitmap memory             | 120K                |
+| $30000-$3FFFF |      | CHARSET       | Character tile data       | 64K                 |
+| $40000-       |      |               |                          |                     |
 
-This is where the sprite color data is stored. The sprite memory is a rectangular area of size 128*128 containing an array of indices into the color palette. It can contain multiple sprites that can be drawn by selecting the top left corner and the width/height of the sprite.
+## Registers
 
-### Bitmap memory
-
-Similar to the sprite memory, but can be up to 120K big. Used for 
-480x256 byte array containing indices to the palette.
-
-## Memory layout
-
-| Address     | Size | Symbol             |   Description         | Region size (bytes)
-| ----------- | ---- | ------------------ | --------------------- | -------------------
-|    $0-$FF   |      |                    |  65K vectors          | 256
-|  $100-$1FF  | u8   |                    |  65xx stack           | 256
-|  $200-$FFF  |      |                    |  Free/user RAM        | 3.5K
-| $1000-$1FFF | u32  | PALETTE            |  Color palette memory | 4K
-| $2000-$5FFF | u8   | MAP                |  Map memory (16K)     | 16K
-| $6000-$9FFF | u8   | TILES              |  Tile data memory     | 16K
-| $A000-$CFFF | u8   | SPRITE_ATLAS       |  Sprite atlas/memory  | 16K
-| $D000-$DFFF |      |                    |  Registers            | 4K
-| $E000-$FEFF |      |                    |  Free/user RAM        | 8K
-| $FF00-$FFFF | u16  |                    |  65xx CPU vectors     | 256
-|$10000-$2DFFF| u8   | BITMAP             |  Bitmap memory        | 120K
-|$30000-$3FFFF|      | CHARSET            |  Character tile data  | 64K
-|$40000-      |      |                    |                       |
-
-### Registers
-
-| Address     | Size  |   Symbol           |   Description
-| ----------- | ----- | ------------------ | ---------------------
-| $D000       | u8    | TILE_WIDTH         |  Tile width (default: 8)
-| $D001       | u8    | TILE_HEIGHT        |  Tile height (default: 8)
-| $D002       | u8    | MAP_WIDTH          |  Map width in tiles (default: 60, max 128)
-| $D003       | u8    | MAP_HEIGHT         |  Map height in tiles (default: 16, max 128)
-| $D004       | u8    | SPRITE_ATLAS_PITCH |  The width of the sprite atlas (default: 128)
-| $D005       | u8    | BITMAP_PITCH       |  The width of the bitmap memory (default: 480)
+| Address | Size | Symbol            | Description                                   |
+| ------- | ---- | ------------------ | --------------------------------------------- |
+| $D000   | u8   | TILE_WIDTH        | Tile width (default: 8)                       |
+| $D001   | u8   | TILE_HEIGHT       | Tile height (default: 8)                      |
+| $D002   | u8   | MAP_WIDTH         | Map width in tiles (default: 60, max 128)    |
+| $D003   | u8   | MAP_HEIGHT        | Map height in tiles (default: 16, max 128)   |
+| $D004   | u8   | SPRITE_ATLAS_PITCH| Width of the sprite atlas (default: 128)     |
+| $D005   | u8   | BITMAP_PITCH      | Width of the bitmap memory (default: 480)    |
 
 ## Graphics API
 
