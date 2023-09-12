@@ -37,14 +37,11 @@ Each byte contains an index to the palette RAM, which contains 256 colors.
 
 ### Sprite memory (atlas)
 
-A rectangular area of size 128*128 containing an array of indices into the color palette. Can be thought of as a bitmap atlas, comprising of color indices.
+This is where the sprite color data is stored. The sprite memory is a rectangular area of size 128*128 containing an array of indices into the color palette. It can contain multiple sprites that can be drawn by selecting the top left corner and the width/height of the sprite.
 
-### Sprites
+### Bitmap memory
 
-Sprites can be rendered by specifying an area in the sprite atlas area. The width of the atlas is defined in SPRITE_ATLAS_PITCH.
-
-### Bitmap
-
+Similar to the sprite memory, but can be up to 120K big. Used for 
 480x256 byte array containing indices to the palette.
 
 ## Memory layout
@@ -74,6 +71,7 @@ Sprites can be rendered by specifying an area in the sprite atlas area. The widt
 | $D002       | u8    | MAP_WIDTH          |  Map width in tiles (default: 60, max 128)
 | $D003       | u8    | MAP_HEIGHT         |  Map height in tiles (default: 16, max 128)
 | $D004       | u8    | SPRITE_ATLAS_PITCH |  The width of the sprite atlas (default: 128)
+| $D005       | u8    | BITMAP_PITCH       |  The width of the bitmap memory (default: 480)
 
 ## Graphics API
 
@@ -213,100 +211,3 @@ Draws an image from the bitmap area.
 - `x, y`: screen coordinates of the top left corner of the image.
 - `bitmapx, bitmapy`: the pixel coordinates of the image's top left corner in the bitmap area.
 - `width, height`: the size of the image in pixels.
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- 
-|            |       | 00:  8x8  (60x32 tiles, 480x256)
-|            |       | 01:  8x16 (60x16 tiles, 480x256)
-|            |       | 10: 16x8  (30x32 tiles, 480x256)
-|            |       | 11: 16x16 (30x16 tiles, 480x256)
- -->
-
-<!--
-## Memory Map
-
-|Address     | Size  |  Description
-|------------|-------|------------
-|$100        | u8    | Tile-mode
-|            |       | 00:  8x8  (60x33 tiles, 480x264)
-|            |       | 01:  8x16 (60x16 tiles, 480x256)
-|            |       | 10: 16x8  (30x33 tiles, 480x264)
-|            |       | 11: 16x16 (30x16 tiles, 480x256)
-|$101        | u8    | Window Width (in tiles, max screen size)
-|$102        | u8    | Window Height (in tiles, max screen size)
-|$103        | u8    | Map Width (1-128)
-|$104        | u8    | Map Height (1-128)
-|$105        | u8    | Map x-offset (by tiles)
-|$106        | u8    | Map y-offset (by tiles)
-|$107-$108   | i16   | Map x-offset (by pixels, -7..7 or -15..15, depending on tile-mode)
-|$109-$10A   | i16   | Map y-offset (by pixels, -7..7 or -15..15, depending on tile-mode)
-|$10B-$10C   | i16   | Window x-offset (by pixels)
-|$10D-$10E   | i16   | Window y-offset (by pixels)
-|$8000- | |
-|$1000-$3000 | u8    | Tilemap Bank 0
-|$3000-$5000 | u8    | Tilemap Bank 1
-|$5000-$7000 | u8    | Tilemap Bank 2
-|$7000-$9000 | u8    | Tilemap Bank 3
-
-How to calculate tile offset by pixels with 16-wide tiles:
-`finalPixelOffset = (tileOffsetX << 4) | tileOffsetPixelX`
-
-How to calculate tile offset by pixels with 8-wide tiles:
-`finalPixelOffset = (tileOffsetX << 3) | tileOffsetPixelX`
-
-
-### Examples
-
-#### Default mode
-
-- Tile mode: `8x8`
-- Tile window: `60x33`
-- Tile grid: `60x33`
-- Tile offset: `0,0`
-
-#### Tile grid greater than tile window
-
-- Tile mode: `8x8`
-- Tile window: `60x33`
-- Tile grid: `120x67` (2x big as the default)
-- Tile offset: `30, 17` (tile window centered on the grid)
-
-The grid is twice as wide and tall than the tile window. It expands beyond the window's dimension in all directions, as the window is positioned at the center of the grid.
-
-#### Small tile window
-
-- Tile mode: `8x8`
-- Tile window: `30x16`
-- Tile grid: `30x16`
-- Tile offset: `0, 0`
-
-The tile window occupies only the `30x16` top-left area of the screen, the rest is drawn with the background color/pattern.
-
----
-* Text rendering
-* Sprites
-* 2D geometry (line, square, triangle)
-* 3D geometry (mesh)
-* Line-based postprocessing effects (blitter-like)
-* Palette-based:
-    * https://lospec.com/palette-list/aap-64
-    * https://pixeljoint.com/forum/forum_posts.asp?TID=12795
-
-### Text/tile-modes
-
-* Fonts can be loaded into a designated tile-memory area.
-* Set the dimensions of a virtual tile (8x8, 8x16, 16x16, etc).
-* Screen-memory: array of indices into the tile-memory.
-* TODO: how do we map UTF-8 codes to tiles?
-
--->
