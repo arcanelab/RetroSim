@@ -30,10 +30,6 @@ namespace RetroSim::GPU
         MMU::WriteMem<uint8_t>(MMU::TILE_HEIGHT, 16);
         MMU::WriteMem<uint8_t>(MMU::MAP_WIDTH, 30);
         MMU::WriteMem<uint8_t>(MMU::MAP_HEIGHT, 16);
-        MMU::WriteMem<uint8_t>(MMU::PALETTE_BANK, 0);
-        MMU::WriteMem<uint8_t>(MMU::MAP_BANK, 0);
-        MMU::WriteMem<uint8_t>(MMU::TILE_BANK, 0);
-        MMU::WriteMem<uint8_t>(MMU::SPRITE_BANK, 0);
     }
 
     void SetFont(int width, int height, int offset = 0)
