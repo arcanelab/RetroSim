@@ -44,6 +44,11 @@
 - Similar to sprite memory, can be up to 120K in size.
 - Contains a 480x256 byte array with indices referring to the palette.
 
+## Character Memory
+
+- Contains the bitmap for the character sets. Binary format: 0 indicates background color, 1 indicates visible pixel.
+- 
+
 ## Memory Layout
 
 | Address       | Size | Symbol        | Description              | Region Size (bytes) |
@@ -64,19 +69,21 @@
 
 ## Registers
 
-| Address | Size | Symbol            | Description                                   |
+| Address | Size | Symbol            | Description                                    |
 | ------- | ---- | ------------------ | --------------------------------------------- |
-| $D000   | u8   | TILE_WIDTH        | Tile width (default: 8)                       |
-| $D001   | u8   | TILE_HEIGHT       | Tile height (default: 8)                      |
-| $D002   | u8   | MAP_WIDTH         | Map width in tiles (default: 60, max 128)    |
-| $D003   | u8   | MAP_HEIGHT        | Map height in tiles (default: 16, max 128)   |
-| $D004   | u8   | SPRITE_ATLAS_PITCH| Width of the sprite atlas (default: 128)     |
-| $D005   | u8   | BITMAP_PITCH      | Width of the bitmap memory (default: 480)    |
+| $D000   | u8   | TILE_WIDTH        | Tile width (default: 8)                        |
+| $D001   | u8   | TILE_HEIGHT       | Tile height (default: 8)                       |
+| $D002   | u8   | MAP_WIDTH         | Map width in tiles (default: 60, max 128)      |
+| $D003   | u8   | MAP_HEIGHT        | Map height in tiles (default: 16, max 128)     |
+| $D004   | u8   | SPRITE_ATLAS_PITCH| Width of the sprite atlas (default: 128)       |
+| $D005   | u8   | BITMAP_PITCH      | Width of the bitmap memory (default: 480)      |
+| $D006   | u8   | CHARACTER_COLOR   | The index of the color used for rendering text |
+
 
 ## Graphics API
 
-- `cls()` - clear screen
-- `clsnoclip()` - clear screen ignoring clipping
+- `cls(color)` - clear screen with the specified color
+- `clsnoclip(color)` - clear screen ignoring clipping
 - `pixel(x, y, color)` - draw a pixel
 - `palcolor(index, r, g, b)` - change a color in the palette
 - `line(x0, y0, x1, y1, color)` - draw a line
