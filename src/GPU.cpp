@@ -249,7 +249,7 @@ namespace RetroSim::GPU
 
     void DrawSprite(int screenPosX, int screenPosY, int spritePosX, int spritePosY, int width, int height, int16_t transparentColorIndex = -1)
     {
-        int pitch = 128;
+        uint8_t pitch = MMU::ReadMem<uint8_t>(MMU::SPRITE_ATLAS_PITCH);
         for (int y = 0; y < height; y++)
         {
             int spriteAddress = MMU::SPRITE_ATLAS_U8 + spritePosX + (spritePosY + y) * pitch;
