@@ -8,6 +8,12 @@ Palette-based graphics with 256 colors.
 
 (Later: Half-res mode: 240x128)
 
+### Palette memory
+
+This is where the RGBA (32-bit) values are defined for the 256 colors in the palette. Since a color is defined by four bytes (one bye for the reg, green, blue and alpha components each), the palette memory is 256*4 = 1024 bytes long.
+
+The palette RAM is initialized with the default palette, but it's writeable so it can be modified.
+
 ### Map memory
 
 The map memory defines what tiles are shown on the map. Each byte-sized element in the map memory is an index into the tile-memory.
@@ -28,12 +34,6 @@ Here's a table of the number of tiles fitting on the screen for a few example ti
 This is where the color indices for the tiles are stored. The width and height of an individual tile is specified by graphics registers at addresses TILE_WIDTH and TILE_HEIGHT.
 
 Each byte contains an index to the palette RAM, which contains 256 colors.
-
-### Palette memory
-
-This is where the RGBA (32-bit) values are defined for the 256 colors in the palette. Since a color is defined by four bytes (one bye for the reg, green, blue and alpha components each), it is 256*4 = 1024 bytes long.
-
-The palette RAM is initialized with the default palette, but it's writeable so it can be modified.
 
 ### Sprite memory (atlas)
 
@@ -65,7 +65,6 @@ Sprites can be rendered by specifying an area in the sprite atlas area. The widt
 |$30000-$3FFFF|      | CHARSET            |  Character tile data  | 64K
 |$40000-      |      |                    |                       |
 
-
 ### Registers
 
 | Address     | Size  |   Symbol           |   Description
@@ -75,7 +74,6 @@ Sprites can be rendered by specifying an area in the sprite atlas area. The widt
 | $D002       | u8    | MAP_WIDTH          |  Map width in tiles (default: 60, max 128)
 | $D003       | u8    | MAP_HEIGHT         |  Map height in tiles (default: 16, max 128)
 | $D004       | u8    | SPRITE_ATLAS_PITCH |  The width of the sprite atlas (default: 128)
-
 
 ## Graphics API
 
