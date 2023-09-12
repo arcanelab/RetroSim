@@ -4,15 +4,17 @@
 
 **Screen resolution: 480x256**
 
-256 Colors
+Palette-based graphics with 256 colors.
 
 (Later: Half-res mode: 240x128)
 
 ### Map memory
 
-Each byte in the map memory is an index into the tile-memory.
+The map memory defines what tiles are shown on the map. Each byte-sized element in the map memory is an index into the tile-memory.
 
-The size of the map is defined by MAP_WIDTH and MAP_HEIGHT at memory 0x102 and 0x103.
+The dimensions of the map can be changed by setting the values at MAP_WIDTH and MAP_HEIGHT.
+
+Here's a table of the number of tiles fitting on the screen for a few example tile sizes.
 
 | Tile mode | Horizontal tiles | Vertical tiles|
 | ----- | -- | -- |
@@ -23,9 +25,7 @@ The size of the map is defined by MAP_WIDTH and MAP_HEIGHT at memory 0x102 and 0
 
 ### Tile memory
 
-This is where the bitmaps for the tiles are stored. The width and height of an individual tile is specified by graphics registers at addresses 0x100 and 0x101.
-
-The tile-memory can contain any kind of bitmap data, both text and non-text characters/tiles. The tile memory is initialized with the default font data.
+This is where the color indices for the tiles are stored. The width and height of an individual tile is specified by graphics registers at addresses TILE_WIDTH and TILE_HEIGHT.
 
 Each byte contains an index to the palette RAM, which contains 256 colors.
 
@@ -37,7 +37,7 @@ The palette RAM is initialized with the default palette, but it's writeable so i
 
 ### Sprite memory (atlas)
 
-A rectangular area of size 128*128 containing an array of indices into the color palette. Can be thought of as a bitmap atlas, comprising of indices.
+A rectangular area of size 128*128 containing an array of indices into the color palette. Can be thought of as a bitmap atlas, comprising of color indices.
 
 ### Sprites
 
@@ -56,8 +56,8 @@ Sprites are drawn from an atlas
 |  $200-$FFF  |       |                    |  Free/user RAM (3.5K)
 | $1000-$1FFF | u32   | PALETTE            |  Color palette memory (4K)
 | $2000-$5FFF | u8    | MAP                |  Map memory (16K)
-| $6000-$9FFF | u8    | TILES              |  Tile memory bank (16K)
-| $A000-$CFFF | u8    | SPRITE_ATLAS       |  Sprite atlas/memory bank (16K)
+| $6000-$9FFF | u8    | TILES              |  Tile data memory (16K)
+| $A000-$CFFF | u8    | SPRITE_ATLAS       |  Sprite atlas/memory (16K)
 | $D000-$DFFF |       |                    |  Registers
 | $E000-$FEFF |       |                    |  Free/user RAM (8K)
 | $FF00-$FFFF | u16   |                    |  65xx CPU vectors
@@ -73,10 +73,7 @@ Sprites are drawn from an atlas
 | $D001       | u8    | TILE_HEIGHT        |  Tile height (default: 8)
 | $D002       | u8    | MAP_WIDTH          |  Map width in tiles (default: 60, max 128)
 | $D003       | u8    | MAP_HEIGHT         |  Map height in tiles (default: 16, max 128)
-| $D004       | u8    | PALETTE_BANK       |  Palette bank selector
-| $D005       | u8    | MAP_BANK           |  Map bank selector
-| $D006       | u8    | TILE_BANK          |  Tile bank selector
-| $D007       | u8    | SPRITE_BANK        |  Sprite bank selector
+
 
 ## Graphics API
 
@@ -96,9 +93,6 @@ Sprites are drawn from an atlas
 - `map(x, y, mapx, mapy, width, height)` - draw the tile map on screen
 - `sprite(x, y, spritex, spritey, width, height)` - draw a sprite
 - `bitmap(x, y, bitmapx, bitmapy, width, height)` - draw an image
-- `palette(bank)` - select palette bank
-- `tiles(bank)` - select tile bank
-- `sprite(bank)` - select sprite bank
 
 ### cls()
 
@@ -219,20 +213,6 @@ Draws an image from the bitmap area.
 - `x, y`: screen coordinates of the top left corner of the image.
 - `bitmapx, bitmapy`: the pixel coordinates of the image's top left corner in the bitmap area.
 - `width, height`: the size of the image in pixels.
-
-### palette(bank)
-
-Selects the palette bank.
-
-### tiles(bank)
-
-Selects the tile bank.
-
-### sprite(bank)
-
-Selects the sprite bank.
-
-
 
 
 
