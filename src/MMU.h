@@ -24,10 +24,7 @@ namespace RetroSim::MMU
         TILE_HEIGHT = 0xD001,
         MAP_WIDTH = 0xD002,
         MAP_HEIGHT = 0xD003,
-        PALETTE_BANK = 0xD004,
-        MAP_BANK = 0xD005,
-        TILE_BANK = 0xD006,
-        SPRITE_BANK = 0xD007
+        SPRITE_ATLAS_PITCH = 0xD004,
     };
 
     template <typename T>
