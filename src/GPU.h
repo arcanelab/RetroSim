@@ -32,9 +32,6 @@ namespace RetroSim::GPU
     void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex);
     void DrawSprite(int x, int y, int spritex, int spritey, int width, int height, int16_t transparentColorIndex);
     void DrawBitmap(int screenPosX, int screenPosY, int bitmapPosX, int bitmapPosY, int width, int height, int pitch, int16_t transparentColorIndex = -1);
-    void SetPaletteBank(int bank);
-    void SetTileBank(int bank);
-    void SetSpriteBank(int bank);
     void SetPaletteColor(int index, int r, int g, int b);
 
     // Helper functions

@@ -282,18 +282,6 @@ namespace RetroSim::GPU
         }
     }
 
-    void SetPaletteBank(int bank)
-    {
-    }
-
-    void SetTileBank(int bank)
-    {
-    }
-
-    void SetSpriteBank(int bank)
-    {
-    }
-
     void SetPaletteColor(int index, int r, int g, int b)
     {
         MMU::WriteMem<uint32_t>(MMU::PALETTE_U32 + index * 4, r << 16 | g << 8 | b);
