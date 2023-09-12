@@ -49,21 +49,22 @@ Sprites are drawn from an atlas
 
 ## Memory layout
 
-| Address     | Size  |   Symbol           |   Description
-| ----------- | ----- | ------------------ | ---------------------
-|    $0-$FF   |       |                    |  65K vectors
-|  $100-$1FF  | u8    |                    |  65xx stack
-|  $200-$FFF  |       |                    |  Free/user RAM (3.5K)
-| $1000-$1FFF | u32   | PALETTE            |  Color palette memory (4K)
-| $2000-$5FFF | u8    | MAP                |  Map memory (16K)
-| $6000-$9FFF | u8    | TILES              |  Tile data memory (16K)
-| $A000-$CFFF | u8    | SPRITE_ATLAS       |  Sprite atlas/memory (16K)
-| $D000-$DFFF |       |                    |  Registers
-| $E000-$FEFF |       |                    |  Free/user RAM (8K)
-| $FF00-$FFFF | u16   |                    |  65xx CPU vectors
-|$10000-$2DFFF| u8    | BITMAP             |  Bitmap memory (120K)
-|$30000-$3FFFF|       | CHARSET            |  Character tile data (64K)
-|$40000-      |       |                    |  
+| Address     | Size | Symbol             |   Description         | Region size (bytes)
+| ----------- | ---- | ------------------ | --------------------- | -------------------
+|    $0-$FF   |      |                    |  65K vectors          | 256
+|  $100-$1FF  | u8   |                    |  65xx stack           | 256
+|  $200-$FFF  |      |                    |  Free/user RAM        | 3.5K
+| $1000-$1FFF | u32  | PALETTE            |  Color palette memory | 4K
+| $2000-$5FFF | u8   | MAP                |  Map memory (16K)     | 16K
+| $6000-$9FFF | u8   | TILES              |  Tile data memory     | 16K
+| $A000-$CFFF | u8   | SPRITE_ATLAS       |  Sprite atlas/memory  | 16K
+| $D000-$DFFF |      |                    |  Registers            | 4K
+| $E000-$FEFF |      |                    |  Free/user RAM        | 8K
+| $FF00-$FFFF | u16  |                    |  65xx CPU vectors     | 256
+|$10000-$2DFFF| u8   | BITMAP             |  Bitmap memory        | 120K
+|$30000-$3FFFF|      | CHARSET            |  Character tile data  | 64K
+|$40000-      |      |                    |                       |
+
 
 ### Registers
 
