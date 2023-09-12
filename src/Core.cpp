@@ -100,6 +100,8 @@ namespace RetroSim
         return true;
     }
 
+    int textPos = 0;
+
     void Core::RunNextFrame()
     {
         frameNumber++;
@@ -141,25 +143,31 @@ namespace RetroSim
             dy = -dy;
         GPU::DrawCircle(x, y, radius, colorIndex, true);
 
-        // GPU::Cls();
-        GPU::RenderOpaqueText("RetroSim", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 150, colorIndex, 20);
+        // GPU::ClearScreen(0);
+        GPU::RenderOpaqueText("RetroSim", textPos, 150, colorIndex, 20);
         // GPU::Map(frameNumber % GPU::textureWidth, 40, 0, 0, 20, 3, 0);
 
+        textPos--;
+        if(textPos < -200)
+            textPos = GPU::textureWidth + 200;
+
         GPU::SetFont(8, 8, 0x8000);
-        GPU::RenderText("This text is 8x8.", (GPU::textureWidth - frameNumber) % GPU::textureWidth, 170, colorIndex);
+        GPU::RenderText("This text is 8x8.", textPos, 170, colorIndex);
         GPU::SetFont(8, 16, 0);
 
         // GPU::ClearScreenIgnoreClipping((frameNumber / 30) % 256);
 
-        // move bitmap around in a CIRCLE, use sinus
         int bitmapX = 100 + sin(frameNumber / 60.0) * 100;
         int bitmapY = 50 + cos(frameNumber / 60.0) * 100;
 
         // GPU::DrawBitmap(bitmapX, bitmapY, 0, 0, 320, 256, 320, 1);
-        GPU::DrawSprite(bitmapX, bitmapY, 0, 0, 128, 128, 1);
+        // GPU::DrawSprite(bitmapX, bitmapY, 0, 0, 128, 128, 1);
 
         int topLeftX = (GPU::textureWidth - 320) / 2;
         int topLeftY = (GPU::textureHeight - 256) / 2;
+        // GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 320, 256, 320, 1);
+
+        GPU::RenderText("This text is 16x16.", textPos, 190, colorIndex);
         GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);
     }
 
