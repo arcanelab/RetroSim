@@ -41,7 +41,7 @@ A rectangular area of size 128*128 containing an array of indices into the color
 
 ### Sprites
 
-Sprites are drawn from an atlas
+Sprites can be rendered by specifying an area in the sprite atlas area. The width of the atlas is defined in SPRITE_ATLAS_PITCH.
 
 ### Bitmap
 
@@ -74,6 +74,7 @@ Sprites are drawn from an atlas
 | $D001       | u8    | TILE_HEIGHT        |  Tile height (default: 8)
 | $D002       | u8    | MAP_WIDTH          |  Map width in tiles (default: 60, max 128)
 | $D003       | u8    | MAP_HEIGHT         |  Map height in tiles (default: 16, max 128)
+| $D004       | u8    | SPRITE_ATLAS_PITCH |  The width of the sprite atlas (default: 128)
 
 
 ## Graphics API
