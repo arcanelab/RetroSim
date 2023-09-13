@@ -10,6 +10,7 @@ using namespace RetroSim::Logger;
 
 namespace RetroSim::MMU
 {
+    // Explicit instantiation
     template uint8_t ReadMem<uint8_t>(uint32_t address);
     template uint16_t ReadMem<uint16_t>(uint32_t address);
     template uint32_t ReadMem<uint32_t>(uint32_t address);
@@ -18,14 +19,14 @@ namespace RetroSim::MMU
     template void WriteMem<uint16_t>(uint32_t address, uint16_t value);
     template void WriteMem<uint32_t>(uint32_t address, uint32_t value);
 
-    uint8_t *memory = (uint8_t *)calloc(memorySize, 1);
+    MemorySections memory;
 
     template <typename T>
     inline T ReadMem(uint32_t address)
     {
         if (address < memorySize)
         {
-            return *((T *)(memory + address));
+            return *((T *)(memory.raw + address));
         }
         else
         {
@@ -39,7 +40,7 @@ namespace RetroSim::MMU
     {
         if (address < memorySize)
         {
-            *(T *)(memory + address) = value;
+            *(T *)(memory.raw + address) = value;
         }
         else
         {
@@ -66,7 +67,7 @@ namespace RetroSim::MMU
             return -1;
         }
 
-        fread(memory + address, 1, fileSize, file);
+        fread(memory.raw + address, 1, fileSize, file);
         fclose(file);
 
         LogPrintf(RETRO_LOG_INFO, "Loaded %d bytes to $%x from %s\n", fileSize, address, filename);
