@@ -44,14 +44,14 @@ namespace RetroSim
         // Copy palette to memory
         for (int i = 0; i < 256; i++)
         {
-            MMU::WriteMem<uint32_t>(MMU::PALETTE_U32 + i * 4, palette_64[i % 64]); // 0xAARRGGBB
+            MMU::memory.Palette_u32[i] = palette_64[i % 64];
         }
 
         // Generate test map pattern
         int numTiles = (GPU::textureWidth / tileWidth) * (GPU::textureHeight / tileHeight);
         for (int i = 0; i < numTiles; i++)
         {
-            MMU::WriteMem<uint8_t>(MMU::MAP_U8 + i, i % 256);
+            MMU::memory.Map_u8[i] = i % 256;
         }
 
         // load image palette
@@ -65,8 +65,8 @@ namespace RetroSim
         {
             for (int x = 0; x < 128; x++)
             {
-                uint8_t value = MMU::ReadMem<uint8_t>(MMU::BITMAP_U8 + y * 320 + x);
-                MMU::WriteMem<uint8_t>(MMU::SPRITE_ATLAS_U8 + y * 128 + x, value);
+                uint8_t value = MMU::memory.Bitmap_u8[y * 320 + x];
+                MMU::memory.SpriteAtlas_u8[y * 128 + x] = value;
             }
         }
     }
@@ -75,20 +75,20 @@ namespace RetroSim
     {
         for (int i = 0; i < 0x8000; i++)
         {
-            MMU::WriteMem<uint8_t>(MMU::CHARSET + i, unscii_16[i]);
+            MMU::memory.Charset_u8[i] = unscii_16[i];
         }
 
         uint32_t offset = 0x8000;
         for (int i = 0; i < 0x8000; i++)
         {
-            MMU::WriteMem<uint8_t>(MMU::CHARSET + i + offset, unscii_8[i]);
+            MMU::memory.Charset_u8[i + offset] = unscii_8[i];
         }
 
         // copy first 16K from character ram to tile ram
         for (int i = 0; i < 0x4000; i++)
         {
-            uint8_t value = MMU::ReadMem<uint8_t>(MMU::CHARSET + i);
-            MMU::WriteMem<uint8_t>(MMU::TILES_U8 + i, value);
+            uint8_t value = MMU::memory.Charset_u8[i];
+            MMU::memory.Tiles_u8[i] = value;
         }
     }
 

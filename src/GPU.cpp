@@ -47,7 +47,7 @@ namespace RetroSim::GPU
             for (int k = 0; k < fontHeight; k++)
                 for (int j = 0; j < fontWidth; j++)
                 {
-                    uint8_t currentPixelColorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
+                    uint8_t currentPixelColorIndex = MMU::memory.Charset_u8[fontOffset + c * fontWidth * fontHeight + k * fontWidth + j];
 
                     if (currentPixelColorIndex == 0)
                         DrawPixel(x + j, y + k, backgroundColorIndex);
@@ -67,7 +67,7 @@ namespace RetroSim::GPU
             for (int k = 0; k < fontHeight; k++)
                 for (int j = 0; j < fontWidth; j++)
                 {
-                    uint8_t currentPixelColorIndex = MMU::ReadMem<uint8_t>(MMU::CHARSET + fontOffset + c * fontWidth * fontHeight + k * fontWidth + j);
+                    uint8_t currentPixelColorIndex = MMU::memory.Charset_u8[fontOffset + c * fontWidth * fontHeight + k * fontWidth + j];
                     if (currentPixelColorIndex == 0)
                         continue;
                     DrawPixel(x + j, y + k, colorIndex);
@@ -226,14 +226,14 @@ namespace RetroSim::GPU
         {
             for (int tileX = mapX; tileX < mapX + width; tileX++)
             {
-                int tileIndex = MMU::ReadMem<uint8_t>(MMU::MAP_U8 + tileX + tileY * mapWidth);
-                int tileBitmapAddress = MMU::TILES_U8 + tileIndex * tileWidth * tileHeight;
+                int tileIndex = MMU::memory.Map_u8[tileX + tileY * mapWidth];
+                int tileOffset = tileIndex * tileWidth * tileHeight;
 
                 for (int tileMemY = 0; tileMemY < tileHeight; tileMemY++)
                 {
                     for (int tileMemX = 0; tileMemX < tileWidth; tileMemX++)
                     {
-                        int colorIndex = MMU::ReadMem<uint8_t>(tileBitmapAddress + tileMemX + tileMemY * tileWidth);
+                        int colorIndex = MMU::memory.Bitmap_u8[tileOffset + tileMemX + tileMemY * tileWidth];
                         if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
                             continue;
 
@@ -252,10 +252,10 @@ namespace RetroSim::GPU
         uint8_t pitch = MMU::ReadMem<uint8_t>(MMU::SPRITE_ATLAS_PITCH);
         for (int y = 0; y < height; y++)
         {
-            int spriteAddress = MMU::SPRITE_ATLAS_U8 + spritePosX + (spritePosY + y) * pitch;
+            int spriteOffset = spritePosX + (spritePosY + y) * pitch;
             for (int x = 0; x < width; x++)
             {
-                int colorIndex = MMU::ReadMem<uint8_t>(spriteAddress + x);
+                int colorIndex = MMU::memory.SpriteAtlas_u8[spriteOffset + x];
                 if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
                     continue;
                 DrawPixel(screenPosX + x, screenPosY + y, colorIndex);
@@ -267,10 +267,10 @@ namespace RetroSim::GPU
     {
         for (int y = 0; y < height; y++)
         {
-            int bitmapAddress = MMU::BITMAP_U8 + bitmapPosX + (bitmapPosY + y) * pitch;
+            int bitmapOffset = bitmapPosX + (bitmapPosY + y) * pitch;
             for (int x = 0; x < width; x++)
             {
-                int colorIndex = MMU::ReadMem<uint8_t>(bitmapAddress + x);
+                int colorIndex = MMU::memory.Bitmap_u8[bitmapOffset + x];
                 if (transparentColorIndex != -1 && colorIndex == transparentColorIndex)
                     continue;
                 DrawPixel(screenPosX + x, screenPosY + y, colorIndex);
@@ -278,13 +278,14 @@ namespace RetroSim::GPU
         }
     }
 
+    // TODO: test
     void SetPaletteColor(int index, int r, int g, int b)
     {
-        MMU::WriteMem<uint32_t>(MMU::PALETTE_U32 + index * 4, r << 16 | g << 8 | b);
+        MMU::memory.Palette_u32[index] = r << 16 | g << 8 | b;
     }
 
     uint32_t GetPaletteColor(uint8_t colorIndex)
     {
-        return MMU::ReadMem<uint32_t>(MMU::PALETTE_U32 + colorIndex * 4);
+        return MMU::memory.Palette_u32[colorIndex];
     }
 }
