@@ -5,7 +5,7 @@
 #pragma once
 
 #include <string>
-#include "libretro/libretro-common/include/libretro.h"
+#include "libretro.h"
 #include "Core.h"
 
 namespace RetroSim

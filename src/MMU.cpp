@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+using namespace RetroSim::Logger;
+
 namespace RetroSim::MMU
 {
     template uint8_t ReadMem<uint8_t>(uint32_t address);
@@ -27,7 +29,7 @@ namespace RetroSim::MMU
         }
         else
         {
-            Logger::RSPrintf(RETRO_LOG_ERROR, "ReadMem: invalid address: %08X\n", address);
+            LogPrintf(RETRO_LOG_ERROR, "ReadMem: invalid address: %08X\n", address);
             return 0;
         }
     }
@@ -41,7 +43,7 @@ namespace RetroSim::MMU
         }
         else
         {
-            Logger::RSPrintf(RETRO_LOG_ERROR, "WriteMem: invalid address: %08X\n", address);
+            LogPrintf(RETRO_LOG_ERROR, "WriteMem: invalid address: %08X\n", address);
         }
     }
 
@@ -50,7 +52,7 @@ namespace RetroSim::MMU
         FILE *file = fopen(filename, "rb");
         if (file == nullptr)
         {
-            Logger::RSPrintf(RETRO_LOG_ERROR, "Failed to open file: %s\n", filename);
+            LogPrintf(RETRO_LOG_ERROR, "Failed to open file: %s\n", filename);
             return -1;
         }
 
@@ -60,14 +62,14 @@ namespace RetroSim::MMU
 
         if (address + fileSize > memorySize)
         {
-            Logger::RSPrintf(RETRO_LOG_ERROR, "LoadFile: file size exceeds memory size: %08X\n", address + fileSize);
+            LogPrintf(RETRO_LOG_ERROR, "LoadFile: file size exceeds memory size: %08X\n", address + fileSize);
             return -1;
         }
 
         fread(memory + address, 1, fileSize, file);
         fclose(file);
 
-        Logger::RSPrintf(RETRO_LOG_INFO, "Loaded %d bytes to $%x from %s\n", fileSize, address, filename);
+        LogPrintf(RETRO_LOG_INFO, "Loaded %d bytes to $%x from %s\n", fileSize, address, filename);
 
         return 0;
     }

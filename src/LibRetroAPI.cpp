@@ -49,7 +49,7 @@ unsigned retro_api_version(void)
 
 void retro_set_controller_port_device(unsigned port, unsigned device)
 {
-    Logger::RSPrintf(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
+    Logger::LogPrintf(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -89,7 +89,7 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 
 void retro_reset(void)
 {
-    Logger::RSPrintf(RETRO_LOG_INFO, "retro_reset()\n");
+    Logger::LogPrintf(RETRO_LOG_INFO, "retro_reset()\n");
     retro_init();
 }
 

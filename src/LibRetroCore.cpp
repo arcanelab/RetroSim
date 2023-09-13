@@ -100,7 +100,7 @@ namespace RetroSim
 
     bool LibRetroCore::LoadGame(const struct retro_game_info *info)
     {
-        Logger::RSPrintf(RETRO_LOG_INFO, "retro_load_game()");
+        Logger::LogPrintf(RETRO_LOG_INFO, "retro_load_game()");
 
         struct retro_input_descriptor desc[] = {
             {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
@@ -116,7 +116,7 @@ namespace RetroSim
         enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
         if (!envCallback(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
         {
-            Logger::RSPrintf(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
+            Logger::LogPrintf(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
             return false;
         }
 
@@ -131,7 +131,7 @@ namespace RetroSim
 
     void LibRetroCore::UnloadGame()
     {
-        Logger::RSPrintf(RETRO_LOG_INFO, "retro_unload_game()\n");
+        Logger::LogPrintf(RETRO_LOG_INFO, "retro_unload_game()\n");
     }
 
     void LibRetroCore::GenerateAudio()
@@ -170,7 +170,7 @@ namespace RetroSim
         if (envCallback(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logCallback))
         {
             Logger::SetLibRetroCallback(logCallback.log);
-            Logger::RSPrintf(RETRO_LOG_DEBUG, "Logging initialized.\n");
+            Logger::LogPrintf(RETRO_LOG_DEBUG, "Logging initialized.\n");
         }
     }
 
@@ -198,11 +198,11 @@ namespace RetroSim
         if (envCallback(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
         {
             systemDirectory = dir;
-            Logger::RSPrintf(RETRO_LOG_DEBUG, "System directory: %s\n", systemDirectory.c_str());
+            Logger::LogPrintf(RETRO_LOG_DEBUG, "System directory: %s\n", systemDirectory.c_str());
         }
         else
         {
-            Logger::RSPrintf(RETRO_LOG_ERROR, "Failed to get system directory.\n");
+            Logger::LogPrintf(RETRO_LOG_ERROR, "Failed to get system directory.\n");
         }
     }
 

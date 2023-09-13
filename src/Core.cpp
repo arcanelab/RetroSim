@@ -13,6 +13,8 @@
 #include "palette.h"
 #include "Logger.h"
 
+using namespace RetroSim::Logger;
+
 namespace RetroSim
 {
     RetroSim::Core *RetroSim::Core::instance = nullptr;
@@ -21,15 +23,15 @@ namespace RetroSim
 
     void Core::Initialize(const std::string &basePath)
     {
-        Logger::RSPrintf(RETRO_LOG_INFO, "Initializing RetroSim...\n");
-        Logger::RSPrintf(RETRO_LOG_INFO, "Base path: %s\n", basePath.c_str());
+        LogPrintf(RETRO_LOG_INFO, "Initializing RetroSim...\n");
+        LogPrintf(RETRO_LOG_INFO, "Base path: %s\n", basePath.c_str());
 
         // print current directory
         char cwd[1024];
         if (getcwd(cwd, sizeof(cwd)) != nullptr)
-            Logger::RSPrintf(RETRO_LOG_INFO, "Current working dir: %s\n", cwd);
+            LogPrintf(RETRO_LOG_INFO, "Current working dir: %s\n", cwd);
         else
-            Logger::RSPrintf(RETRO_LOG_ERROR, "getcwd() error\n");
+            LogPrintf(RETRO_LOG_ERROR, "getcwd() error\n");
 
         coreConfig.Initialize(basePath);
         GPU::Initialize();

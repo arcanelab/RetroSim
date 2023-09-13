@@ -3,14 +3,14 @@
 namespace RetroSim::Logger
 {
 #ifdef LIBRETRO
-    retro_log_printf_t RSPrintf = nullptr;
+    retro_log_printf_t LogPrintf = nullptr;
 
     void SetLibRetroCallback(retro_log_printf_t libRetroPrintf)
     {
-        RSPrintf = libRetroPrintf;
+        LogPrintf = libRetroPrintf;
     }
 #else
-    log_printf_t RSPrintf = log_printf;
+    log_printf_t LogPrintf = log_printf;
 
     void log_printf(enum retro_log_level level, const char *fmt, ...)
     {
