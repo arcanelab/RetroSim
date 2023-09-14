@@ -55,10 +55,10 @@ namespace RetroSim
         }
 
         // load image palette
-        MMU::LoadFile("data/freedom.png.pal", MMU::PALETTE_U32);
+        MMU::LoadFile(coreConfig.GetDataPath() + "/freedom.png.pal", MMU::PALETTE_U32);
 
         // load image bitmap
-        MMU::LoadFile("data/freedom.png.bitmap", MMU::BITMAP_U8);
+        MMU::LoadFile(coreConfig.GetDataPath() + "/freedom.png.bitmap", MMU::BITMAP_U8);
 
         // copy image from BITMAP_U8 to SPRITE_ATLAS_U8, crop at 128x128
         for (int y = 0; y < 128; y++)
