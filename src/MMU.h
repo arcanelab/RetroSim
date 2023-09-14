@@ -3,6 +3,7 @@
 
 #pragma once
 #include <cstdint>
+#include <string>
 #include <new> // For placement new
 
 namespace RetroSim::MMU
