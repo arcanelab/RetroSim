@@ -24,6 +24,7 @@ namespace RetroSim
         CoreConfig GetCoreConfig();
         void RunNextFrame();
         void Reset();
+        void Shutdown();
 
     private:
         static Core *instance;

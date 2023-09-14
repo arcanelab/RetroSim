@@ -1,17 +1,19 @@
 // RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
 // https://github.com/arcanelab
 
-#include "GPU.h"
-#include "Core.h"
-#include "MMU.h"
 #include <cstring>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <thread>
+#include "GPU.h"
+#include "Core.h"
+#include "MMU.h"
 #include "unscii-8.h"
 #include "unscii-16.h"
 #include "palette.h"
 #include "Logger.h"
+#include "Telnet/TelnetServer.h"
 
 using namespace RetroSim::Logger;
 
@@ -69,6 +71,11 @@ namespace RetroSim
                 MMU::memory.SpriteAtlas_u8[y * 128 + x] = value;
             }
         }
+
+#ifndef LIBRETRO
+        std::thread telnetThread(TelnetServer::Start);
+        telnetThread.detach();
+#endif
     }
 
     void Core::LoadFonts()
@@ -175,5 +182,12 @@ namespace RetroSim
 
     void Core::Reset()
     {
+    }
+
+    void Core::Shutdown()
+    {
+#ifndef LIBRETRO
+        TelnetServer::Stop();
+#endif
     }
 }
