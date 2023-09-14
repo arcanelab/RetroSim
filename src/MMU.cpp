@@ -74,4 +74,9 @@ namespace RetroSim::MMU
 
         return 0;
     }
+
+    int LoadFile(std::string filename, uint32_t address)
+    {
+        return LoadFile(filename.c_str(), address);
+    }
 }
