@@ -3,6 +3,8 @@
 
 #pragma once
 #include <cstdint>
+#include <string>
+#include <new> // For placement new
 #include <new> // For placement new
 
 namespace RetroSim::MMU
@@ -66,4 +68,5 @@ namespace RetroSim::MMU
     void WriteMem(uint32_t address, T value);
 
     int LoadFile(const char *filename, uint32_t address);
+    int LoadFile(std::string filename, uint32_t address);
 }

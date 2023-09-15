@@ -24,7 +24,7 @@ namespace RetroSim::GPU
     uint32_t fontOffset = 0; // defines how many characters to skip at the start of CHARSET
 
     void Initialize()
-    {
+    {        
         memset(outputTexture, 0, textureSizeInBytes);
         MMU::WriteMem<uint8_t>(MMU::TILE_WIDTH, 8);
         MMU::WriteMem<uint8_t>(MMU::TILE_HEIGHT, 16);
