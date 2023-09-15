@@ -2,6 +2,8 @@
 // https://github.com/arcanelab
 
 #include <cstdint>
+#include <mutex>
+#include "Core.h"
 #include "MMU.h"
 #include "gravity_compiler.h"
 #include "gravity_macros.h"
@@ -15,6 +17,8 @@ namespace RetroSim::GravityAPI
 {
     bool PokeU8(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
     {
+        std::lock_guard<std::mutex> lock(Core::GetInstance()->memoryMutex);
+
         gravity_value_t address = GET_VALUE(1);
         gravity_value_t value = GET_VALUE(2);
 

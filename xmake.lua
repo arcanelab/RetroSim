@@ -37,21 +37,29 @@ local _target = Target.standalone
 if _target == Target.standalone then
     target("RetroSim")
         add_defines("SOCKETS_ENABLED")
-        add_deps("Gravity")
+        -- defines
         set_kind("binary")
-        add_files("src/**.cpp")
-        add_includedirs("data")
+        set_targetdir("bin")
+        -- dependencies
+        add_deps("Gravity")
+        add_packages("libsdl")
+        -- source files
+        add_files("src/*.cpp")
         add_files("data/**.cpp")
+        add_files("src/Telnet/*.cpp")
+        add_files("src/extern/libtelnet/*.c")
+        -- headers
+        add_includedirs("src")
+        add_includedirs("data")
         add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
         add_includedirs("src/extern/cppsocket")
-        add_packages("libsdl")
-        set_targetdir("bin")
+        add_includedirs("src/extern/libtelnet")
 elseif _target == Target.libretro then
     target("RetroSimCore")
         add_defines("LIBRETRO")
         add_deps("Gravity")
         set_kind("shared")
-        add_files("src/**.cpp")
+        add_files("src/*.cpp")
         add_files("data/**.cpp")
         add_includedirs("data")
         add_includedirs("src/extern/libretro")

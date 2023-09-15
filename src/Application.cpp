@@ -78,6 +78,8 @@ namespace RetroSim::Application
         if (scriptingEnabled)
             GravityScripting::Cleanup();
 
+        Core::GetInstance()->Shutdown();
+
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);

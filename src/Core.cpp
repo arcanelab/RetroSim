@@ -1,17 +1,19 @@
 // RetroSim - Copyright 2011-2023 Zoltán Majoros. All rights reserved.
 // https://github.com/arcanelab
 
-#include "GPU.h"
-#include "Core.h"
-#include "MMU.h"
 #include <cstring>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <thread>
+#include "GPU.h"
+#include "Core.h"
+#include "MMU.h"
 #include "unscii-8.h"
 #include "unscii-16.h"
 #include "palette.h"
 #include "Logger.h"
+#include "Telnet/TelnetServer.h"
 
 using namespace RetroSim::Logger;
 
@@ -55,10 +57,10 @@ namespace RetroSim
         }
 
         // load image palette
-        MMU::LoadFile("data/freedom.png.pal", MMU::PALETTE_U32);
+        MMU::LoadFile(coreConfig.GetDataPath() + "/freedom.png.pal", MMU::PALETTE_U32);
 
         // load image bitmap
-        MMU::LoadFile("data/freedom.png.bitmap", MMU::BITMAP_U8);
+        MMU::LoadFile(coreConfig.GetDataPath() + "/freedom.png.bitmap", MMU::BITMAP_U8);
 
         // copy image from BITMAP_U8 to SPRITE_ATLAS_U8, crop at 128x128
         for (int y = 0; y < 128; y++)
@@ -69,6 +71,11 @@ namespace RetroSim
                 MMU::memory.SpriteAtlas_u8[y * 128 + x] = value;
             }
         }
+
+#ifndef LIBRETRO
+        std::thread telnetThread(TelnetServer::Start);
+        telnetThread.detach();
+#endif
     }
 
     void Core::LoadFonts()
@@ -101,10 +108,10 @@ namespace RetroSim
     {
         return true;
     }
-
+    
     int textPos = 0;
 
-    void Core::RunNextFrame()
+    void DrawTestScreen()
     {
         frameNumber++;
         // RetroSim::GPU::RenderTileMode();
@@ -170,10 +177,23 @@ namespace RetroSim
         // GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 320, 256, 320, 1);
 
         GPU::RenderText("This text is 16x16.", textPos, 190, colorIndex);
-        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);
+        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);        
+    }
+
+    void Core::RunNextFrame()
+    {
+        std::lock_guard<std::mutex> lock(memoryMutex);
+        DrawTestScreen();
     }
 
     void Core::Reset()
     {
+    }
+
+    void Core::Shutdown()
+    {
+#ifndef LIBRETRO
+        TelnetServer::Stop();
+#endif
     }
 }
