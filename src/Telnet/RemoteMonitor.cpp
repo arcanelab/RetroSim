@@ -4,6 +4,8 @@
 #include <cstring>
 #include <cstdio>
 #include <string>
+#include <vector>
+#include <sstream>
 #include "RemoteMonitor.h"
 #include "Logger.h"
 
@@ -29,7 +31,17 @@ namespace RetroSim::RemoteMonitor
     {
         LogPrintf(RETRO_LOG_INFO, "RemoteMonitor: %s\n", command.c_str());
 
-        auto it = commands.find(command);
+        std::vector<string> tokens;
+        std::istringstream iss(command);
+        string token;
+
+        while(iss >> token)
+            tokens.push_back(token);
+
+        if(tokens.size() == 0)
+            return DisplayHelp();
+
+        auto it = commands.find(tokens[0]);
         if (it == commands.end())
         {
             return DisplayHelp();
