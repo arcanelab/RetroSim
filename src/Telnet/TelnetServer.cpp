@@ -24,7 +24,7 @@ namespace RetroSim::TelnetServer
     {
         std::string s(str);
         s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
-        s.erase(std::remove(s.begin(), s.end(), '\r'), s.end());        
+        s.erase(std::remove(s.begin(), s.end(), '\r'), s.end());
         return s;
     }
 
@@ -49,7 +49,7 @@ namespace RetroSim::TelnetServer
             // send response
             telnet_send(telnet, response.c_str(), response.length());
             telnet_send(telnet, "\n", 1);
-            
+
             free(buffer);
         }
         break;
@@ -71,6 +71,14 @@ namespace RetroSim::TelnetServer
     int Start()
     {
         listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+
+        int yes = 1;
+        if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+        {
+            LogPrintf(RETRO_LOG_ERROR, "Could not set socker reuse option.");
+            return 1;
+        }
+
         struct sockaddr_in addr;
         int rs;
 
