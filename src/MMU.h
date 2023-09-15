@@ -4,8 +4,6 @@
 #pragma once
 #include <cstdint>
 #include <string>
-#include <new> // For placement new
-#include <new> // For placement new
 
 namespace RetroSim::MMU
 {
@@ -13,21 +11,22 @@ namespace RetroSim::MMU
 
     enum MemoryMap
     {
-        PALETTE_U32 = 0x1000,  // Color palette memory (4K)
-        MAP_U8 = 0x2000,       // Map memory (16K)
-        TILES_U8 = 0x6000,     // Tile memory bank (16K)
+        PALETTE_U32 = 0x1000,     // Color palette memory (4K)
+        MAP_U8 = 0x2000,          // Map memory (16K)
+        TILES_U8 = 0x6000,        // Tile memory bank (16K)
         SPRITE_ATLAS_U8 = 0xA000, // Sprite atlas/memory bank (16K)
+        GPU_REGISTERS = 0xD000,   // GPU registers (16 bytes)
         BITMAP_U8 = 0x10000,      // Bitmap memory (120K)
         CHARSET_U8 = 0x30000      // Character tile data (64K)
     };
 
-    enum GPURegisters
+    struct GPURegisters
     {
-        TILE_WIDTH = 0xD000,
-        TILE_HEIGHT = 0xD001,
-        MAP_WIDTH = 0xD002,
-        MAP_HEIGHT = 0xD003,
-        SPRITE_ATLAS_PITCH = 0xD004,
+        uint8_t tileWdith;
+        uint8_t tileHeight;
+        uint8_t mapWidth;
+        uint8_t mapHeight;
+        uint8_t spriteAtlasPitch;
     };
 
     struct MemorySections
@@ -47,6 +46,8 @@ namespace RetroSim::MMU
         uint8_t *SpriteAtlasPitch_u8;
 
         uint8_t raw[memorySize];
+
+        GPURegisters *gpu = reinterpret_cast<GPURegisters *>(&raw[GPU_REGISTERS]);
 
         MemorySections()
         {

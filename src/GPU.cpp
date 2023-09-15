@@ -26,10 +26,11 @@ namespace RetroSim::GPU
     void Initialize()
     {        
         memset(outputTexture, 0, textureSizeInBytes);
-        MMU::WriteMem<uint8_t>(MMU::TILE_WIDTH, 8);
-        MMU::WriteMem<uint8_t>(MMU::TILE_HEIGHT, 16);
-        MMU::WriteMem<uint8_t>(MMU::MAP_WIDTH, 30);
-        MMU::WriteMem<uint8_t>(MMU::MAP_HEIGHT, 16);
+        MMU::memory.gpu->tileWdith = 8;
+        MMU::memory.gpu->tileHeight = 16;
+        MMU::memory.gpu->mapWidth = 30;
+        MMU::memory.gpu->mapHeight = 16;
+        MMU::memory.gpu->spriteAtlasPitch = 128;
     }
 
     void SetFont(int width, int height, int offset = 0)
@@ -217,10 +218,10 @@ namespace RetroSim::GPU
 
     void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex = -1)
     {
-        uint8_t tileWidth = MMU::ReadMem<uint8_t>(MMU::TILE_WIDTH);
-        uint8_t tileHeight = MMU::ReadMem<uint8_t>(MMU::TILE_HEIGHT);
-        uint8_t mapWidth = MMU::ReadMem<uint8_t>(MMU::MAP_WIDTH);
-        uint8_t mapHeight = MMU::ReadMem<uint8_t>(MMU::MAP_HEIGHT);
+        uint8_t tileWidth = MMU::memory.gpu->tileWdith;
+        uint8_t tileHeight = MMU::memory.gpu->tileHeight;
+        uint8_t mapWidth = MMU::memory.gpu->mapWidth;
+        uint8_t mapHeight = MMU::memory.gpu->mapHeight;
 
         for (int tileY = mapY; tileY < mapY + height; tileY++)
         {
@@ -249,7 +250,8 @@ namespace RetroSim::GPU
 
     void DrawSprite(int screenPosX, int screenPosY, int spritePosX, int spritePosY, int width, int height, int16_t transparentColorIndex = -1)
     {
-        uint8_t pitch = MMU::ReadMem<uint8_t>(MMU::SPRITE_ATLAS_PITCH);
+        uint8_t pitch = MMU::memory.gpu->spriteAtlasPitch;
+
         for (int y = 0; y < height; y++)
         {
             int spriteOffset = spritePosX + (spritePosY + y) * pitch;

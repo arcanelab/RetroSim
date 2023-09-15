@@ -3,8 +3,6 @@
 
 #include "MMU.h"
 #include "Logger.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 using namespace RetroSim::Logger;
 
