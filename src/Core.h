@@ -4,6 +4,7 @@
 #pragma once
 
 #include <string>
+#include <mutex>
 #include "CoreConfig.h"
 
 namespace RetroSim
@@ -25,6 +26,8 @@ namespace RetroSim
         void RunNextFrame();
         void Reset();
         void Shutdown();
+
+        std::mutex memoryMutex;
 
     private:
         static Core *instance;

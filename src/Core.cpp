@@ -108,10 +108,10 @@ namespace RetroSim
     {
         return true;
     }
-
+    
     int textPos = 0;
 
-    void Core::RunNextFrame()
+    void DrawTestScreen()
     {
         frameNumber++;
         // RetroSim::GPU::RenderTileMode();
@@ -177,7 +177,13 @@ namespace RetroSim
         // GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 320, 256, 320, 1);
 
         GPU::RenderText("This text is 16x16.", textPos, 190, colorIndex);
-        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);
+        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);        
+    }
+
+    void Core::RunNextFrame()
+    {
+        std::lock_guard<std::mutex> lock(memoryMutex);
+        DrawTestScreen();
     }
 
     void Core::Reset()
