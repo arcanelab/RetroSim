@@ -6,8 +6,10 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <iomanip>
 #include "RemoteMonitor.h"
 #include "Logger.h"
+#include "MMU.h"
 
 using namespace std;
 using namespace RetroSim::Logger;
@@ -25,6 +27,72 @@ namespace RetroSim::RemoteMonitor
     string DisplayHelp()
     {
         return "help, mem, set8, set16, set32";
+    }
+
+    string DisplayMemoryHelp()
+    {
+        return "mem <address> [bytes]";
+    }
+
+    string DisplayMemory(std::vector<string> tokens)
+    {
+        if (tokens.size() < 2 && tokens.size() > 3)
+        {
+            return DisplayMemoryHelp();
+        }
+
+        uint32_t address = 0;
+        uint32_t bytes = 128;
+
+        try
+        {
+            address = std::stoul(tokens[1], nullptr, 16);
+
+            if (tokens.size() == 3)
+                bytes = std::stoul(tokens[2], nullptr, 16);
+
+            if (bytes < 1)
+                throw;
+        }
+        catch (...)
+        {
+            return "Invalid argument";
+        }
+
+        if (address + bytes > MMU::memorySize)
+            return "Invalid address";
+
+        uint32_t rows = bytes / 16;
+
+        std::stringstream ss;
+        for (uint32_t row = 0; row < rows; row++)
+        {
+            ss << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << address + row * 16 << " ";
+
+            for (uint32_t col = 0; col < 16; col++)
+            {
+                ss << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (int)MMU::ReadMem<uint8_t>(address + row * 16 + col) << " ";
+            }
+
+            ss << " ";
+
+            for (uint32_t col = 0; col < 16; col++)
+            {
+                uint8_t value = MMU::ReadMem<uint8_t>(address + row * 16 + col);
+                if (value >= 32 && value <= 126)
+                {
+                    ss << (char)value;
+                }
+                else
+                {
+                    ss << ".";
+                }
+            }
+
+            ss << "\n";
+        }
+
+        return ss.str();
     }
 
     string ProcessCommand(const string &command)
@@ -52,7 +120,7 @@ namespace RetroSim::RemoteMonitor
             case displayHelp:
                 return DisplayHelp();
             case displayMemory:
-                return "displayMemory";
+                return DisplayMemory(tokens);
             case setMemoryU8:
                 return "setMemoryU8";
             case setMemoryU16:
