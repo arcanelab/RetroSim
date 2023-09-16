@@ -10,6 +10,7 @@
 #include "RemoteMonitor.h"
 #include "Logger.h"
 #include "MMU.h"
+#include "Core.h"
 
 using namespace std;
 using namespace RetroSim::Logger;
@@ -135,6 +136,12 @@ namespace RetroSim::RemoteMonitor
         return oss.str();
     }
 
+    string Reset()
+    {
+        Core::GetInstance()->Reset();
+        return "Resetting.";
+    }
+
     string ProcessCommand(const string &command)
     {
         LogPrintf(RETRO_LOG_INFO, "RemoteMonitor: %s\n", command.c_str());
@@ -176,7 +183,7 @@ namespace RetroSim::RemoteMonitor
             case startCPU:
                 return "startCPU";
             case reset:
-                return "reset";
+                return Reset();
             case step:
                 return "step";
             case run:
