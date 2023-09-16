@@ -46,10 +46,10 @@ namespace RetroSim::RemoteMonitor
 
         try
         {
-            address = std::stoul(tokens[1], nullptr, 16);
+            address = std::stoi(tokens[1], nullptr, 0);
 
             if (tokens.size() == 3)
-                bytes = std::stoul(tokens[2], nullptr, 16);
+                bytes = std::stoi(tokens[2], nullptr, 0);
 
             if (bytes < 1)
                 throw;
