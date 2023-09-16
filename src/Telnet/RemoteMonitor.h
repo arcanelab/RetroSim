@@ -39,6 +39,8 @@ namespace RetroSim::RemoteMonitor
 
     std::string ProcessCommand(const std::string &command);
 
+    std::string DisplayHelp();
+
     template <typename T>
     std::string SetMemory(std::vector<std::string> tokens);
 }

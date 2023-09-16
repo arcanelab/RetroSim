@@ -35,7 +35,7 @@ namespace RetroSim::RemoteMonitor
 
     string DisplayHelp()
     {
-        return "help, mem, set8, set16, set32";
+        return "Available commands:\nhelp, mem, set8, set16, set32";
     }
 
     string DisplayMemoryHelp()
@@ -159,7 +159,8 @@ namespace RetroSim::RemoteMonitor
         auto it = commands.find(tokens[0]);
         if (it == commands.end())
         {
-            return DisplayHelp();
+            std::string response = "Unknown command: " + tokens[0] + "\n" + DisplayHelp();
+            return response;
         }
 
         switch(it->second)

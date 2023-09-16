@@ -47,8 +47,8 @@ namespace RetroSim::TelnetServer
             std::string response = RetroSim::RemoteMonitor::ProcessCommand(command);
 
             // send response
+            response += "\n>";
             telnet_send(telnet, response.c_str(), response.length());
-            telnet_send(telnet, "\n", 1);
 
             free(buffer);
         }
@@ -119,6 +119,11 @@ namespace RetroSim::TelnetServer
             }
 
             telnet_t *telnet = telnet_init(telopts, EventHandler, 0, &client_sock);
+
+            LogPrintf(RETRO_LOG_INFO, "Client connected.\n");
+            telnet_send(telnet, "Welcome to RetroSim!\n\n", 23);
+            std::string response = RemoteMonitor::DisplayHelp() + "\n>";
+            telnet_send(telnet, response.c_str(), response.length());
 
             char buffer[512];
             int bytes;
