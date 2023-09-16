@@ -33,6 +33,7 @@ namespace RetroSim
         static Core *instance;
         CoreConfig coreConfig;
 
-        void LoadFonts();
+        void InitializeFonts();
+        void InitializePalette();
     };
 }

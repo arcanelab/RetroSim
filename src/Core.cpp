@@ -67,17 +67,7 @@ namespace RetroSim
             LogPrintf(RETRO_LOG_ERROR, "getcwd() error\n");
 
         coreConfig.Initialize(basePath);
-        GPU::Initialize();
-
-        LoadFonts();
-
-        // Copy palette to memory
-        for (int i = 0; i < 256; i++)
-        {
-            MMU::memory.Palette_u32[i] = palette_64[i % 64];
-        }
-
-        InitializeTestPatterns();
+        Reset();
 
 #ifndef LIBRETRO
         std::thread telnetThread(TelnetServer::Start);
@@ -85,7 +75,16 @@ namespace RetroSim
 #endif
     }
 
-    void Core::LoadFonts()
+    void Core::InitializePalette()
+    {
+        // Copy palette to memory
+        for (int i = 0; i < 256; i++)
+        {
+            MMU::memory.Palette_u32[i] = palette_64[i % 64];
+        }
+    }
+
+    void Core::InitializeFonts()
     {
         size_t length = std::min(unscii_16_length, 0x8000);
         for (int i = 0; i < length; i++)
@@ -182,7 +181,7 @@ namespace RetroSim
 
         int topLeftX = (GPU::textureWidth - 320) / 2;
         int topLeftY = (GPU::textureHeight - 256) / 2;
-        // GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 320, 256, 320, 1);
+        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 320, 256, 320, 1);
 
         GPU::RenderText("This text is 16x16.", textPos, 190, colorIndex);
         GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);        
@@ -196,6 +195,12 @@ namespace RetroSim
 
     void Core::Reset()
     {
+        std::lock_guard<std::mutex> lock(memoryMutex);
+
+        GPU::Initialize();
+        InitializeFonts();
+        InitializePalette();
+        InitializeTestPatterns();
     }
 
     void Core::Shutdown()
