@@ -95,6 +95,34 @@ namespace RetroSim::RemoteMonitor
         return ss.str();
     }
 
+    string SetMemoryU8(std::vector<string> tokens)
+    {
+        if (tokens.size() != 3)
+        {
+            return "set8 <address> <value>";
+        }
+
+        uint32_t address = 0;
+        uint8_t value = 0;
+
+        try
+        {
+            address = std::stoul(tokens[1], nullptr, 16);
+            value = std::stoul(tokens[2], nullptr, 16);
+        }
+        catch (...)
+        {
+            return "Invalid argument";
+        }
+
+        if (address > MMU::memorySize)
+            return "Invalid address";
+
+        MMU::WriteMem<uint8_t>(address, value);
+
+        return tokens[2] + " written to " + tokens[1];
+    }
+
     string ProcessCommand(const string &command)
     {
         LogPrintf(RETRO_LOG_INFO, "RemoteMonitor: %s\n", command.c_str());
