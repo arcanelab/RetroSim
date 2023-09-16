@@ -40,7 +40,7 @@ namespace RetroSim::TelnetServer
             char *buffer = (char *)malloc(ev->data.size + 1);
             // copy received data into buffer
             memcpy(buffer, ev->data.buffer, ev->data.size);
-            LogPrintf(RETRO_LOG_INFO, "Received data: %s\n", buffer);
+            LogPrintf(RETRO_LOG_INFO, "Telnet input: %s", buffer);
 
             // process command
             std::string command = RemoveTrailingNewline(buffer);

@@ -144,8 +144,6 @@ namespace RetroSim::RemoteMonitor
 
     string ProcessCommand(const string &command)
     {
-        LogPrintf(RETRO_LOG_INFO, "RemoteMonitor: %s\n", command.c_str());
-
         std::vector<string> tokens;
         std::istringstream iss(command);
         string token;
