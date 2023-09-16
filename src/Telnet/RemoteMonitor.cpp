@@ -22,7 +22,14 @@ namespace RetroSim::RemoteMonitor
         {"set8", setMemoryU8},
         {"set16", setMemoryU16},
         {"set32", setMemoryU32},
-    };
+        {"stopGPU", stopGPU},
+        {"startGPU", startGPU},
+        {"stopCPU", stopCPU},
+        {"startCPU", startCPU},
+        {"reset", reset},
+        {"step", step},
+        {"run", run},
+        {"quit", quit}};
 
     string DisplayHelp()
     {
@@ -95,20 +102,21 @@ namespace RetroSim::RemoteMonitor
         return ss.str();
     }
 
-    string SetMemoryU8(std::vector<string> tokens)
+    template <typename T>
+    std::string SetMemory(std::vector<std::string> tokens)
     {
         if (tokens.size() != 3)
         {
-            return "set8 <address> <value>";
+            return "set" + std::to_string(sizeof(T) * 8) + " <address> <value>";
         }
 
         uint32_t address = 0;
-        uint8_t value = 0;
+        T value = 0;
 
         try
         {
-            address = std::stoul(tokens[1], nullptr, 16);
-            value = std::stoul(tokens[2], nullptr, 16);
+            address = std::stoi(tokens[1], nullptr, 0);
+            value = static_cast<T>(std::stoi(tokens[2], nullptr, 0));
         }
         catch (...)
         {
@@ -118,9 +126,12 @@ namespace RetroSim::RemoteMonitor
         if (address > MMU::memorySize)
             return "Invalid address";
 
-        MMU::WriteMem<uint8_t>(address, value);
+        MMU::WriteMem<T>(address, value);
 
-        return tokens[2] + " written to " + tokens[1];
+        std::ostringstream oss;
+        oss << "0x" << std::hex << value << " written to 0x" << std::setfill('0') << std::setw(sizeof(uint32_t) * 2) << std::hex << static_cast<uint32_t>(address);
+
+        return oss.str();
     }
 
     string ProcessCommand(const string &command)
@@ -150,11 +161,29 @@ namespace RetroSim::RemoteMonitor
             case displayMemory:
                 return DisplayMemory(tokens);
             case setMemoryU8:
-                return "setMemoryU8";
+                return SetMemory<uint8_t>(tokens);
             case setMemoryU16:
-                return "setMemoryU16";
+                return SetMemory<uint16_t>(tokens);
             case setMemoryU32:
-                return "setMemoryU32";
+                return SetMemory<uint32_t>(tokens);
+            case stopGPU:
+                return "stopGPU";
+            case startGPU:
+                return "startGPU";
+            case stopCPU:
+                return "stopCPU";
+            case startCPU:
+                return "startCPU";
+            case reset:
+                return "reset";
+            case step:
+                return "step";
+            case run:
+                return "run";
+            case quit:
+                return "quit";
+            default:
+                return "Unknown command";
         }
     }
 }

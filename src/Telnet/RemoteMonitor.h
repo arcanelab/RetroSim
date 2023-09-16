@@ -20,7 +20,24 @@ namespace RetroSim::RemoteMonitor
         setMemoryU16,
         setMemoryU32,
         disconnect,
+        stopGPU,
+        startGPU,
+        stopCPU,
+        startCPU,
+        reset,
+        renderFrame,
+        step,
+        run,
+        quit,
+        showInfo,
+        showMemoryMap,
+        saveScreenshot,
+        saveMemoryToFile,
+        loadFileToMemory,
     };
 
     std::string ProcessCommand(const std::string &command);
+
+    template <typename T>
+    std::string SetMemory(std::vector<std::string> tokens);
 }
