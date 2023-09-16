@@ -56,6 +56,10 @@ namespace RetroSim
 
     void Core::Initialize(const std::string &basePath)
     {
+        // Libretro tends to call initialize multiple times
+        if(isInitialized)
+            return;
+
         LogPrintf(RETRO_LOG_INFO, "Initializing RetroSim...\n");
         LogPrintf(RETRO_LOG_INFO, "Base path: %s\n", basePath.c_str());
 

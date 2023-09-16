@@ -32,6 +32,7 @@ namespace RetroSim
     private:
         static Core *instance;
         CoreConfig coreConfig;
+        bool isInitialized = false;
 
         void InitializeFonts();
         void InitializePalette();
