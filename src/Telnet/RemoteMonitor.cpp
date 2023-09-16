@@ -55,10 +55,10 @@ namespace RetroSim::RemoteMonitor
 
         try
         {
-            address = std::stoi(tokens[1], nullptr, 0);
+            address = std::stoul(tokens[1], nullptr, 0);
 
             if (tokens.size() == 3)
-                bytes = std::stoi(tokens[2], nullptr, 0);
+                bytes = std::stoul(tokens[2], nullptr, 0);
 
             if (bytes < 1)
                 throw;
@@ -68,7 +68,7 @@ namespace RetroSim::RemoteMonitor
             return "Invalid argument";
         }
 
-        if (address + bytes > MMU::memorySize)
+        if (address > MMU::memorySize || address + bytes > MMU::memorySize)
             return "Invalid address";
 
         uint32_t rows = bytes / 16;
@@ -117,8 +117,16 @@ namespace RetroSim::RemoteMonitor
 
         try
         {
-            address = std::stoi(tokens[1], nullptr, 0);
-            value = static_cast<T>(std::stoi(tokens[2], nullptr, 0));
+            address = std::stoul(tokens[1], nullptr, 0);
+        }
+        catch (...)
+        {
+            return "Invalid address";
+        }
+
+        try
+        {
+            value = static_cast<T>(std::stoul(tokens[2], nullptr, 0));
         }
         catch (...)
         {
