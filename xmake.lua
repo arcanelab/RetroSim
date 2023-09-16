@@ -32,7 +32,7 @@ Target =
     libretro = 2
 }
 
-local _target = Target.libretro
+local _target = Target.standalone
 
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")
@@ -41,40 +41,31 @@ function AddTelnetDependencies()
     add_files("src/extern/libtelnet/*.c")
 end
 
+function AddCommon()
+    AddTelnetDependencies()
+    add_deps("Gravity")
+    add_files("src/*.cpp")
+    add_files("data/**.cpp")
+    add_includedirs("src")
+    add_includedirs("data")
+    add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
+    set_targetdir("bin")
+end
+
 if _target == Target.standalone then
     target("RetroSim")
-        -- defines
+        AddCommon()
+        add_defines("SDL")
         set_kind("binary")
-        set_targetdir("bin")
-        -- dependencies
-        AddTelnetDependencies()
-        add_deps("Gravity")
         add_packages("libsdl")
-        -- source files
-        add_files("src/*.cpp")
-        add_files("data/**.cpp")
-        -- headers
-        add_includedirs("src")
-        add_includedirs("data")
-        add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
+        add_files("src/standalone/*.cpp")
 elseif _target == Target.libretro then
     target("RetroSimCore")
-        -- defines
+        AddCommon()
         add_defines("LIBRETRO")
         set_kind("shared")
-        -- dependencies
-        AddTelnetDependencies()
-        add_deps("Gravity")
-        -- source files
-        add_files("src/*.cpp")
-        add_files("data/**.cpp")
-        add_files("gravity/src/**.c")
-        -- headers
-        add_includedirs("src")
-        add_includedirs("data")
         add_includedirs("src/extern/libretro")
-        add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
-        add_packages("libsdl")
+        add_files("src/libretro/*.cpp")
         if os.getenv("RETROARCH_COREPATH") then
             set_targetdir(os.getenv("RETROARCH_COREPATH"))
         else 
