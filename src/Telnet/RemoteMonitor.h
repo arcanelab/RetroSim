@@ -3,6 +3,7 @@
 
 #pragma once
 #include <string>
+#include "MMU.h"
 
 namespace RetroSim::RemoteMonitor
 {
@@ -14,7 +15,7 @@ namespace RetroSim::RemoteMonitor
 
     enum Command
     {
-        displayHelp,        
+        displayHelp,
         displayMemory,
         setMemoryU8,
         setMemoryU16,

@@ -18,6 +18,7 @@ namespace RetroSim::RemoteMonitor
 {
     std::unordered_map<string, Command> commands = {
         {"help", displayHelp},
+        {"m", displayMemory},
         {"mem", displayMemory},
         {"set8", setMemoryU8},
         {"set16", setMemoryU16},
