@@ -32,38 +32,47 @@ Target =
     libretro = 2
 }
 
-local _target = Target.standalone
+local _target = Target.libretro
+
+function AddTelnetDependencies() 
+    add_defines("TELNET_ENABLED")
+    add_includedirs("src/extern/libtelnet")
+    add_files("src/Telnet/*.cpp")
+    add_files("src/extern/libtelnet/*.c")
+end
 
 if _target == Target.standalone then
     target("RetroSim")
-        add_defines("SOCKETS_ENABLED")
         -- defines
         set_kind("binary")
         set_targetdir("bin")
         -- dependencies
+        AddTelnetDependencies()
         add_deps("Gravity")
         add_packages("libsdl")
         -- source files
         add_files("src/*.cpp")
         add_files("data/**.cpp")
-        add_files("src/Telnet/*.cpp")
-        add_files("src/extern/libtelnet/*.c")
         -- headers
         add_includedirs("src")
         add_includedirs("data")
         add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
-        add_includedirs("src/extern/cppsocket")
-        add_includedirs("src/extern/libtelnet")
 elseif _target == Target.libretro then
     target("RetroSimCore")
+        -- defines
         add_defines("LIBRETRO")
-        add_deps("Gravity")
         set_kind("shared")
+        -- dependencies
+        AddTelnetDependencies()
+        add_deps("Gravity")
+        -- source files
         add_files("src/*.cpp")
         add_files("data/**.cpp")
+        add_files("gravity/src/**.c")
+        -- headers
+        add_includedirs("src")
         add_includedirs("data")
         add_includedirs("src/extern/libretro")
-        add_files("gravity/src/**.c")
         add_includedirs("gravity/src/compiler", "gravity/src/optionals", "gravity/src/runtime", "gravity/src/shared", "gravity/src/utils")
         add_packages("libsdl")
         if os.getenv("RETROARCH_COREPATH") then
@@ -72,6 +81,7 @@ elseif _target == Target.libretro then
             set_targetdir("bin")
         end
 end
+
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

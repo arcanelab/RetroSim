@@ -15,7 +15,10 @@
 #include "unscii-16.h"
 #include "palette.h"
 #include "Logger.h"
+
+#ifdef TELNET_ENABLED
 #include "Telnet/TelnetServer.h"
+#endif
 
 using namespace RetroSim::Logger;
 
@@ -73,10 +76,11 @@ namespace RetroSim
         coreConfig.Initialize(basePath);
         Reset();
 
-#ifndef LIBRETRO
+#ifdef TELNET_ENABLED
         std::thread telnetThread(TelnetServer::Start);
         telnetThread.detach();
 #endif
+        isInitialized = true;
     }
 
     void Core::InitializePalette()
@@ -209,7 +213,7 @@ namespace RetroSim
 
     void Core::Shutdown()
     {
-#ifndef LIBRETRO
+#ifdef TELNET_ENABLED
         TelnetServer::Stop();
 #endif
     }
