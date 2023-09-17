@@ -17,7 +17,7 @@
 #include <type_traits>
 #include <limits>
 
-void A65000CPU::interruptRaised(bool isNMI)
+void A65000CPU::InterruptRaised(bool isNMI)
 {
     sleep = false;
 
@@ -25,54 +25,54 @@ void A65000CPU::interruptRaised(bool isNMI)
         return;
 
     SP--; // save the status register to the stack
-    mmu->write<uint8_t>(SP, *(uint8_t *)(&statusRegister));
+    mmu->Write<uint8_t>(SP, *(uint8_t *)(&statusRegister));
 
     SP -= 4; // save the PC to the stack
-    mmu->write<uint32_t>(SP, PC);
+    mmu->Write<uint32_t>(SP, PC);
 
     if (isNMI)
-        PC = mmu->read<uint32_t>(VEC_NMI); // jump to the NMI-handler
+        PC = mmu->Read<uint32_t>(VEC_NMI); // jump to the NMI-handler
     else
-        PC = mmu->read<uint32_t>(VEC_HWIRQ); // jump to the IRQ-handler
+        PC = mmu->Read<uint32_t>(VEC_HWIRQ); // jump to the IRQ-handler
 }
 
-void A65000CPU::reset()
+void A65000CPU::Reset()
 {
     sleep = false;
 
     for (int i = 0; i < 14; i++)
         registers[i] = 0;
 
-    PC = mmu->read<uint32_t>(VEC_RESET);
-    SP = mmu->read<uint32_t>(VEC_STACKPOINTERINIT);
+    PC = mmu->Read<uint32_t>(VEC_RESET);
+    SP = mmu->Read<uint32_t>(VEC_STACKPOINTERINIT);
 }
 
-void A65000CPU::setPC(unsigned int newPC)
+void A65000CPU::SetPC(unsigned int newPC)
 {
     PC = (uint32_t)newPC;
 }
 
-int A65000CPU::tick() // return value: the number of cycles used
+int A65000CPU::Tick() // return value: the number of cycles used
 {
     if (sleep)
         return 1;
 
     try
     {
-        return runNextInstruction();
+        return RunNextInstruction();
     }
     catch (A65000Exception exception)
     {
         switch (exception.type)
         {
         case EX_INVALID_INSTRUCTION:
-            PC = mmu->read<uint32_t>(VEC_ILLEGALINSTRUCTION);
+            PC = mmu->Read<uint32_t>(VEC_ILLEGALINSTRUCTION);
             break;
         case EX_INVALID_ADDRESS:
-            PC = mmu->read<uint32_t>(VEC_ILLEGALADDRESS);
+            PC = mmu->Read<uint32_t>(VEC_ILLEGALADDRESS);
             break;
         case EX_DIVISION_BY_ZERO:
-            PC = mmu->read<uint32_t>(VEC_DIVZERO);
+            PC = mmu->Read<uint32_t>(VEC_DIVZERO);
             break;
         default:
             // TODO: here?
@@ -82,25 +82,24 @@ int A65000CPU::tick() // return value: the number of cycles used
 
     return 2;
 }
-
-int A65000CPU::runNextInstruction()
+int A65000CPU::RunNextInstruction()
 {
-    const InstructionWord &instr = fetchInstructionWord();
+    const InstructionWord &instr = FetchInstructionWord();
 
     switch (instr.opcodeSize)
     {
     case OS_8BIT:
-        return decodeInstruction<uint8_t>(instr);
+        return DecodeInstruction<uint8_t>(instr);
     case OS_16BIT:
-        return decodeInstruction<uint16_t>(instr);
+        return DecodeInstruction<uint16_t>(instr);
     case OS_32BIT:
-        return decodeInstruction<uint32_t>(instr);
+        return DecodeInstruction<uint32_t>(instr);
     default:
         throw A65000Exception(EX_INVALID_INSTRUCTION);
     }
 }
 
-int A65000CPU::handleAddressingMode_Implied(const InstructionWord &inst)
+int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
 {
     int cycles = 1;
 
@@ -128,7 +127,7 @@ int A65000CPU::handleAddressingMode_Implied(const InstructionWord &inst)
         break;
 
     case I_RTS:
-        PC = mmu->read<uint32_t>(SP); // POP PC
+        PC = mmu->Read<uint32_t>(SP); // POP PC
         SP += 4;
         cycles = 3;
         break;
@@ -137,7 +136,7 @@ int A65000CPU::handleAddressingMode_Implied(const InstructionWord &inst)
         for (int i = 0; i < 16; i++)
         {
             SP -= 4;
-            mmu->write<uint32_t>(SP, registers[i]);
+            mmu->Write<uint32_t>(SP, registers[i]);
         }
         cycles = 32;
         break;
@@ -145,7 +144,7 @@ int A65000CPU::handleAddressingMode_Implied(const InstructionWord &inst)
     case I_POPA:
         for (int i = 0; i < 16; i++)
         {
-            registers[i] = mmu->read<uint32_t>(SP);
+            registers[i] = mmu->Read<uint32_t>(SP);
             SP += 4;
         }
         cycles = 32;
@@ -156,12 +155,12 @@ int A65000CPU::handleAddressingMode_Implied(const InstructionWord &inst)
             return 1;
 
         SP--;
-        mmu->write<uint8_t>(SP, *(uint8_t *)(&statusRegister)); // PUSH Status
+        mmu->Write<uint8_t>(SP, *(uint8_t *)(&statusRegister)); // PUSH Status
 
         SP -= 4;
-        mmu->write<uint32_t>(SP, PC); // PUSH PC
+        mmu->Write<uint32_t>(SP, PC); // PUSH PC
 
-        PC = mmu->read<uint32_t>(VEC_SOFTIRQ); // JMP [VEC_SOFTIRQ]
+        PC = mmu->Read<uint32_t>(VEC_SOFTIRQ); // JMP [VEC_SOFTIRQ]
 
         statusRegister.b = 1;
 
@@ -169,9 +168,9 @@ int A65000CPU::handleAddressingMode_Implied(const InstructionWord &inst)
         break;
 
     case I_RTI:
-        PC = mmu->read<uint32_t>(SP); // POP PC
+        PC = mmu->Read<uint32_t>(SP); // POP PC
         SP += 4;
-        *(uint8_t *)(&statusRegister) = (uint8_t)mmu->read<uint8_t>(SP); // POP Status
+        *(uint8_t *)(&statusRegister) = (uint8_t)mmu->Read<uint8_t>(SP); // POP Status
         SP++;
         cycles = 5;
         break;
@@ -187,40 +186,40 @@ int A65000CPU::handleAddressingMode_Implied(const InstructionWord &inst)
     return cycles;
 }
 
-auto A65000CPU::fetchInstructionWord() -> InstructionWord
+auto A65000CPU::FetchInstructionWord() -> InstructionWord
 {
-    const uint16_t instructionWordTmp = fetchAndAdvancePC<uint16_t>();
+    const uint16_t instructionWordTmp = FetchAndAdvancePC<uint16_t>();
 
     const InstructionWord &instructionWord = *(InstructionWord *)&instructionWordTmp;
 
     return instructionWord;
 }
 
-uint8_t A65000CPU::fetchSingleRegisterSelector()
+uint8_t A65000CPU::FetchSingleRegisterSelector()
 {
-    const uint8_t regSelector = fetchAndAdvancePC<uint8_t>();
-    checkRegisterRange(regSelector);
+    const uint8_t regSelector = FetchAndAdvancePC<uint8_t>();
+    CheckRegisterRange(regSelector);
     return regSelector;
 }
 
-auto A65000CPU::fetchRegisterPair() -> RegisterIndexPair
+auto A65000CPU::FetchRegisterPair() -> RegisterIndexPair
 {
-    const uint8_t regSelector = fetchAndAdvancePC<uint8_t>();
+    const uint8_t regSelector = FetchAndAdvancePC<uint8_t>();
     const int registerIndexLeft = (regSelector & 0xf0) >> 4;
     const int registerIndexRight = regSelector & 0xf;
 
     return RegisterIndexPair(registerIndexLeft, registerIndexRight);
 }
 
-void A65000CPU::checkRegisterRange(const int8_t &reg) const
+void A65000CPU::CheckRegisterRange(const int8_t &reg) const
 {
     if (reg > REG_PC || reg < REG_R0)
         throw A65000Exception(EX_INVALID_INSTRUCTION);
 }
 
-int A65000CPU::handleAddressingMode_Direct(const InstructionWord &inst)
+int A65000CPU::HandleAddressingMode_Direct(const InstructionWord &inst)
 {
-    const uint32_t address = fetchAndAdvancePC<uint32_t>();
+    const uint32_t address = FetchAndAdvancePC<uint32_t>();
     int cycles = 0;
 
     switch (inst.instructionCode)
@@ -231,7 +230,7 @@ int A65000CPU::handleAddressingMode_Direct(const InstructionWord &inst)
         break;
     case I_JSR:
         SP -= 4;
-        mmu->write<uint32_t>(SP, PC); // PUSH PC
+        mmu->Write<uint32_t>(SP, PC); // PUSH PC
         PC = address;
         cycles = 3;
         break;

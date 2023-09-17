@@ -19,47 +19,46 @@ struct A65000MMU
     A65000MMU()
     {
         memPtr = new uint8_t[MAXMEM];
-        if(memPtr == nullptr)
+        if (memPtr == nullptr)
         {
             // TODO: check if allocation was successful
         }
         else
-        {   // initialize memory to all zero
+        { // initialize memory to all zero
             uint32_t i = 0;
-            while(i<MAXMEM)
+            while (i < MAXMEM)
                 memPtr[i++] = 0;
         }
     }
-    
+
     ~A65000MMU()
     {
-        delete [] memPtr;
+        delete[] memPtr;
     }
 
     template <class T>
-    T read(const uint32_t address)
+    T Read(const uint32_t address)
     {
-        if(address > (MAXMEM-sizeof(T)))
+        if (address > (MAXMEM - sizeof(T)))
         {
             A65000Exception exception(EX_INVALID_ADDRESS);
             exception.address = address;
             throw exception;
         }
-        
+
         return *(T *)&memPtr[address];
     }
 
     template <class T>
-    void write(const uint32_t &address, const T &value)
+    void Write(const uint32_t &address, const T &value)
     {
-        if(address > (MAXMEM-sizeof(T)))
+        if (address > (MAXMEM - sizeof(T)))
         {
             A65000Exception exception(EX_INVALID_ADDRESS);
             exception.address = address;
             throw exception;
         }
-        
+
         *(T *)&memPtr[address] = value;
     }
-
 };

@@ -35,12 +35,12 @@ public:
         reset();
     }
     // ICPUInterface methods
-    int tick(); // returns the number of cycles spent
-    void interruptRaised(bool isNMI = false);
-    void reset();
-    void setPC(unsigned int newPC);
+    int Tick(); // returns the number of cycles spent
+    void InterruptRaised(bool isNMI = false);
+    void Reset();
+    void SetPC(unsigned int newPC);
 
-    void checkRegisterRange(const int8_t &reg) const;
+    void CheckRegisterRange(const int8_t &reg) const;
 
     // --- enumerations ---
 
@@ -226,57 +226,57 @@ private:
 
     // --- method declarations ---
 
-    int runNextInstruction();
-    InstructionWord fetchInstructionWord();
-    uint8_t fetchSingleRegisterSelector();
-    RegisterIndexPair fetchRegisterPair();
+    int RunNextInstruction();
+    InstructionWord FetchInstructionWord();
+    uint8_t FetchSingleRegisterSelector();
+    RegisterIndexPair FetchRegisterPair();
 
-    int handleAddressingMode_Implied(const InstructionWord &inst);
-    int handleAddressingMode_Direct(const InstructionWord &inst);
+    int HandleAddressingMode_Implied(const InstructionWord &inst);
+    int HandleAddressingMode_Direct(const InstructionWord &inst);
 
     template <class T>
-    int decodeInstruction(const InstructionWord &instr)
+    int DecodeInstruction(const InstructionWord &instr)
     {
         switch (instr.addressingMode)
         {
         case AM_REG_IMMEDIATE:
-            return handleAddressingMode_RegisterImmediate<T>(instr); // sub.w r0, 20
+            return HandleAddressingMode_RegisterImmediate<T>(instr); // sub.w r0, 20
         case AM_REGISTER2:
-            return handleAddressingMode_Register2<T>(instr); // sub.w r0, r1
+            return HandleAddressingMode_Register2<T>(instr); // sub.w r0, r1
         case AM_ABSOLUTE_SRC:
-            return handleAddressingMode_AbsoluteSrc<T>(instr); // sub.w r0, [$a000]
+            return HandleAddressingMode_AbsoluteSrc<T>(instr); // sub.w r0, [$a000]
         case AM_ABSOLUTE_DEST:
-            return handleAddressingMode_AbsoluteDst<T>(instr); // sub.w [$a000], r0
+            return HandleAddressingMode_AbsoluteDst<T>(instr); // sub.w [$a000], r0
         case AM_REGISTER_INDIRECT_SRC:
-            return handleAddressingMode_RegisterIndirectSrc<T>(instr, 0); // sub.w r0, [r1]
+            return HandleAddressingMode_RegisterIndirectSrc<T>(instr, 0); // sub.w r0, [r1]
         case AM_REGISTER_INDIRECT_DEST:
-            return handleAddressingMode_RegisterIndirectDst<T>(instr, 0); // sub.w [r0], r1
+            return HandleAddressingMode_RegisterIndirectDst<T>(instr, 0); // sub.w [r0], r1
         case AM_INDEXED_SRC:
-            return handleAddressingMode_IndexedSrc<T>(instr); // sub.w r0, [$1000+r1]
+            return HandleAddressingMode_IndexedSrc<T>(instr); // sub.w r0, [$1000+r1]
         case AM_INDEXED_DEST:
-            return handleAddressingMode_IndexedDst<T>(instr); // sub.w [$1000+r0], r1
+            return HandleAddressingMode_IndexedDst<T>(instr); // sub.w [$1000+r0], r1
         case AM_REGISTER_INDIRECT1:
-            return handleAddressingMode_RegisterIndirect<T>(instr, 0); // inc.w [r1]-
+            return HandleAddressingMode_RegisterIndirect<T>(instr, 0); // inc.w [r1]-
         case AM_INDEXED1:
-            return handleAddressingMode_Indexed1<T>(instr); // inc.w [r1 + $200]
+            return HandleAddressingMode_Indexed1<T>(instr); // inc.w [r1 + $200]
         case AM_REGISTER1:
-            return handleAddressingMode_Register1<T>(instr); // inc.w r1
+            return HandleAddressingMode_Register1<T>(instr); // inc.w r1
         case AM_DIRECT:
-            return handleAddressingMode_Direct(instr); // jmp $100
+            return HandleAddressingMode_Direct(instr); // jmp $100
         case AM_CONST_IMMEDIATE:
-            return handleAddressingMode_ConstImmediate<T>(instr); // push.w $330
+            return HandleAddressingMode_ConstImmediate<T>(instr); // push.w $330
         case AM_ABSOLUTE1:
-            return handleAddressingMode_Absolute1<T>(instr); // inc.w [$200]
+            return HandleAddressingMode_Absolute1<T>(instr); // inc.w [$200]
         case AM_RELATIVE:
-            return handleAddressingMode_Relative<T>(instr); // bne -50
+            return HandleAddressingMode_Relative<T>(instr); // bne -50
         case AM_NONE:
-            return handleAddressingMode_Implied(instr); // rts, cli, etc
+            return HandleAddressingMode_Implied(instr); // rts, cli, etc
         default:
             throw A65000Exception(EX_INVALID_INSTRUCTION);
         }
     }
 
-    const uint64_t shiftmask(int bits) const
+    const uint64_t ShiftMask(int bits) const
     {
         switch (bits)
         {
@@ -292,7 +292,7 @@ private:
     }
 
     template <class T>
-    void modifyFlagsNZ(const T &value)
+    void ModifyFlagsNZ(const T &value)
     {
         typedef typename std::make_signed<T>::type SignedT; // TODO: verify the conversion
         if ((SignedT)value < 0)
@@ -306,7 +306,7 @@ private:
     }
 
     template <class T>
-    void modifyFlagsCV(const T &value1, const T &value2, const int64_t &result)
+    void ModifyFlagsCV(const T &value1, const T &value2, const int64_t &result)
     {
         std::numeric_limits<T> limits; // TODO: verify limits.min() and limits.max()
         if ((uint64_t)result > (uint64_t)limits.max())
@@ -321,52 +321,51 @@ private:
     }
 
     template <class T>
-    void checkPreDecrementOperator(const int &registerConfiguration)
+    void CheckPreDecrementOperator(const int &registerConfiguration)
     {
         if (registerConfiguration & 0b1000) // pre-decrement?
         {
-            uint8_t registerSelector = mmu->read<uint8_t>(PC) & 0xf;
+            uint8_t registerSelector = mmu->Read<uint8_t>(PC) & 0xf;
             registers[registerSelector] -= sizeof(T);
         }
     }
 
     template <class T>
-    void checkPostIncrementOperator(const int &registerConfiguration)
+    void CheckPostIncrementOperator(const int &registerConfiguration)
     {
         if (registerConfiguration & 0b100) // post-increment?
         {
-            uint8_t registerSelector = mmu->read<uint8_t>(PC) & 0xf;
+            uint8_t registerSelector = mmu->Read<uint8_t>(PC) & 0xf;
             registers[registerSelector] += sizeof(T);
         }
     }
 
     template <class T>
-    T exec_Add(const T &value1, const T &value2, const bool &withCarry)
+    T Exec_Add(const T &value1, const T &value2, const bool &withCarry)
     {
         const int64_t result = value1 + value2 + (withCarry ? statusRegister.c : 0);
-        modifyFlagsCV(value1, value2, result);
+        ModifyFlagsCV(value1, value2, result);
 
         return (T)result;
     }
 
     template <class T>
-    T exec_Sub(const T &value1, const T &value2, const bool &withCarry)
+    T Exec_Sub(const T &value1, const T &value2, const bool &withCarry)
     {
         const int64_t result = value1 - value2 - (withCarry ? statusRegister.c : 0);
-        modifyFlagsCV(value1, value2, result);
+        ModifyFlagsCV(value1, value2, result);
 
         return (T)result;
     }
-
     template <class T>
-    T exec_Div(const T &value1, const T &value2)
+    T Exec_Div(const T &value1, const T &value2)
     {
         registers[13] = value1 % value2;
         return value1 / value2;
     }
 
     template <class T>
-    T exec_Mul(const T &value1, const T &value2)
+    T Exec_Mul(const T &value1, const T &value2)
     {
         if (value2 == 0)
             throw A65000Exception(EX_DIVISION_BY_ZERO);
@@ -377,47 +376,46 @@ private:
     }
 
     template <class T>
-    T exec_Rol(const T &value, T amount) const
+    T Exec_Rol(const T &value, T amount) const
     {
         const int bitSize = sizeof(T);
         amount &= ((bitSize << 3) - 1);
         uint64_t tmp = value << amount;
-        uint64_t result = tmp | ((tmp & shiftmask(bitSize)) >> (bitSize << 3));
+        uint64_t result = tmp | ((tmp & ShiftMask(bitSize)) >> (bitSize << 3));
         return (T)result;
     }
 
     template <class T>
-    T exec_Ror(const T &value, T amount) const
+    T Exec_Ror(const T &value, T amount) const
     {
         int bitSize = sizeof(T);
         amount &= ((bitSize << 3) - 1);
         uint64_t tmp = (value << (bitSize << 3)) >> amount;
-        uint64_t result = tmp | ((tmp & shiftmask(bitSize)) >> (bitSize << 3));
+        uint64_t result = tmp | ((tmp & ShiftMask(bitSize)) >> (bitSize << 3));
         return (T)result;
-        // result = (value >> amount) | (value << (sizeof(T)*8 - amount));
     }
 
     template <class T>
-    T fetchAndAdvancePC()
+    T FetchAndAdvancePC()
     {
-        const T value = mmu->read<T>(PC);
+        const T value = mmu->Read<T>(PC);
         PC += sizeof(T);
         return value;
     }
 
     template <class T>
-    T executeALUInstructions(const int &instruction, const T &value1, const T &value2)
+    T ExecuteALUInstructions(const int &instruction, const T &value1, const T &value2)
     {
         switch (instruction)
         {
         case I_ADD:
-            return exec_Add(value1, value2, false);
+            return Exec_Add(value1, value2, false);
         case I_SUB:
-            return exec_Sub(value1, value2, false);
+            return Exec_Sub(value1, value2, false);
         case I_ADC:
-            return exec_Add(value1, value2, true);
+            return Exec_Add(value1, value2, true);
         case I_SBC:
-            return exec_Sub(value1, value2, true);
+            return Exec_Sub(value1, value2, true);
         case I_AND:
             return value1 & value2;
         case I_OR:
@@ -425,27 +423,26 @@ private:
         case I_XOR:
             return value1 ^ value2;
         case I_DIV:
-            return exec_Div(value1, value2);
+            return Exec_Div(value1, value2);
         case I_MUL:
-            return exec_Mul(value1, value2);
+            return Exec_Mul(value1, value2);
         case I_SHL:
             return value1 << value2;
         case I_SHR:
             return value1 >> value2;
         case I_ROL:
-            return exec_Rol(value1, value2);
+            return Exec_Rol(value1, value2);
         case I_ROR:
-            return exec_Ror(value1, value2);
+            return Exec_Ror(value1, value2);
         default:
             throw A65000Exception(EX_INVALID_INSTRUCTION);
         }
     }
-
     template <typename T>
-    void writeRegister(uint32_t *reg, const T &value)
+    void WriteRegister(uint32_t *reg, const T &value)
     {
         *(T *)reg = value;
-        modifyFlagsNZ(value);
+        ModifyFlagsNZ(value);
 
         char tmp[64];
         snprintf(tmp, 64, "[%.8X] r[%d] = %X", PC, *reg, value);
@@ -454,9 +451,9 @@ private:
     }
 
     template <class T>
-    int handleAddressingMode_Relative(const InstructionWord &inst) // BNE $40
+    int HandleAddressingMode_Relative(const InstructionWord &inst) // BNE $40
     {
-        const T diff = fetchAndAdvancePC<T>();
+        const T diff = FetchAndAdvancePC<T>();
         const int signedDiff = (int)diff;
 
         switch (inst.instructionCode)
@@ -519,21 +516,21 @@ private:
     }
 
     template <class T>                                              // clr, inc, dec, jmp, jsr, push, pop
-    int handleAddressingMode_Absolute1(const InstructionWord &inst) // inc.w [$200]
+    int HandleAddressingMode_Absolute1(const InstructionWord &inst) // inc.w [$200]
     {
-        const T address = fetchAndAdvancePC<T>();
-        return executeMonadicInstructions_Memory<T>(address, inst.instructionCode);
+        const T address = FetchAndAdvancePC<T>();
+        return ExecuteMonadicInstructions_Memory<T>(address, inst.instructionCode);
     }
 
     template <class T>
-    int handleAddressingMode_ConstImmediate(const InstructionWord &inst) // push.w $300
+    int HandleAddressingMode_ConstImmediate(const InstructionWord &inst) // push.w $300
     {
-        const T value = fetchAndAdvancePC<T>();
+        const T value = FetchAndAdvancePC<T>();
 
         if (inst.instructionCode == I_PUSH)
         {
             SP -= sizeof(T);
-            mmu->write<T>(SP, value);
+            mmu->Write<T>(SP, value);
         }
         else
             throw A65000Exception(EX_INVALID_INSTRUCTION);
@@ -542,128 +539,127 @@ private:
     }
 
     template <class T>
-    void exec_IncDecMemory(const uint32_t &address, const int &diff)
+    void Exec_IncDecMemory(const uint32_t &address, const int &diff)
     {
         assert((diff == 1) || (diff == -1));
 
-        const T value = mmu->read<T>(address);
+        const T value = mmu->Read<T>(address);
         const int64_t result = value + diff;
-        mmu->write<T>(address, (T)result);
-        modifyFlagsNZ(result);
-        modifyFlagsCV(value, (T)1, result);
+        mmu->Write<T>(address, (T)result);
+        ModifyFlagsNZ(result);
+        ModifyFlagsCV(value, (T)1, result);
     }
 
     template <class T>
-    void exec_IncDecRegister(const int &registerIndex, const int &diff)
+    void Exec_IncDecRegister(const int &registerIndex, const int &diff)
     {
         assert((diff == 1) || (diff == -1));
 
-        checkRegisterRange(registerIndex);
+        CheckRegisterRange(registerIndex);
         const T value = registers[registerIndex];
         const int32_t result = value + diff;
-        writeRegister(&registers[registerIndex], (T)result); // this sets N & Z
+        WriteRegister(&registers[registerIndex], (T)result); // this sets N & Z
 
-        modifyFlagsCV(value, (T)1, result);
+        ModifyFlagsCV(value, (T)1, result);
     }
 
     template <class T>                                              // clr, inc, dec, jmp, jsr, push, pop
-    int handleAddressingMode_Register1(const InstructionWord &inst) // inc.b r9
+    int HandleAddressingMode_Register1(const InstructionWord &inst) // inc.b r9
     {
-        const uint8_t registerSelector = fetchSingleRegisterSelector();
+        const uint8_t registerSelector = FetchSingleRegisterSelector();
 
         switch (inst.instructionCode)
         {
         case I_CLR:
-            writeRegister(&registers[registerSelector], (T)0);
+            WriteRegister(&registers[registerSelector], (T)0);
             return 1;
         case I_INC:
-            exec_IncDecRegister<T>(registerSelector, 1);
+            Exec_IncDecRegister<T>(registerSelector, 1);
             return 1;
         case I_DEC:
-            exec_IncDecRegister<T>(registerSelector, -1);
+            Exec_IncDecRegister<T>(registerSelector, -1);
             return 1;
         case I_JMP:
             PC = registers[registerSelector]; // jmp.w r4
             return 1;
         case I_JSR:
             SP -= 4;
-            mmu->write<uint32_t>(SP, PC);
+            mmu->Write<uint32_t>(SP, PC);
             PC = registers[registerSelector];
             return 3;
         case I_PUSH:
             SP -= sizeof(T);
-            mmu->write<T>(SP, registers[registerSelector]);
+            mmu->Write<T>(SP, registers[registerSelector]);
             return 2;
         case I_POP:
         {
-            const T value = mmu->read<T>(SP);
-            writeRegister(&registers[registerSelector], value);
-            modifyFlagsNZ(value);
+            const T value = mmu->Read<T>(SP);
+            WriteRegister(&registers[registerSelector], value);
+            ModifyFlagsNZ(value);
             return 2;
         }
         case I_SXB:
-            writeRegister(&registers[registerSelector], (int32_t)(registers[registerSelector] & 0xff)); // TODO: test
+            WriteRegister(&registers[registerSelector], (int32_t)(registers[registerSelector] & 0xff)); // TODO: test
             return 1;
         case I_SXW:
-            writeRegister(&registers[registerSelector], (int32_t)(registers[registerSelector] & 0xffff)); // TODO: test
+            WriteRegister(&registers[registerSelector], (int32_t)(registers[registerSelector] & 0xffff)); // TODO: test
             return 1;
         default:
             throw A65000Exception(EX_INVALID_INSTRUCTION);
         }
     }
-
     template <class T>
-    int executeMonadicInstructions_Memory(uint32_t address, int instructionCode)
+    int ExecuteMonadicInstructions_Memory(uint32_t address, int instructionCode)
     {
         int cycles = 0;
 
         switch (instructionCode)
         {
         case I_CLR:
-            mmu->write<T>(address, 0);
+            mmu->Write<T>(address, 0);
             cycles = 2;
             break;
         case I_INC:
-            exec_IncDecMemory<T>(address, 1);
+            Exec_IncDecMemory<T>(address, 1);
             cycles = 3;
             break;
         case I_DEC:
-            exec_IncDecMemory<T>(address, -1);
+            Exec_IncDecMemory<T>(address, -1);
             cycles = 3;
             break;
         case I_JMP:
-            PC = mmu->read<T>(address);
+            PC = mmu->Read<T>(address);
             cycles = 2;
             break;
         case I_JSR:
             SP -= 4;
-            mmu->write<uint32_t>(SP, PC);
-            PC = mmu->read<T>(address);
+            mmu->Write<uint32_t>(SP, PC);
+            PC = mmu->Read<T>(address);
             cycles = 3;
             break;
         case I_PUSH:
         {
             SP -= sizeof(T);
-            const T value = mmu->read<T>(address);
-            mmu->write<T>(SP, value);
+            const T value = mmu->Read<T>(address);
+            mmu->Write<T>(SP, value);
             cycles = 3;
             break;
         }
         case I_POP: // pop.w [r4] // mem[r4] = mem[SP], SP+=2
         {
-            const T value = mmu->read<T>(SP);
-            mmu->write<T>(address, value);
-            modifyFlagsNZ(value);
+            const T value = mmu->Read<T>(SP);
+            mmu->Write<T>(address, value);
+            ModifyFlagsNZ(value);
             SP += sizeof(T);
             cycles = 3;
             break;
         }
         case I_SXB:
-            mmu->write<int32_t>(address, (int32_t)mmu->read<int8_t>(address)); // TODO: test
+            mmu->Write<int32_t>(address, (int32_t)mmu->Read<int8_t>(address)); // TODO: test
             cycles = 3;
             break;
         case I_SXW:
-            mmu->write<int32_t>(address, (int32_t)mmu->read<int16_t>(address)); // TODO: test
+            mmu->Write<int32_t>(address, (int32_t)mmu->Read<int16_t>(address)); // TODO: test
             cycles = 3;
             break;
         default:
@@ -676,67 +672,66 @@ private:
     }
 
     template <class T>
-    int handleAddressingMode_Indexed1(const InstructionWord &inst) // inc.b [r0 + $300]+
+    int HandleAddressingMode_Indexed1(const InstructionWord &inst) // inc.b [r0 + $300]+
     {
-        const int32_t offset = mmu->read<uint32_t>(PC + 1); // preload offset
-        const int cycles = handleAddressingMode_RegisterIndirect<T>(inst, offset);
+        const int32_t offset = mmu->Read<uint32_t>(PC + 1); // preload offset
+        const int cycles = HandleAddressingMode_RegisterIndirect<T>(inst, offset);
         PC += 4;
         return cycles + 1;
     }
 
     template <class T>                                                                      // clr, inc, dec, jmp, jsr, push, pop
-    int handleAddressingMode_RegisterIndirect(const InstructionWord &inst, uint32_t offset) // inc.b [r0]+, clr.w [r2]-
+    int HandleAddressingMode_RegisterIndirect(const InstructionWord &inst, uint32_t offset) // inc.b [r0]+, clr.w [r2]-
     {
-        checkPreDecrementOperator<T>(inst.registerConfiguration);
+        CheckPreDecrementOperator<T>(inst.registerConfiguration);
 
         int cycles = 0;
-        const uint32_t address = registers[fetchSingleRegisterSelector()] + offset;
-        cycles = executeMonadicInstructions_Memory<T>(address, inst.instructionCode);
+        const uint32_t address = registers[FetchSingleRegisterSelector()] + offset;
+        cycles = ExecuteMonadicInstructions_Memory<T>(address, inst.instructionCode);
 
-        checkPostIncrementOperator<T>(inst.registerConfiguration);
+        CheckPostIncrementOperator<T>(inst.registerConfiguration);
 
         assert(cycles > 0);
 
         return cycles;
     }
-
     template <class T>
-    int handleAddressingMode_IndexedDst(const InstructionWord &inst) // sub.w [$1000+r0]-, r1
+    int HandleAddressingMode_IndexedDst(const InstructionWord &inst) // sub.w [$1000+r0]-, r1
     {
-        checkPreDecrementOperator<T>(inst.registerConfiguration);
+        CheckPreDecrementOperator<T>(inst.registerConfiguration);
 
-        const T operandConstant = mmu->read<uint32_t>(PC + 1);
-        const T cycles = handleAddressingMode_RegisterIndirectDst<T>(inst, operandConstant);
+        const T operandConstant = mmu->Read<uint32_t>(PC + 1);
+        const T cycles = HandleAddressingMode_RegisterIndirectDst<T>(inst, operandConstant);
         PC += sizeof(uint32_t);
 
-        checkPostIncrementOperator<T>(inst.registerConfiguration);
+        CheckPostIncrementOperator<T>(inst.registerConfiguration);
 
         return (inst.instructionCode == I_MOV || inst.instructionCode == I_CMP) ? cycles : cycles + 1;
     }
 
     template <class T>
-    int handleAddressingMode_IndexedSrc(const InstructionWord &inst) // DONE // add.w r0, [r1 + const]
+    int HandleAddressingMode_IndexedSrc(const InstructionWord &inst) // DONE // add.w r0, [r1 + const]
     {
-        checkPreDecrementOperator<T>(inst.registerConfiguration);
+        CheckPreDecrementOperator<T>(inst.registerConfiguration);
 
-        const T operandConstant = mmu->read<uint32_t>(PC + 1);
-        const T cycles = handleAddressingMode_RegisterIndirectSrc<T>(inst, operandConstant);
+        const T operandConstant = mmu->Read<uint32_t>(PC + 1);
+        const T cycles = HandleAddressingMode_RegisterIndirectSrc<T>(inst, operandConstant);
         PC += sizeof(uint32_t);
 
-        checkPostIncrementOperator<T>(inst.registerConfiguration);
+        CheckPostIncrementOperator<T>(inst.registerConfiguration);
 
         return cycles + 1;
     }
 
     template <class T>
-    int handleAddressingMode_RegisterIndirectDst(const InstructionWord &inst, uint32_t offset) // DONE // add.w [r1]-, r4
+    int HandleAddressingMode_RegisterIndirectDst(const InstructionWord &inst, uint32_t offset) // DONE // add.w [r1]-, r4
     {
         // fetch operand (register selector)
-        const RegisterIndexPair registerPair = fetchRegisterPair();
+        const RegisterIndexPair registerPair = FetchRegisterPair();
 
         // prepare values
         const uint32_t destinationAddress = registers[registerPair.leftRegIndex] + offset;
-        const T valueAtAddress = mmu->read<T>(destinationAddress);
+        const T valueAtAddress = mmu->Read<T>(destinationAddress);
         const T valueInSourceRegister = registers[registerPair.rightRegIndex];
         T result = 0;
         int cycles = 3;
@@ -749,25 +744,25 @@ private:
             cycles = 2;
             break;
         case I_CMP:
-            result = exec_Sub(valueAtAddress, valueInSourceRegister, false);
-            modifyFlagsNZ(result);
-            return 2; // we return, because we don't want to store the result
+            result = Exec_Sub(valueAtAddress, valueInSourceRegister, false);
+            ModifyFlagsNZ(result);
+            return 2; // we return because we don't want to store the result
         default:
-            result = executeALUInstructions((int)inst.instructionCode, valueAtAddress, valueInSourceRegister);
+            result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, valueInSourceRegister);
         }
 
         // store result
-        mmu->write(destinationAddress, result);
-        modifyFlagsNZ(result);
+        mmu->Write(destinationAddress, result);
+        ModifyFlagsNZ(result);
 
         return cycles;
     }
 
     template <class T>
-    int handleAddressingMode_RegisterIndirectSrc(const InstructionWord &inst, uint32_t offset) // DONE // add.b r0, [r2]
+    int HandleAddressingMode_RegisterIndirectSrc(const InstructionWord &inst, uint32_t offset) // DONE // add.b r0, [r2]
     {
         // fetch operand (register selector)
-        const RegisterIndexPair registerPair = fetchRegisterPair();
+        const RegisterIndexPair registerPair = FetchRegisterPair();
 
         // prepare values
         const int sourceRegisterIndex = registerPair.rightRegIndex;
@@ -775,7 +770,7 @@ private:
 
         const uint32_t sourceAddress = registers[sourceRegisterIndex] + offset;
 
-        const T valueAtAddress = mmu->read<T>(sourceAddress);
+        const T valueAtAddress = mmu->Read<T>(sourceAddress);
         const T valueInDestinationRegister = registers[destinationRegisterIndex];
 
         T result = 0;
@@ -788,24 +783,24 @@ private:
             result = valueAtAddress;
             break;
         case I_CMP:
-            result = exec_Sub(valueInDestinationRegister, valueAtAddress, false);
-            modifyFlagsNZ(result);
-            return cycles; // we return, because we don't want to store the result
+            result = Exec_Sub(valueInDestinationRegister, valueAtAddress, false);
+            ModifyFlagsNZ(result);
+            return cycles; // we return because we don't want to store the result
         default:
-            result = executeALUInstructions((int)inst.instructionCode, valueInDestinationRegister, valueAtAddress);
+            result = ExecuteALUInstructions((int)inst.instructionCode, valueInDestinationRegister, valueAtAddress);
         }
 
         // store result
-        writeRegister(&registers[destinationRegisterIndex], result);
+        WriteRegister(&registers[destinationRegisterIndex], result);
 
         return cycles;
     }
 
     template <class T>
-    int handleAddressingMode_Register2(const InstructionWord &inst) // DONE // add.b r0, r2
+    int HandleAddressingMode_Register2(const InstructionWord &inst) // DONE // add.b r0, r2
     {
         // fetch operands (register selector, 8/16/32bit constant)
-        const RegisterIndexPair registerPair = fetchRegisterPair();
+        const RegisterIndexPair registerPair = FetchRegisterPair();
 
         // prepare values
         const int cycles = 1; // I think "register2" addressing mode takes 1 cycle with all instructions
@@ -820,25 +815,25 @@ private:
             result = rightRegisterValue;
             break;
         case I_CMP:
-            result = exec_Sub(leftRegisterValue, rightRegisterValue, false);
-            modifyFlagsNZ(result);
+            result = Exec_Sub(leftRegisterValue, rightRegisterValue, false);
+            ModifyFlagsNZ(result);
             return cycles; // we return, because we don't want to store the result
         default:
-            result = executeALUInstructions((int)inst.instructionCode, leftRegisterValue, rightRegisterValue);
+            result = ExecuteALUInstructions((int)inst.instructionCode, leftRegisterValue, rightRegisterValue);
         }
 
         // store result
-        writeRegister(&registers[registerPair.leftRegIndex], result);
+        WriteRegister(&registers[registerPair.leftRegIndex], result);
 
         return cycles;
     }
 
     template <class T>
-    int handleAddressingMode_RegisterImmediate(const InstructionWord &inst) // DONE // add.b r0, 1000
+    int HandleAddressingMode_RegisterImmediate(const InstructionWord &inst) // DONE // add.b r0, 1000
     {
         // fetch operands (register selector, 8/16/32bit constant)
-        const uint8_t registerSelector = fetchSingleRegisterSelector();
-        const T opcodeConstant = fetchAndAdvancePC<T>();
+        const uint8_t registerSelector = FetchSingleRegisterSelector();
+        const T opcodeConstant = FetchAndAdvancePC<T>();
 
         // prepare values
         const T valueInRegister = registers[registerSelector];
@@ -852,28 +847,28 @@ private:
             result = opcodeConstant;
             break;
         case I_CMP:
-            result = exec_Sub(valueInRegister, opcodeConstant, false);
-            modifyFlagsNZ(result);
+            result = Exec_Sub(valueInRegister, opcodeConstant, false);
+            ModifyFlagsNZ(result);
             return cycles; // we return, because we don't want to store the result
         default:
-            result = executeALUInstructions((int)inst.instructionCode, valueInRegister, opcodeConstant);
+            result = ExecuteALUInstructions((int)inst.instructionCode, valueInRegister, opcodeConstant);
         }
 
         // store result
-        writeRegister(&registers[registerSelector], result);
+        WriteRegister(&registers[registerSelector], result);
 
         return cycles;
     }
 
     template <class T>
-    int handleAddressingMode_AbsoluteSrc(const InstructionWord &inst) // DONE // mov.b r0, [$1000]
+    int HandleAddressingMode_AbsoluteSrc(const InstructionWord &inst) // DONE // mov.b r0, [$1000]
     {
         // fetch operands (register selector, 32bit address)
-        const uint8_t registerSelector = fetchSingleRegisterSelector();
-        const uint32_t address = fetchAndAdvancePC<uint32_t>();
+        const uint8_t registerSelector = FetchSingleRegisterSelector();
+        const uint32_t address = FetchAndAdvancePC<uint32_t>();
 
         // prepare values
-        const T valueAtAddress = mmu->read<T>(address);
+        const T valueAtAddress = mmu->Read<T>(address);
         const T valueInRegister = registers[registerSelector];
         T result = 0;
         int cycles = 2;
@@ -885,29 +880,28 @@ private:
             result = valueAtAddress;
             break;
         case I_CMP:
-            result = exec_Sub(valueInRegister, valueAtAddress, false);
-            modifyFlagsNZ(result);
+            result = Exec_Sub(valueInRegister, valueAtAddress, false);
+            ModifyFlagsNZ(result);
             return 2; // we return, because we don't want to store the result
         default:
-            result = executeALUInstructions((int)inst.instructionCode, valueAtAddress, valueInRegister);
+            result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, valueInRegister);
         }
 
         // store result
-        writeRegister(&registers[registerSelector], result);
+        WriteRegister(&registers[registerSelector], result);
 
         return cycles;
     }
-
     template <class T>
-    int handleAddressingMode_AbsoluteDst(const InstructionWord &inst) // DONE //  add.w [$1320], r9
+    int HandleAddressingMode_AbsoluteDst(const InstructionWord &inst) // DONE //  add.w [$1320], r9
     {
         // fetch operands (register selector, 32bit address)
-        const uint8_t registerSelector = fetchSingleRegisterSelector();
-        const uint32_t address = fetchAndAdvancePC<uint32_t>();
+        const uint8_t registerSelector = FetchSingleRegisterSelector();
+        const uint32_t address = FetchAndAdvancePC<uint32_t>();
 
         T result = 0;
         int cycles = 3;
-        const T valueAtAddress = mmu->read<T>(address);
+        const T valueAtAddress = mmu->Read<T>(address);
         const T valueInRegister = registers[registerSelector];
 
         // decode and execute instruction
@@ -918,16 +912,16 @@ private:
             cycles = 2;
             break;
         case I_CMP:
-            result = exec_Sub(valueAtAddress, valueInRegister, false);
-            modifyFlagsNZ(result);
+            result = Exec_Sub(valueAtAddress, valueInRegister, false);
+            ModifyFlagsNZ(result);
             return 2; // we return, because we don't want to store the result
         default:
-            result = executeALUInstructions((int)inst.instructionCode, valueAtAddress, valueInRegister);
+            result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, valueInRegister);
         }
 
         // store result
-        mmu->write(address, result);
-        modifyFlagsNZ(result);
+        mmu->Write(address, result);
+        ModifyFlagsNZ(result);
 
         return cycles;
     }
