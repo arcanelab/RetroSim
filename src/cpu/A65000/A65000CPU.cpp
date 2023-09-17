@@ -12,7 +12,7 @@
  Copyright (c) 2013 Zoltán Majoros. All rights reserved.
 */
 #include "A65000CPU.h"
-#include "A65000MMU.h"
+#include "MMU.h"
 #include <cassert>
 #include <type_traits>
 #include <limits>
@@ -25,15 +25,15 @@ void A65000CPU::InterruptRaised(bool isNMI)
         return;
 
     SP--; // save the status register to the stack
-    mmu->Write<uint8_t>(SP, *(uint8_t *)(&statusRegister));
+    MMU::WriteMem<uint8_t>(SP, *(uint8_t *)(&statusRegister));
 
     SP -= 4; // save the PC to the stack
-    mmu->Write<uint32_t>(SP, PC);
+    MMU::WriteMem<uint32_t>(SP, PC);
 
     if (isNMI)
-        PC = mmu->Read<uint32_t>(VEC_NMI); // jump to the NMI-handler
+        PC = MMU::ReadMem<uint32_t>(VEC_NMI); // jump to the NMI-handler
     else
-        PC = mmu->Read<uint32_t>(VEC_HWIRQ); // jump to the IRQ-handler
+        PC = MMU::ReadMem<uint32_t>(VEC_HWIRQ); // jump to the IRQ-handler
 }
 
 void A65000CPU::Reset()
@@ -43,8 +43,8 @@ void A65000CPU::Reset()
     for (int i = 0; i < 14; i++)
         registers[i] = 0;
 
-    PC = mmu->Read<uint32_t>(VEC_RESET);
-    SP = mmu->Read<uint32_t>(VEC_STACKPOINTERINIT);
+    PC = MMU::ReadMem<uint32_t>(VEC_RESET);
+    SP = MMU::ReadMem<uint32_t>(VEC_STACKPOINTERINIT);
 }
 
 void A65000CPU::SetPC(unsigned int newPC)
@@ -66,13 +66,13 @@ int A65000CPU::Tick() // return value: the number of cycles used
         switch (exception.type)
         {
         case EX_INVALID_INSTRUCTION:
-            PC = mmu->Read<uint32_t>(VEC_ILLEGALINSTRUCTION);
+            PC = MMU::ReadMem<uint32_t>(VEC_ILLEGALINSTRUCTION);
             break;
         case EX_INVALID_ADDRESS:
-            PC = mmu->Read<uint32_t>(VEC_ILLEGALADDRESS);
+            PC = MMU::ReadMem<uint32_t>(VEC_ILLEGALADDRESS);
             break;
         case EX_DIVISION_BY_ZERO:
-            PC = mmu->Read<uint32_t>(VEC_DIVZERO);
+            PC = MMU::ReadMem<uint32_t>(VEC_DIVZERO);
             break;
         default:
             // TODO: here?
@@ -127,7 +127,7 @@ int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
         break;
 
     case I_RTS:
-        PC = mmu->Read<uint32_t>(SP); // POP PC
+        PC = MMU::ReadMem<uint32_t>(SP); // POP PC
         SP += 4;
         cycles = 3;
         break;
@@ -136,7 +136,7 @@ int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
         for (int i = 0; i < 16; i++)
         {
             SP -= 4;
-            mmu->Write<uint32_t>(SP, registers[i]);
+            MMU::WriteMem<uint32_t>(SP, registers[i]);
         }
         cycles = 32;
         break;
@@ -144,7 +144,7 @@ int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
     case I_POPA:
         for (int i = 0; i < 16; i++)
         {
-            registers[i] = mmu->Read<uint32_t>(SP);
+            registers[i] = MMU::ReadMem<uint32_t>(SP);
             SP += 4;
         }
         cycles = 32;
@@ -155,12 +155,12 @@ int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
             return 1;
 
         SP--;
-        mmu->Write<uint8_t>(SP, *(uint8_t *)(&statusRegister)); // PUSH Status
+        MMU::WriteMem<uint8_t>(SP, *(uint8_t *)(&statusRegister)); // PUSH Status
 
         SP -= 4;
-        mmu->Write<uint32_t>(SP, PC); // PUSH PC
+        MMU::WriteMem<uint32_t>(SP, PC); // PUSH PC
 
-        PC = mmu->Read<uint32_t>(VEC_SOFTIRQ); // JMP [VEC_SOFTIRQ]
+        PC = MMU::ReadMem<uint32_t>(VEC_SOFTIRQ); // JMP [VEC_SOFTIRQ]
 
         statusRegister.b = 1;
 
@@ -168,9 +168,9 @@ int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
         break;
 
     case I_RTI:
-        PC = mmu->Read<uint32_t>(SP); // POP PC
+        PC = MMU::ReadMem<uint32_t>(SP); // POP PC
         SP += 4;
-        *(uint8_t *)(&statusRegister) = (uint8_t)mmu->Read<uint8_t>(SP); // POP Status
+        *(uint8_t *)(&statusRegister) = (uint8_t)MMU::ReadMem<uint8_t>(SP); // POP Status
         SP++;
         cycles = 5;
         break;
@@ -230,7 +230,7 @@ int A65000CPU::HandleAddressingMode_Direct(const InstructionWord &inst)
         break;
     case I_JSR:
         SP -= 4;
-        mmu->Write<uint32_t>(SP, PC); // PUSH PC
+        MMU::WriteMem<uint32_t>(SP, PC); // PUSH PC
         PC = address;
         cycles = 3;
         break;

@@ -15,24 +15,32 @@
 
 #include "ICPUInterface.h"
 #include "A65000Exception.h"
-#include "A65000MMU.h"
+#include "MMU.h"
 
 #include <vector> // for logging
 #include <string>
 
 using std::string;
 using std::vector;
+using namespace RetroSim;
 
-class A65000MMU;
+template signed char MMU::ReadMem<signed char>(unsigned int address);
+template short MMU::ReadMem<short>(unsigned int address);
+template unsigned char MMU::ReadMem<unsigned char>(unsigned int address);
+template unsigned short MMU::ReadMem<unsigned short>(unsigned int address);
+template unsigned int MMU::ReadMem<unsigned int>(unsigned int address);
 
-// ==============================================================================
+template void MMU::WriteMem<int>(unsigned int address, int value);
+template void MMU::WriteMem<unsigned int>(unsigned int address, unsigned int value);
+template void MMU::WriteMem<unsigned short>(unsigned int address, unsigned short value);
+template void MMU::WriteMem<unsigned char>(unsigned int address, unsigned char value);
 
 class A65000CPU : public ICPUInterface
 {
 public:
-    A65000CPU(A65000MMU *mmu) : mmu(mmu)
+    A65000CPU()
     {
-        reset();
+        Reset();
     }
     // ICPUInterface methods
     int Tick(); // returns the number of cycles spent
@@ -208,8 +216,6 @@ public:
         uint16_t opcodeSize : 2;
     };
 
-    A65000MMU *mmu; // initialized with constructor
-
 public:
     // --- CPU state ---
 
@@ -325,7 +331,7 @@ private:
     {
         if (registerConfiguration & 0b1000) // pre-decrement?
         {
-            uint8_t registerSelector = mmu->Read<uint8_t>(PC) & 0xf;
+            uint8_t registerSelector = MMU::ReadMem<uint8_t>(PC) & 0xf;
             registers[registerSelector] -= sizeof(T);
         }
     }
@@ -335,7 +341,7 @@ private:
     {
         if (registerConfiguration & 0b100) // post-increment?
         {
-            uint8_t registerSelector = mmu->Read<uint8_t>(PC) & 0xf;
+            uint8_t registerSelector = MMU::ReadMem<uint8_t>(PC) & 0xf;
             registers[registerSelector] += sizeof(T);
         }
     }
@@ -398,7 +404,7 @@ private:
     template <class T>
     T FetchAndAdvancePC()
     {
-        const T value = mmu->Read<T>(PC);
+        const T value = MMU::ReadMem<T>(PC);
         PC += sizeof(T);
         return value;
     }
@@ -530,7 +536,7 @@ private:
         if (inst.instructionCode == I_PUSH)
         {
             SP -= sizeof(T);
-            mmu->Write<T>(SP, value);
+            MMU::WriteMem<T>(SP, value);
         }
         else
             throw A65000Exception(EX_INVALID_INSTRUCTION);
@@ -543,9 +549,9 @@ private:
     {
         assert((diff == 1) || (diff == -1));
 
-        const T value = mmu->Read<T>(address);
+        const T value = MMU::ReadMem<T>(address);
         const int64_t result = value + diff;
-        mmu->Write<T>(address, (T)result);
+        MMU::WriteMem<T>(address, (T)result);
         ModifyFlagsNZ(result);
         ModifyFlagsCV(value, (T)1, result);
     }
@@ -584,16 +590,16 @@ private:
             return 1;
         case I_JSR:
             SP -= 4;
-            mmu->Write<uint32_t>(SP, PC);
+            MMU::WriteMem<uint32_t>(SP, PC);
             PC = registers[registerSelector];
             return 3;
         case I_PUSH:
             SP -= sizeof(T);
-            mmu->Write<T>(SP, registers[registerSelector]);
+            MMU::WriteMem<T>(SP, registers[registerSelector]);
             return 2;
         case I_POP:
         {
-            const T value = mmu->Read<T>(SP);
+            const T value = MMU::ReadMem<T>(SP);
             WriteRegister(&registers[registerSelector], value);
             ModifyFlagsNZ(value);
             return 2;
@@ -616,7 +622,7 @@ private:
         switch (instructionCode)
         {
         case I_CLR:
-            mmu->Write<T>(address, 0);
+            MMU::WriteMem<T>(address, 0);
             cycles = 2;
             break;
         case I_INC:
@@ -628,38 +634,38 @@ private:
             cycles = 3;
             break;
         case I_JMP:
-            PC = mmu->Read<T>(address);
+            PC = MMU::ReadMem<T>(address);
             cycles = 2;
             break;
         case I_JSR:
             SP -= 4;
-            mmu->Write<uint32_t>(SP, PC);
-            PC = mmu->Read<T>(address);
+            MMU::WriteMem<uint32_t>(SP, PC);
+            PC = MMU::ReadMem<T>(address);
             cycles = 3;
             break;
         case I_PUSH:
         {
             SP -= sizeof(T);
-            const T value = mmu->Read<T>(address);
-            mmu->Write<T>(SP, value);
+            const T value = MMU::ReadMem<T>(address);
+            MMU::WriteMem<T>(SP, value);
             cycles = 3;
             break;
         }
         case I_POP: // pop.w [r4] // mem[r4] = mem[SP], SP+=2
         {
-            const T value = mmu->Read<T>(SP);
-            mmu->Write<T>(address, value);
+            const T value = MMU::ReadMem<T>(SP);
+            MMU::WriteMem<T>(address, value);
             ModifyFlagsNZ(value);
             SP += sizeof(T);
             cycles = 3;
             break;
         }
         case I_SXB:
-            mmu->Write<int32_t>(address, (int32_t)mmu->Read<int8_t>(address)); // TODO: test
+            MMU::WriteMem<int32_t>(address, (int32_t)MMU::ReadMem<int8_t>(address)); // TODO: test
             cycles = 3;
             break;
         case I_SXW:
-            mmu->Write<int32_t>(address, (int32_t)mmu->Read<int16_t>(address)); // TODO: test
+            MMU::WriteMem<int32_t>(address, (int32_t)MMU::ReadMem<int16_t>(address)); // TODO: test
             cycles = 3;
             break;
         default:
@@ -674,7 +680,7 @@ private:
     template <class T>
     int HandleAddressingMode_Indexed1(const InstructionWord &inst) // inc.b [r0 + $300]+
     {
-        const int32_t offset = mmu->Read<uint32_t>(PC + 1); // preload offset
+        const int32_t offset = MMU::ReadMem<uint32_t>(PC + 1); // preload offset
         const int cycles = HandleAddressingMode_RegisterIndirect<T>(inst, offset);
         PC += 4;
         return cycles + 1;
@@ -700,7 +706,7 @@ private:
     {
         CheckPreDecrementOperator<T>(inst.registerConfiguration);
 
-        const T operandConstant = mmu->Read<uint32_t>(PC + 1);
+        const T operandConstant = MMU::ReadMem<uint32_t>(PC + 1);
         const T cycles = HandleAddressingMode_RegisterIndirectDst<T>(inst, operandConstant);
         PC += sizeof(uint32_t);
 
@@ -714,7 +720,7 @@ private:
     {
         CheckPreDecrementOperator<T>(inst.registerConfiguration);
 
-        const T operandConstant = mmu->Read<uint32_t>(PC + 1);
+        const T operandConstant = MMU::ReadMem<uint32_t>(PC + 1);
         const T cycles = HandleAddressingMode_RegisterIndirectSrc<T>(inst, operandConstant);
         PC += sizeof(uint32_t);
 
@@ -731,7 +737,7 @@ private:
 
         // prepare values
         const uint32_t destinationAddress = registers[registerPair.leftRegIndex] + offset;
-        const T valueAtAddress = mmu->Read<T>(destinationAddress);
+        const T valueAtAddress = MMU::ReadMem<T>(destinationAddress);
         const T valueInSourceRegister = registers[registerPair.rightRegIndex];
         T result = 0;
         int cycles = 3;
@@ -752,7 +758,7 @@ private:
         }
 
         // store result
-        mmu->Write(destinationAddress, result);
+        MMU::WriteMem(destinationAddress, result);
         ModifyFlagsNZ(result);
 
         return cycles;
@@ -770,7 +776,7 @@ private:
 
         const uint32_t sourceAddress = registers[sourceRegisterIndex] + offset;
 
-        const T valueAtAddress = mmu->Read<T>(sourceAddress);
+        const T valueAtAddress = MMU::ReadMem<T>(sourceAddress);
         const T valueInDestinationRegister = registers[destinationRegisterIndex];
 
         T result = 0;
@@ -868,7 +874,7 @@ private:
         const uint32_t address = FetchAndAdvancePC<uint32_t>();
 
         // prepare values
-        const T valueAtAddress = mmu->Read<T>(address);
+        const T valueAtAddress = MMU::ReadMem<T>(address);
         const T valueInRegister = registers[registerSelector];
         T result = 0;
         int cycles = 2;
@@ -901,7 +907,7 @@ private:
 
         T result = 0;
         int cycles = 3;
-        const T valueAtAddress = mmu->Read<T>(address);
+        const T valueAtAddress = MMU::ReadMem<T>(address);
         const T valueInRegister = registers[registerSelector];
 
         // decode and execute instruction
@@ -920,7 +926,7 @@ private:
         }
 
         // store result
-        mmu->Write(address, result);
+        MMU::WriteMem(address, result);
         ModifyFlagsNZ(result);
 
         return cycles;
