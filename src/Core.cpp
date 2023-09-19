@@ -229,7 +229,6 @@ namespace RetroSim
             DrawTestScreen();
         }
         
-        // measure time spent on CPU in ms
         int cycles = 0;
         while(cycles < 20000)
         {
@@ -314,7 +313,7 @@ namespace RetroSim
             memcpy(&MMU::memory.raw[address], ptr, length);
             ptr += length;
 
-            LogPrintf(RETRO_LOG_INFO, "Loaded %d bytes at address 0x%08x\n", length, address);
+            LogPrintf(RETRO_LOG_INFO, "Loaded %d bytes to $%x from %s\n", length, address, path.c_str());
         }
 
         delete[] buffer;
