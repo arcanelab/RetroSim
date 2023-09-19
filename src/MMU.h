@@ -14,13 +14,14 @@ namespace RetroSim::MMU
 
     enum MemoryMap
     {
-        PALETTE_U32 = 0x1000,     // Color palette memory (4K)
-        MAP_U8 = 0x2000,          // Map memory (16K)
-        TILES_U8 = 0x6000,        // Tile memory bank (16K)
-        SPRITE_ATLAS_U8 = 0xA000, // Sprite atlas/memory bank (16K)
-        GPU_REGISTERS = 0xD000,   // GPU registers (16 bytes)
-        BITMAP_U8 = 0x10000,      // Bitmap memory (120K)
-        CHARSET_U8 = 0x30000      // Character tile data (64K)
+        PALETTE_U32 = 0x1000,       // Color palette memory (4K)
+        MAP_U8 = 0x2000,            // Map memory (16K)
+        TILES_U8 = 0x6000,          // Tile memory bank (16K)
+        SPRITE_ATLAS_U8 = 0xA000,   // Sprite atlas/memory bank (16K)
+        GPU_REGISTERS = 0xD000,     // GPU registers
+        GENERAL_REGISTERS = 0xD100, // General registers
+        BITMAP_U8 = 0x10000,        // Bitmap memory (120K)
+        CHARSET_U8 = 0x30000        // Character tile data (64K)
     };
 
     struct GPURegisters
@@ -32,8 +33,19 @@ namespace RetroSim::MMU
         uint8_t spriteAtlasPitch;
     };
 
+    struct GeneralRegisters
+    {
+        uint32_t fixedFrameTime; // in microseconds (µs)
+        uint32_t deltaTime;      // in microseconds (µs)
+        uint32_t frameCounter;   // number of frames since the start of the program
+        uint8_t refreshRate;     // in Hz
+        uint8_t currentFPS;      // in Hz
+    };
+
     struct MemorySections
     {
+        uint8_t raw[memorySize];
+
         // memory sections
         uint32_t *Palette_u32;
         uint8_t *Map_u8;
@@ -41,19 +53,15 @@ namespace RetroSim::MMU
         uint8_t *SpriteAtlas_u8;
         uint8_t *Bitmap_u8;
         uint8_t *Charset_u8;
-        // registers
-        uint8_t *TileWidth_u8;
-        uint8_t *TileHeight_8;
-        uint8_t *MapWidth_u8;
-        uint8_t *MapHeight_u8;
-        uint8_t *SpriteAtlasPitch_u8;
 
-        uint8_t raw[memorySize];
-
-        GPURegisters *gpu = reinterpret_cast<GPURegisters *>(&raw[GPU_REGISTERS]);
+        GPURegisters &gpu;
+        GeneralRegisters &generalRegisters;
 
         MemorySections()
+            : gpu(*reinterpret_cast<GPURegisters *>(&raw[GPU_REGISTERS])), // Initializing references in the constructor's initialization list
+              generalRegisters(*reinterpret_cast<GeneralRegisters *>(&raw[GENERAL_REGISTERS]))
         {
+            memset(raw, 0, memorySize);
             Palette_u32 = (uint32_t *)&raw[PALETTE_U32];
             Map_u8 = &raw[MAP_U8];
             Tiles_u8 = &raw[TILES_U8];

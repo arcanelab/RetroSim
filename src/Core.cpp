@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <thread>
 #include <algorithm>
+#include <chrono>
 
 #include "GPU.h"
 #include "Core.h"
@@ -114,6 +115,10 @@ namespace RetroSim
             uint8_t value = MMU::memory.Charset_u8[i];
             MMU::memory.Tiles_u8[i] = value;
         }
+
+        LogPrintf(RETRO_LOG_INFO, "Copied $%x bytes from unscii_16 to $%x-$%x\n", length, MMU::CHARSET_U8, MMU::CHARSET_U8 + length);
+        LogPrintf(RETRO_LOG_INFO, "Copied $%x bytes from unscii_8 to $%x-$%x\n", length, MMU::CHARSET_U8 + 0x8000, MMU::CHARSET_U8 + 0x8000 + length);
+        LogPrintf(RETRO_LOG_INFO, "Copied $%x bytes from $%x to $%x-$%x\n", 0x4000, MMU::CHARSET_U8, MMU::TILES_U8, MMU::TILES_U8 + 0x4000);
     }
 
     void Core::InitializeCPU()
@@ -129,7 +134,8 @@ namespace RetroSim
         MMU::WriteMem<uint32_t>(A65000CPU::VEC_HWIRQ, 0x0000E000);
         MMU::WriteMem<uint32_t>(A65000CPU::VEC_NMI, 0x0000E000);     
 
-        MMU::WriteMem<uint32_t>(0x200, 0x0200180f); // jmp $200
+        MMU::memory.generalRegisters.refreshRate = coreConfig.GetFPS();
+        MMU::memory.generalRegisters.fixedFrameTime = 1000000 / coreConfig.GetFPS(); // microseconds
 
         LoadRetroSimBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.rsb");
 
@@ -151,75 +157,28 @@ namespace RetroSim
     void DrawTestScreen()
     {
         frameNumber++;
-        // RetroSim::GPU::RenderTileMode();
-
-        // Test all GPU functions. The color parameter is an index into a 256-long palette.
-        // All drawings must be visible on the screen of 480x256 pixels.
-        // GPU::Cls();
-        GPU::SetClipping(100, 150, 480 - 100, 256 - 50);
-        GPU::DrawRect(0, 0, 479, 255, 0, true);
-        GPU::DrawLine(0, 0, 479, 255, 1);
-        GPU::DrawCircle(480 / 2, 256 / 2, 128, 2, false);
-        GPU::DrawCircle(240, 128, 50, 3, true);
-        // GPU::DrawRect(100, 100, 100, 100, 4, false);
-        GPU::DisableClipping();
-        // GPU::DrawRect(100, 100, 50, 50, 5, true);
-        GPU::DrawTriangle(200, 200, 300, 200, 250, 100, 6, false);
-        GPU::DrawTriangle(200, 200, 300, 200, 250, 100, 7, true);
-        GPU::DrawTexturedTriangle(0, 0, 100, 0, 0, 100, 0, 0, 100, 0, 0, 100);
-        GPU::DrawPixel(200, 200, 8);
-
-        // GPU::Clip(100, 150, 480 - 150, 256 - 150);
-        // GPU::Cls();
-        // GPU::NoClip();
-
-        srand(frameNumber / 20);
-        int radius = sin(frameNumber / 30.0) * 30 + 50;
+        GPU::ClearScreenIgnoreClipping();
         int colorIndex = (frameNumber / 20) % 64;
-
-        static int x = 0;
-        static int y = 0;
-        static int dx = 1;
-        static int dy = 1;
-        x += dx;
-        y += dy;
-        if (x < 0 || x > 480)
-            dx = -dx;
-        if (y < 0 || y > 256)
-            dy = -dy;
-        GPU::DrawCircle(x, y, radius, colorIndex, true);
-
-        // GPU::ClearScreen(0);
-        GPU::RenderOpaqueText("RetroSim", textPos, 150, colorIndex, 20);
-        // GPU::Map(frameNumber % GPU::textureWidth, 40, 0, 0, 20, 3, 0);
 
         textPos--;
         if(textPos < -200)
             textPos = GPU::textureWidth + 200;
 
+        GPU::RenderOpaqueText("RetroSim", textPos, 150, colorIndex, 20);
+
+        int bitmapX = 100 + sin(frameNumber / 100.0) * 100;
+        int bitmapY = 50 + cos(frameNumber / 100.0) * 100;
+
+        GPU::DrawBitmap(bitmapX, bitmapY, 0, 0, 320, 256, 320, 1);
+
         GPU::SetFont(8, 8, 0x8000);
         GPU::RenderText("This text is 8x8.", textPos, 170, colorIndex);
         GPU::SetFont(8, 16, 0);
-
-        // GPU::ClearScreenIgnoreClipping((frameNumber / 30) % 256);
-
-        int bitmapX = 100 + sin(frameNumber / 60.0) * 100;
-        int bitmapY = 50 + cos(frameNumber / 60.0) * 100;
-
-        // GPU::DrawBitmap(bitmapX, bitmapY, 0, 0, 320, 256, 320, 1);
-        // GPU::DrawSprite(bitmapX, bitmapY, 0, 0, 128, 128, 1);
-
-        int topLeftX = (GPU::textureWidth - 320) / 2;
-        int topLeftY = (GPU::textureHeight - 256) / 2;
-        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 320, 256, 320, 1);
-
-        GPU::RenderText("This text is 16x16.", textPos, 190, colorIndex);
-        GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);        
     }
 
-    int frameCounter = 0;
     float clock = 0;
-    uint32_t startTime = SDL_GetTicks(); 
+    uint32_t cpuStartTime = SDL_GetTicks();
+    auto lastFrameTime = std::chrono::high_resolution_clock::now();
 
     void Core::RunNextFrame()
     {        
@@ -239,15 +198,23 @@ namespace RetroSim
         clock += timeDelta;
 
         uint32_t currentTime = SDL_GetTicks();
-        if(currentTime - startTime > 1000.0f)
+        if(currentTime - cpuStartTime > 1000.0f)
         {
-            startTime = currentTime;
-            printf("CPU time: %d ms, fps = %d\n", timeDelta, frameCounter);
+            cpuStartTime = currentTime;
+            printf("CPU time: %d ms, fps = %d, deltaTime = %d, currentFPS = %d\n", timeDelta, frameCounter, MMU::memory.generalRegisters.deltaTime, MMU::memory.generalRegisters.currentFPS);
+            MMU::memory.generalRegisters.currentFPS = frameCounter;
             clock = 0;
             frameCounter = 0;
         }
 
+        MMU::memory.generalRegisters.frameCounter = frameCounter;
         frameCounter++;
+
+        auto now = std::chrono::high_resolution_clock::now();
+        auto frameTimeInMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(now - lastFrameTime).count();
+        MMU::memory.generalRegisters.deltaTime = frameTimeInMicroseconds;
+        MMU::memory.generalRegisters.currentFPS = 1000000.0f / frameTimeInMicroseconds;
+        lastFrameTime = now;
     }
 
     void Core::Reset()

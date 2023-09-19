@@ -35,10 +35,12 @@ namespace RetroSim
         static Core *instance;
         CoreConfig coreConfig;
         bool isInitialized = false;
+        uint32_t frameCounter;
         A65000CPU cpu;
 
         void InitializeFonts();
         void InitializePalette();
         void InitializeCPU();
+        void UpdateRegisters();
     };
 }
