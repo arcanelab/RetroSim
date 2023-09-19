@@ -47,7 +47,6 @@
 ## Character Memory
 
 - Contains the bitmap for the character sets. Binary format: 0 indicates background color, 1 indicates visible pixel.
-- 
 
 ## Memory Layout
 
@@ -69,16 +68,20 @@
 
 ## Registers
 
-| Address | Size | Symbol            | Description                                    |
-| ------- | ---- | ------------------ | --------------------------------------------- |
-| $D000   | u8   | TILE_WIDTH        | Tile width (default: 8)                        |
-| $D001   | u8   | TILE_HEIGHT       | Tile height (default: 8)                       |
-| $D002   | u8   | MAP_WIDTH         | Map width in tiles (default: 60, max 128)      |
-| $D003   | u8   | MAP_HEIGHT        | Map height in tiles (default: 16, max 128)     |
-| $D004   | u8   | SPRITE_ATLAS_PITCH| Width of the sprite atlas (default: 128)       |
-| $D005   | u8   | BITMAP_PITCH      | Width of the bitmap memory (default: 480)      |
-| $D006   | u8   | CHARACTER_COLOR   | The index of the color used for rendering text |
-
+| Address | Size  | Symbol             | Description                                                        |
+| ------- | ----  | -----------------  | ------------------------------------------------------------------ |
+| $D000   | u8    | TILE_WIDTH         | Tile width (default: 8)                                            |
+| $D001   | u8    | TILE_HEIGHT        | Tile height (default: 8)                                           |
+| $D002   | u8    | MAP_WIDTH          | Map width in tiles (default: 60, max 128)                          |
+| $D003   | u8    | MAP_HEIGHT         | Map height in tiles (default: 16, max 128)                         |
+| $D004   | u8    | SPRITE_ATLAS_PITCH | Width of the sprite atlas (default: 128)                           |
+| $D005   | u8    | BITMAP_PITCH       | Width of the bitmap memory (default: 480)                          |
+| $D006   | u8    | CHARACTER_COLOR    | The index of the color used for rendering text                     |
+| $D100   | u32   | FIXED_FRAME_TIME   | Fixed frame time in microseconds (µs): 1000000/f, f = refresh rate |
+| $D104   | u32   | DELTA_TIME         | The amount of time the last frame took in microseconds             |
+| $D108   | u32   | FRAME_COUNTER      | The number of frames that have elapsed since the start             |
+| $D10C   | u8    | REFRESH_RATE       | The refresh rate of the host screen                                |
+| $D10E   | u8    | CURRENT_FPS        | The fps calculated from the time spent in the last frame           |
 
 ## Graphics API
 
