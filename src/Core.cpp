@@ -243,7 +243,6 @@ namespace RetroSim
         if(currentTime - startTime > 1000.0f)
         {
             startTime = currentTime;
-            // LogPrintf(RETRO_LOG_INFO, "CPU time: %f ms, fps = %f\n", clock / 1000.0f, frameCounter / (clock / 1000.0f));
             printf("CPU time: %d ms, fps = %d\n", timeDelta, frameCounter);
             clock = 0;
             frameCounter = 0;
