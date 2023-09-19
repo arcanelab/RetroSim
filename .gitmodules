@@ -4,4 +4,8 @@
 
 [submodule "libtelnet"]
 	path = src/extern/libtelnet
-	url = https://github.com/seanmiddleditch/libtelnet.git
+	url = git@github.com:seanmiddleditch/libtelnet.git
+
+[submodule "libtelnet"]
+	path = src/extern/AsmA65k
+	url = git@github.com:arcanelab/AsmA65k.git
