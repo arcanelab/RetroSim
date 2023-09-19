@@ -16,6 +16,8 @@
 #include "palette.h"
 #include "Logger.h"
 
+#include "SDL.h"
+
 #ifdef TELNET_ENABLED
 #include "Telnet/TelnetServer.h"
 #endif
@@ -114,6 +116,26 @@ namespace RetroSim
         }
     }
 
+    void Core::InitializeCPU()
+    {
+        // - Set system vectors -
+        // The CPU will start executing code at $200
+        MMU::WriteMem<uint32_t>(A65000CPU::VEC_RESET, 0x00000200);
+        // Stack starts at $1FF and grows downwards
+        MMU::WriteMem<uint32_t>(A65000CPU::VEC_STACKPOINTERINIT, 0x000001FF);
+        // The CPU will jump here if it encounters an illegal instruction
+        MMU::WriteMem<uint32_t>(A65000CPU::VEC_ILLEGALINSTRUCTION, 0x00000200);
+        // The interrupt handlers are located at $E000
+        MMU::WriteMem<uint32_t>(A65000CPU::VEC_HWIRQ, 0x0000E000);
+        MMU::WriteMem<uint32_t>(A65000CPU::VEC_NMI, 0x0000E000);     
+
+        MMU::WriteMem<uint32_t>(0x200, 0x0200180f); // jmp $200
+
+        LoadRetroSimBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.rsb");
+
+        cpu.Reset();
+    }
+
     CoreConfig Core::GetCoreConfig()
     {
         return coreConfig;
@@ -195,10 +217,39 @@ namespace RetroSim
         GPU::DrawBitmap(topLeftX, topLeftY, 0, 0, 160, 128, 320, 1);        
     }
 
+    int frameCounter = 0;
+    float clock = 0;
+    uint32_t startTime = SDL_GetTicks(); 
+
     void Core::RunNextFrame()
-    {
-        std::lock_guard<std::mutex> lock(memoryMutex);
-        DrawTestScreen();
+    {        
+        uint32_t cpuBefore = SDL_GetTicks();
+        {
+            std::lock_guard<std::mutex> lock(memoryMutex);
+            DrawTestScreen();
+        }
+        
+        // measure time spent on CPU in ms
+        int cycles = 0;
+        while(cycles < 20000)
+        {
+            cycles += cpu.Tick();
+        }
+        uint32_t cpuAfter = SDL_GetTicks();
+        int timeDelta = cpuAfter - cpuBefore;
+        clock += timeDelta;
+
+        uint32_t currentTime = SDL_GetTicks();
+        if(currentTime - startTime > 1000.0f)
+        {
+            startTime = currentTime;
+            // LogPrintf(RETRO_LOG_INFO, "CPU time: %f ms, fps = %f\n", clock / 1000.0f, frameCounter / (clock / 1000.0f));
+            printf("CPU time: %d ms, fps = %d\n", timeDelta, frameCounter);
+            clock = 0;
+            frameCounter = 0;
+        }
+
+        frameCounter++;
     }
 
     void Core::Reset()
@@ -209,6 +260,65 @@ namespace RetroSim
         InitializeFonts();
         InitializePalette();
         InitializeTestPatterns();
+        InitializeCPU();
+    }
+
+    void Core::LoadRetroSimBinaryFile(const std::string &path)
+    {
+        FILE *file = fopen(path.c_str(), "rb");
+        if (file == nullptr)
+        {
+            LogPrintf(RETRO_LOG_ERROR, "Failed to open file: %s\n", path.c_str());
+            return;
+        }
+
+        fseek(file, 0, SEEK_END);
+        size_t fileSize = ftell(file);
+        fseek(file, 0, SEEK_SET);
+
+        uint8_t *buffer = new uint8_t[fileSize];
+        fread(buffer, 1, fileSize, file);
+        fclose(file);
+
+        uint8_t *ptr = buffer;
+        uint8_t magic[3];
+        magic[0] = *ptr++;
+        magic[1] = *ptr++;
+        magic[2] = *ptr++;
+        uint8_t version = *ptr++;
+
+        if (magic[0] != 'R' || magic[1] != 'S' || magic[2] != 'X')
+        {
+            LogPrintf(RETRO_LOG_ERROR, "Invalid magic bytes in file: %s\n", path.c_str());
+            return;
+        }
+
+        if (version != '0')
+        {
+            LogPrintf(RETRO_LOG_ERROR, "Invalid version in file: %s\n", path.c_str());
+            return;
+        }
+
+        while (ptr < buffer + fileSize)
+        {
+            uint32_t address = *(uint32_t *)ptr;
+            ptr += 4;
+            uint32_t length = *(uint32_t *)ptr;
+            ptr += 4;
+
+            if (address + length > MMU::memorySize)
+            {
+                LogPrintf(RETRO_LOG_ERROR, "Invalid address in file: %s\n", path.c_str());
+                return;
+            }
+
+            memcpy(&MMU::memory.raw[address], ptr, length);
+            ptr += length;
+
+            LogPrintf(RETRO_LOG_INFO, "Loaded %d bytes at address 0x%08x\n", length, address);
+        }
+
+        delete[] buffer;
     }
 
     void Core::Shutdown()

@@ -6,6 +6,7 @@
 #include <string>
 #include <mutex>
 #include "CoreConfig.h"
+#include "A65000CPU.h"
 
 namespace RetroSim
 {
@@ -22,6 +23,7 @@ namespace RetroSim
 
         void Initialize(const std::string &basePath);
         bool LoadCartridge(const std::string &path);
+        void LoadRetroSimBinaryFile(const std::string &path);
         CoreConfig GetCoreConfig();
         void RunNextFrame();
         void Reset();
@@ -33,8 +35,10 @@ namespace RetroSim
         static Core *instance;
         CoreConfig coreConfig;
         bool isInitialized = false;
+        A65000CPU cpu;
 
         void InitializeFonts();
         void InitializePalette();
+        void InitializeCPU();
     };
 }
