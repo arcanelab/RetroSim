@@ -4,6 +4,9 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include "Logger.h"
+
+using namespace RetroSim::Logger;
 
 namespace RetroSim::MMU
 {
@@ -63,10 +66,31 @@ namespace RetroSim::MMU
     extern MemorySections memory;
 
     template <typename T>
-    T ReadMem(uint32_t address);
+    inline T ReadMem(uint32_t address)
+    {
+        if (address < memorySize)
+        {
+            return *((T *)(memory.raw + address));
+        }
+        else
+        {
+            LogPrintf(RETRO_LOG_ERROR, "ReadMem: invalid address: %08X\n", address);
+            return 0;
+        }
+    }
 
     template <typename T>
-    void WriteMem(uint32_t address, T value);
+    inline void WriteMem(uint32_t address, T value)
+    {
+        if (address < memorySize)
+        {
+            *(T *)(memory.raw + address) = value;
+        }
+        else
+        {
+            LogPrintf(RETRO_LOG_ERROR, "WriteMem: invalid address: %08X\n", address);
+        }
+    }
 
     int LoadFile(const char *filename, uint32_t address);
     int LoadFile(std::string filename, uint32_t address);
