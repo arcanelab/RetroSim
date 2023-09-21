@@ -28,6 +28,7 @@ namespace RetroSim
         void RunNextFrame();
         void Reset();
         void Shutdown();
+        void SetRefreshRate(int refreshRate);
 
         std::mutex memoryMutex;
 

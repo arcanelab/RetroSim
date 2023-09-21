@@ -46,6 +46,11 @@ namespace RetroSim
         return fps;
     }
 
+    void CoreConfig::SetFPS(int fps)
+    {
+        this->fps = fps;
+    }
+
     bool CoreConfig::IsFullScreen()
     {
         return fullscreen;

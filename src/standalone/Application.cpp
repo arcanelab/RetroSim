@@ -23,10 +23,14 @@ namespace RetroSim::Application
     {
         char basePath[] = ".";
         Core::GetInstance()->Initialize(basePath);
+
+        int refreshRate = GetScreenRefreshRate();
+        if(refreshRate != -1)
+            Core::GetInstance()->SetRefreshRate(refreshRate);
+
         if (scriptFileName.empty() == false)
-        {
             Core::GetInstance()->GetCoreConfig().SetScriptPath(scriptFileName);
-        }
+
         CreateSDLWindow();
         RunMainLoop();
     }
@@ -134,5 +138,14 @@ namespace RetroSim::Application
             printf("Could not create texture: %s\n", SDL_GetError());
             exit(1);
         }
+    }
+
+    int GetScreenRefreshRate()
+    {
+        SDL_DisplayMode displayMode;
+        if(SDL_GetDesktopDisplayMode(0, &displayMode) == 0)
+            return displayMode.refresh_rate;
+        else
+            return -1;
     }
 }

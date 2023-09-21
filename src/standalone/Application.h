@@ -7,4 +7,5 @@
 namespace RetroSim::Application
 {
     void Run(std::string stringFilename);
+    int GetScreenRefreshRate();
 }

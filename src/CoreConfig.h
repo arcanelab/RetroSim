@@ -17,8 +17,9 @@ namespace RetroSim
         const int screenHeight = 256;
 
         std::string GetDataPath();
-        std::string GetScriptPath();
+        std::string GetScriptPath();        
         int GetFPS();
+        void SetFPS(int fps);
 
     private:
         std::string basePath = ".";   // All paths are relative to this. Supplied externally via Initialize().

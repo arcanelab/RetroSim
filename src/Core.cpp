@@ -142,6 +142,13 @@ namespace RetroSim
         cpu.Reset();
     }
 
+    void Core::SetRefreshRate(int refreshRate)
+    {
+        coreConfig.SetFPS(refreshRate);
+        MMU::memory.generalRegisters.refreshRate = refreshRate;
+        MMU::memory.generalRegisters.fixedFrameTime = 1000000 / refreshRate; // microseconds
+    }
+
     CoreConfig Core::GetCoreConfig()
     {
         return coreConfig;
