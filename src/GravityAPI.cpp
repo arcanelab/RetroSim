@@ -15,47 +15,47 @@ using namespace RetroSim;
 
 namespace RetroSim::GravityAPI
 {
-    bool PokeU8(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    template <typename T>
+    bool Write(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
     {
+        static_assert(std::is_integral<T>::value, "T must be an integral type.");
+
         std::lock_guard<std::mutex> lock(Core::GetInstance()->memoryMutex);
 
         gravity_value_t address = GET_VALUE(1);
         gravity_value_t value = GET_VALUE(2);
 
-        if VALUE_ISA_FLOAT(address)
+        if VALUE_ISA_FLOAT (address)
             INTERNAL_CONVERT_INT(address, true);
         else if (!VALUE_ISA_INT(address))
             RETURN_ERROR("Address must be an integer.");
+
+        LogPrintf(RETRO_LOG_DEBUG, "Write(%d, %d), value size: %d byte(s)\n", address.n, value.n, sizeof(T));
+
+        T finalValue = 0;
 
         if VALUE_ISA_STRING (value)
         {
             INTERNAL_CONVERT_STRING(value, true);
             gravity_string_t *s = VALUE_AS_STRING(value);
-            // printf("[%x] = %d\n", (int)address.n, s->s[0]);
-            MMU::WriteMem<uint8_t>(address.n, (uint8_t)s->s[0]);
+            finalValue = (T)s->s[0];
         }
-        else if VALUE_ISA_INT(value)
+        else if VALUE_ISA_INT (value)
         {
-            // printf("[%x] = %d\n", (int)address.n, value.n);
-            MMU::WriteMem<uint8_t>(address.n, (uint8_t)value.n);
+            finalValue = (T)value.n;
         }
         else
         {
             RETURN_ERROR("Value must be an integer or a string.");
         }
 
+        if (value.n > std::numeric_limits<T>::max())
+            RETURN_ERROR("Value is too large to fit into the specified type.");
+
+        MMU::WriteMem<T>(address.n, finalValue);
+
         RETURN_NOVALUE();
     }
-
-    // bool PokeU16(uint32_t address, uint16_t value)
-    // {
-    //     MMU::WriteMem<uint16_t>(address, value);
-    // }
-
-    // bool PokeU32(uint32_t address, uint32_t value)
-    // {
-    //     MMU::WriteMem<uint32_t>(address, value);
-    // }
 
     void RegisterAPIFunctions(gravity_vm *vm)
     {
@@ -65,9 +65,17 @@ namespace RetroSim::GravityAPI
         gravity_class_t *meta = gravity_class_get_meta(c);
 
         // method
-        gravity_function_t *pokeu8f = gravity_function_new_internal(vm, NULL, PokeU8, 0);
-        gravity_closure_t *pokeu8c = gravity_closure_new(vm, pokeu8f);
-        gravity_class_bind(meta, "PokeU8", VALUE_FROM_OBJECT(pokeu8c));
+        gravity_function_t *write8f = gravity_function_new_internal(vm, NULL, Write<uint8_t>, 0);
+        gravity_closure_t *writeu8c = gravity_closure_new(vm, write8f);
+        gravity_class_bind(meta, "Write8", VALUE_FROM_OBJECT(writeu8c));
+
+        gravity_function_t *write16f = gravity_function_new_internal(vm, NULL, Write<uint16_t>, 0);
+        gravity_closure_t *writeu16c = gravity_closure_new(vm, write16f);
+        gravity_class_bind(meta, "Write16", VALUE_FROM_OBJECT(writeu16c));
+
+        gravity_function_t *write32f = gravity_function_new_internal(vm, NULL, Write<uint32_t>, 0);
+        gravity_closure_t *writeu32c = gravity_closure_new(vm, write32f);
+        gravity_class_bind(meta, "Write32", VALUE_FROM_OBJECT(writeu32c));
 
         // register class
         gravity_vm_setvalue(vm, "Memory", VALUE_FROM_OBJECT(c));
