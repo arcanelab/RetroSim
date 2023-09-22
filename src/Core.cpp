@@ -17,7 +17,9 @@
 #include "palette.h"
 #include "Logger.h"
 
+#ifdef SDL
 #include "SDL.h"
+#endif
 
 #ifdef TELNET_ENABLED
 #include "Telnet/TelnetServer.h"
@@ -184,12 +186,22 @@ namespace RetroSim
     }
 
     float clock = 0;
-    uint32_t cpuStartTime = SDL_GetTicks();
+
+    uint32_t cpuStartTime = 0;
     auto lastFrameTime = std::chrono::high_resolution_clock::now();
+
+    uint32_t GetTicks()
+    {
+#ifdef SDL
+        return SDL_GetTicks();
+#else
+        return 0;
+#endif
+    }
 
     void Core::RunNextFrame()
     {        
-        uint32_t cpuBefore = SDL_GetTicks();
+        uint32_t cpuBefore = GetTicks();
         {
             std::lock_guard<std::mutex> lock(memoryMutex);
             DrawTestScreen();
@@ -200,11 +212,11 @@ namespace RetroSim
         {
             cycles += cpu.Tick();
         }
-        uint32_t cpuAfter = SDL_GetTicks();
+        uint32_t cpuAfter = GetTicks();
         int timeDelta = cpuAfter - cpuBefore;
         clock += timeDelta;
 
-        uint32_t currentTime = SDL_GetTicks();
+        uint32_t currentTime = GetTicks();
         if(currentTime - cpuStartTime > 1000.0f)
         {
             cpuStartTime = currentTime;
