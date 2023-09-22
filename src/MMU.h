@@ -26,6 +26,8 @@ namespace RetroSim::MMU
 
     struct GPURegisters
     {
+        uint16_t screenWidth;
+        uint16_t screenHeight;
         uint8_t tileWdith;
         uint8_t tileHeight;
         uint8_t mapWidth;
