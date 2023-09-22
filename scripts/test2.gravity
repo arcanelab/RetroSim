@@ -1,0 +1,52 @@
+// vim: syntax=Swift
+extern var Memory;
+extern var GPU;
+
+        // gravity_class_bind(meta, "MEMORY_SIZE", value);
+        // gravity_class_bind(meta, "PALETTE_U32", value);
+        // gravity_class_bind(meta, "MAP_U8", value);
+        // gravity_class_bind(meta, "TILES_U8", value);
+        // gravity_class_bind(meta, "SPRITE_ATLAS_U8", value);
+        // gravity_class_bind(meta, "BITMAP_U8", value);
+        // gravity_class_bind(meta, "CHARSET_U8", value);
+
+func start()
+{
+    System.print("Script running.\n")
+
+    System.print("Memory size: ", Memory.MEMORY_SIZE_U32 / 1024, "KB")
+    System.print("Palette address: ", Memory.PALETTE_U32)
+    System.print("Map address: ", Memory.MAP_U8)
+    System.print("Tiles address: ", Memory.TILES_U8)
+    System.print("Sprite atlas address: ", Memory.SPRITE_ATLAS_U8)
+    System.print("Bitmap address: ", Memory.BITMAP_U8)
+    System.print("Charset address: ", Memory.CHARSET_U8)
+
+    System.print("----------")
+
+    // GPU.TILE_WIDTH = 16
+    // GPU.TILE_HEIGHT = 16
+    // GPU.MAP_WIDTH = 32
+    // GPU.MAP_HEIGHT = 32
+    // GPU.BITMAP_PITCH = 64
+    // GPU.SPRITE_ATLAS_PITCH = 64
+
+    System.print("Refresh rate: ", GPU.REFRESH_RATE_U8)
+    System.print("Screen size: ", GPU.SCREEN_WIDTH_U16, "x", GPU.SCREEN_HEIGHT_U16)
+    System.print("Tile size: ", GPU.TILE_WIDTH_U8, "x", GPU.TILE_HEIGHT_U8)
+
+
+    // Memory.Write32(0x1000, 0x13232)
+    // var color = Memory.Read8(0x1000)
+    // System.print("value = ", color)
+
+    for(var i in 0...3)
+    {
+        Memory.Write8(0x1000 + i, i)
+        System.print("mem[", 0x1000+i , "] = ", Memory.Read8(0x1000 + i))
+    }
+
+
+    Memory.Write8(Memory.BITMAP_U8, 0x7)
+    GPU.Cls(3)
+}
