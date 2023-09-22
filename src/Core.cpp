@@ -208,7 +208,7 @@ namespace RetroSim
         if(currentTime - cpuStartTime > 1000.0f)
         {
             cpuStartTime = currentTime;
-            printf("CPU time: %d ms, fps = %d, deltaTime = %d, currentFPS = %d\n", timeDelta, frameCounter, MMU::memory.generalRegisters.deltaTime, MMU::memory.generalRegisters.currentFPS);
+            // printf("CPU time: %d ms, fps = %d, deltaTime = %d, currentFPS = %d\n", timeDelta, frameCounter, MMU::memory.generalRegisters.deltaTime, MMU::memory.generalRegisters.currentFPS);
             MMU::memory.generalRegisters.currentFPS = frameCounter;
             clock = 0;
             frameCounter = 0;
