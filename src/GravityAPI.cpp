@@ -65,7 +65,7 @@ namespace RetroSim::GravityAPI
     {
         static_assert(std::is_integral<T>::value, "T must be an integral type.");
 
-        if(nArgs != 2)
+        if (nArgs != 2)
             RETURN_ERROR("Read() expects 1 argument.");
 
         std::lock_guard<std::mutex> lock(Core::GetInstance()->memoryMutex);
@@ -77,7 +77,7 @@ namespace RetroSim::GravityAPI
         else if (!VALUE_ISA_INT(address))
             RETURN_ERROR("Address must be an integer.");
 
-        int addressValue = (int)VALUE_AS_INT(args[1]);        
+        int addressValue = (int)VALUE_AS_INT(args[1]);
 
         // LogPrintf(RETRO_LOG_DEBUG, "Read(%d), value size: %d byte(s)\n", addressValue, sizeof(T));
 
@@ -85,6 +85,49 @@ namespace RetroSim::GravityAPI
 
         RETURN_VALUE(VALUE_FROM_INT(MMU::ReadMem<T>(addressValue)), rindex);
         return true;
+    }
+
+    bool PropertyGetter(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    {
+#pragma unused(args, nargs)
+        gravity_value_t key = GET_VALUE(1);
+        if (!VALUE_ISA_STRING(key))
+            RETURN_VALUE(VALUE_FROM_NULL, rindex);
+
+        if (strcmp(VALUE_AS_CSTRING(key), "MEMORY_SIZE") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memorySize), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "PALETTE_U32") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::PALETTE_U32), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "MAP_U8") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::MAP_U8), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "TILES_U8") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::TILES_U8), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "SPRITE_ATLAS_U8") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::SPRITE_ATLAS_U8), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "BITMAP_U8") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::BITMAP_U8), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "CHARSET_U8") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::CHARSET_U8), rindex);
+        }
+    }
+
+    static bool PropertySetter(gravity_vm *vm, gravity_value_t *args, uint16_t nargs, uint32_t rindex)
+    {
+        RETURN_ERROR("This property is read-only.");
+        RETURN_NOVALUE();
     }
 
     void RegisterAPIFunctions(gravity_vm *vm)
@@ -118,6 +161,17 @@ namespace RetroSim::GravityAPI
         gravity_function_t *read32f = gravity_function_new_internal(vm, NULL, Read<uint32_t>, 0);
         gravity_closure_t *read32c = gravity_closure_new(vm, read32f);
         gravity_class_bind(meta, "Read32", VALUE_FROM_OBJECT(read32c));
+
+        // read-only properties
+        gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(PropertyGetter), NEW_FUNCTION(PropertySetter));
+        gravity_value_t value = VALUE_FROM_OBJECT(closure);
+        gravity_class_bind(meta, "MEMORY_SIZE", value);
+        gravity_class_bind(meta, "PALETTE_U32", value);
+        gravity_class_bind(meta, "MAP_U8", value);
+        gravity_class_bind(meta, "TILES_U8", value);
+        gravity_class_bind(meta, "SPRITE_ATLAS_U8", value);
+        gravity_class_bind(meta, "BITMAP_U8", value);
+        gravity_class_bind(meta, "CHARSET_U8", value);
 
         // register class
         gravity_vm_setvalue(vm, "Memory", VALUE_FROM_OBJECT(c));
