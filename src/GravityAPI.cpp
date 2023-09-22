@@ -5,6 +5,7 @@
 #include <mutex>
 #include "Core.h"
 #include "MMU.h"
+#include "GPU.h"
 #include "gravity_compiler.h"
 #include "gravity_macros.h"
 #include "gravity_core.h"
@@ -87,7 +88,7 @@ namespace RetroSim::GravityAPI
         return true;
     }
 
-    bool PropertyGetter(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    bool MemoryPropertyGetter(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
     {
 #pragma unused(args, nargs)
         gravity_value_t key = GET_VALUE(1);
@@ -124,20 +125,114 @@ namespace RetroSim::GravityAPI
         }
     }
 
-    static bool PropertySetter(gravity_vm *vm, gravity_value_t *args, uint16_t nargs, uint32_t rindex)
+    static bool MemoryPropertySetter(gravity_vm *vm, gravity_value_t *args, uint16_t nargs, uint32_t rindex)
     {
         RETURN_ERROR("This property is read-only.");
         RETURN_NOVALUE();
     }
 
-    void RegisterAPIFunctions(gravity_vm *vm)
+    bool GPUPropertyGetter(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    {
+#pragma unused(args, nargs)
+        gravity_value_t key = GET_VALUE(1);
+        if (!VALUE_ISA_STRING(key))
+            RETURN_VALUE(VALUE_FROM_NULL, rindex);
+
+        if (strcmp(VALUE_AS_CSTRING(key), "SCREEN_WIDTH") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenWidth), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "SCREEN_HEIGHT") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenHeight), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "TILE_WIDTH") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.tileWdith), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "TILE_HEIGHT") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.tileHeight), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "MAP_WIDTH") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.mapWidth), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "MAP_HEIGHT") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.mapHeight), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "SPRITE_ATLAS_PITCH") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.spriteAtlasPitch), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "BITMAP_PITCH") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenWidth), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "CHARACTER_COLOR") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.currentFPS), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "FIXED_FRAME_TIME") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.fixedFrameTime), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "DELTA_TIME") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.deltaTime), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "FRAME_COUNTER") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.frameCounter), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "REFRESH_RATE") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.refreshRate), rindex);
+        }
+        if (strcmp(VALUE_AS_CSTRING(key), "CURRENT_FPS") == 0)
+        {
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.currentFPS), rindex);
+        }        
+    }
+
+    static bool GPUPropertySetter(gravity_vm *vm, gravity_value_t *args, uint16_t nargs, uint32_t rindex)
+    {
+        RETURN_ERROR("This property is read-only.");
+        RETURN_NOVALUE();
+    }
+
+    bool Cls(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    {
+        int colorIndexValue = 0;
+        if (nArgs == 2)
+        {
+            gravity_value_t colorIndex = GET_VALUE(1);
+
+            if VALUE_ISA_FLOAT (colorIndex)
+                INTERNAL_CONVERT_INT(colorIndex, true);
+            else if (!VALUE_ISA_INT(colorIndex))
+                RETURN_ERROR("Color must be an integer.");
+
+            colorIndexValue = (int)VALUE_AS_INT(args[1]);
+        }
+        if (nArgs > 2)
+        {
+            RETURN_ERROR("Invalid amount of arguments. Cls takes zero or a single optional argument: color index.");
+        }
+
+        GPU::ClearScreen(colorIndexValue);
+        RETURN_NOVALUE();
+    }
+
+    void RegisterMemoryAPI(gravity_vm *vm)
     {
         gravity_gc_setenabled(vm, false);
         // class
         gravity_class_t *c = gravity_class_new_pair(vm, "Memory", NULL, 0, 0);
         gravity_class_t *meta = gravity_class_get_meta(c);
 
-        // method
+        // methods
         gravity_function_t *write8f = gravity_function_new_internal(vm, NULL, Write<uint8_t>, 0);
         gravity_closure_t *writeu8c = gravity_closure_new(vm, write8f);
         gravity_class_bind(meta, "Write8", VALUE_FROM_OBJECT(writeu8c));
@@ -163,7 +258,7 @@ namespace RetroSim::GravityAPI
         gravity_class_bind(meta, "Read32", VALUE_FROM_OBJECT(read32c));
 
         // read-only properties
-        gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(PropertyGetter), NEW_FUNCTION(PropertySetter));
+        gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(MemoryPropertyGetter), NEW_FUNCTION(MemoryPropertySetter));
         gravity_value_t value = VALUE_FROM_OBJECT(closure);
         gravity_class_bind(meta, "MEMORY_SIZE", value);
         gravity_class_bind(meta, "PALETTE_U32", value);
@@ -177,5 +272,47 @@ namespace RetroSim::GravityAPI
         gravity_vm_setvalue(vm, "Memory", VALUE_FROM_OBJECT(c));
 
         gravity_gc_setenabled(vm, true);
+    }
+
+    void RegisterGPUFunctions(gravity_vm *vm)
+    {
+        gravity_gc_setenabled(vm, false);
+        // class
+        gravity_class_t *c = gravity_class_new_pair(vm, "GPU", NULL, 0, 0);
+        gravity_class_t *meta = gravity_class_get_meta(c);
+
+        // methods
+        gravity_function_t *clscolorf = gravity_function_new_internal(vm, NULL, Cls, 0);
+        gravity_closure_t *clscolorc = gravity_closure_new(vm, clscolorf);
+        gravity_class_bind(meta, "Cls", VALUE_FROM_OBJECT(clscolorc));
+
+        // properties
+        gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(GPUPropertyGetter), NEW_FUNCTION(GPUPropertySetter));
+        gravity_value_t value = VALUE_FROM_OBJECT(closure);
+        gravity_class_bind(meta, "SCREEN_WIDTH", value);
+        gravity_class_bind(meta, "SCREEN_HEIGHT", value);
+        gravity_class_bind(meta, "TILE_WIDTH", value);
+        gravity_class_bind(meta, "TILE_HEIGHT", value);
+        gravity_class_bind(meta, "MAP_WIDTH", value);
+        gravity_class_bind(meta, "MAP_HEIGHT", value);
+        gravity_class_bind(meta, "SPRITE_ATLAS_PITCH", value);
+        gravity_class_bind(meta, "BITMAP_PITCH", value);
+        gravity_class_bind(meta, "CHARACTER_COLOR", value);
+        gravity_class_bind(meta, "FIXED_FRAME_TIME", value);
+        gravity_class_bind(meta, "DELTA_TIME", value);
+        gravity_class_bind(meta, "FRAME_COUNTER", value);
+        gravity_class_bind(meta, "REFRESH_RATE", value);
+        gravity_class_bind(meta, "CURRENT_FPS", value);        
+
+        // register class
+        gravity_vm_setvalue(vm, "GPU", VALUE_FROM_OBJECT(c));
+
+        gravity_gc_setenabled(vm, true);
+    }
+
+    void RegisterAPIFunctions(gravity_vm *vm)
+    {
+        RegisterMemoryAPI(vm);
+        RegisterGPUFunctions(vm);
     }
 }
