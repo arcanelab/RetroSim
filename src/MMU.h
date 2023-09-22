@@ -90,7 +90,7 @@ namespace RetroSim::MMU
     template <typename T>
     inline void WriteMem(uint32_t address, T value)
     {
-        if (address < memorySize)
+        if (address < (memorySize - sizeof(T)))
         {
             *(T *)(memory.raw + address) = value;
         }
