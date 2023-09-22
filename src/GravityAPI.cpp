@@ -335,7 +335,7 @@ namespace RetroSim::GravityAPI
         gravity_gc_setenabled(vm, true);
     }
 
-    void RegisterGPUFunctions(gravity_vm *vm)
+    void RegisterGPUAPI(gravity_vm *vm)
     {
         gravity_gc_setenabled(vm, false);
         // class
@@ -374,6 +374,6 @@ namespace RetroSim::GravityAPI
     void RegisterAPIFunctions(gravity_vm *vm)
     {
         RegisterMemoryAPI(vm);
-        RegisterGPUFunctions(vm);
+        RegisterGPUAPI(vm);
     }
 }
