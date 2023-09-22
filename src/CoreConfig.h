@@ -13,9 +13,6 @@ namespace RetroSim
         void SetScriptPath(const std::string &scriptPath);
         bool IsFullScreen();
 
-        const int screenWidth = 480;
-        const int screenHeight = 256;
-
         std::string GetDataPath();
         std::string GetScriptPath();        
         int GetFPS();
