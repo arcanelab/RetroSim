@@ -19,6 +19,7 @@
 
 #include <vector> // for logging
 #include <string>
+#include <cassert>
 
 using std::string;
 using std::vector;
