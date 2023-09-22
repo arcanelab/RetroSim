@@ -95,7 +95,7 @@ namespace RetroSim::GravityAPI
         if (!VALUE_ISA_STRING(key))
             RETURN_VALUE(VALUE_FROM_NULL, rindex);
 
-        if (strcmp(VALUE_AS_CSTRING(key), "MEMORY_SIZE") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "MEMORY_SIZE_U32") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memorySize), rindex);
         }
@@ -138,67 +138,128 @@ namespace RetroSim::GravityAPI
         if (!VALUE_ISA_STRING(key))
             RETURN_VALUE(VALUE_FROM_NULL, rindex);
 
-        if (strcmp(VALUE_AS_CSTRING(key), "SCREEN_WIDTH") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "SCREEN_WIDTH_U16") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenWidth), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "SCREEN_HEIGHT") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "SCREEN_HEIGHT_U16") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenHeight), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "TILE_WIDTH") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "TILE_WIDTH_U8") == 0)
         {
-            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.tileWdith), rindex);
+            RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.tileWidth), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "TILE_HEIGHT") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "TILE_HEIGHT_U8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.tileHeight), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "MAP_WIDTH") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "MAP_WIDTH_U8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.mapWidth), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "MAP_HEIGHT") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "MAP_HEIGHT_U8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.mapHeight), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "SPRITE_ATLAS_PITCH") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "SPRITE_ATLAS_PITCH_U8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.spriteAtlasPitch), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "BITMAP_PITCH") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "BITMAP_PITCH_U16") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenWidth), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "CHARACTER_COLOR") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "CHARACTER_COLOR_INDEX_U8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.currentFPS), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "FIXED_FRAME_TIME") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "FIXED_FRAME_TIME_U32") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.fixedFrameTime), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "DELTA_TIME") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "DELTA_TIME_U32") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.deltaTime), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "FRAME_COUNTER") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "FRAME_COUNTER_U32") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.frameCounter), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "REFRESH_RATE") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "REFRESH_RATE_U8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.refreshRate), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "CURRENT_FPS") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "CURRENT_FPS_U8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.currentFPS), rindex);
-        }        
+        }
+    }
+
+    bool GPUPropertySetValues(gravity_vm *vm, const char *key, gravity_value_t value)
+    {
+        if (key)
+        {
+            if((strcmp(key, "TILE_WIDTH_U8") == 0) && VALUE_ISA_INT(value))
+            {
+                int valueAsInt = VALUE_AS_INT(value);
+                if(valueAsInt < 1 || valueAsInt > 255)
+                    return false;
+
+                MMU::memory.gpu.tileWidth = (uint8_t)VALUE_AS_INT(value);
+                return true;
+            }
+
+            if((strcmp(key, "TILE_HEIGHT_U8") == 0) && VALUE_ISA_INT(value))
+            {
+                MMU::memory.gpu.tileHeight = (uint8_t)VALUE_AS_INT(value);
+                return true;
+            }
+
+            if((strcmp(key, "MAP_WIDTH_U8") == 0) && VALUE_ISA_INT(value))
+            {
+                MMU::memory.gpu.mapWidth = (uint8_t)VALUE_AS_INT(value);
+                return true;
+            }
+
+            if((strcmp(key, "MAP_HEIGHT_U8") == 0) && VALUE_ISA_INT(value))
+            {
+                MMU::memory.gpu.mapHeight = (uint8_t)VALUE_AS_INT(value);
+                return true;
+            }
+
+            if((strcmp(key, "SPRITE_ATLAS_PITCH_U8") == 0) && VALUE_ISA_INT(value))
+            {
+                MMU::memory.gpu.spriteAtlasPitch = (uint8_t)VALUE_AS_INT(value);
+                return true;
+            }
+
+            if((strcmp(key, "BITMAP_PITCH_U16") == 0) && VALUE_ISA_INT(value))
+            {
+                MMU::memory.gpu.screenWidth = (uint16_t)VALUE_AS_INT(value);
+                return true;
+            }
+
+            if((strcmp(key, "CHARACTER_COLOR_INDEX_U8") == 0) && VALUE_ISA_INT(value))
+            {
+                MMU::memory.generalRegisters.currentFPS = (uint8_t)VALUE_AS_INT(value);
+                return true;
+            }
+        }
+        return false;
     }
 
     static bool GPUPropertySetter(gravity_vm *vm, gravity_value_t *args, uint16_t nargs, uint32_t rindex)
     {
-        RETURN_ERROR("This property is read-only.");
+#pragma unused(nargs, rindex)
+        gravity_value_t key = GET_VALUE(1);
+        gravity_value_t value = GET_VALUE(2);
+        if (!VALUE_ISA_STRING(key))
+            RETURN_NOVALUE();
+
+        bool result = GPUPropertySetValues(vm, VALUE_AS_CSTRING(key), value);
+        if (!result)
+            RETURN_ERROR("Couldn't set GPU register.");
         RETURN_NOVALUE();
     }
 
@@ -260,7 +321,7 @@ namespace RetroSim::GravityAPI
         // read-only properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(MemoryPropertyGetter), NEW_FUNCTION(MemoryPropertySetter));
         gravity_value_t value = VALUE_FROM_OBJECT(closure);
-        gravity_class_bind(meta, "MEMORY_SIZE", value);
+        gravity_class_bind(meta, "MEMORY_SIZE_U32", value);
         gravity_class_bind(meta, "PALETTE_U32", value);
         gravity_class_bind(meta, "MAP_U8", value);
         gravity_class_bind(meta, "TILES_U8", value);
@@ -289,20 +350,20 @@ namespace RetroSim::GravityAPI
         // properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(GPUPropertyGetter), NEW_FUNCTION(GPUPropertySetter));
         gravity_value_t value = VALUE_FROM_OBJECT(closure);
-        gravity_class_bind(meta, "SCREEN_WIDTH", value);
-        gravity_class_bind(meta, "SCREEN_HEIGHT", value);
-        gravity_class_bind(meta, "TILE_WIDTH", value);
-        gravity_class_bind(meta, "TILE_HEIGHT", value);
-        gravity_class_bind(meta, "MAP_WIDTH", value);
-        gravity_class_bind(meta, "MAP_HEIGHT", value);
-        gravity_class_bind(meta, "SPRITE_ATLAS_PITCH", value);
-        gravity_class_bind(meta, "BITMAP_PITCH", value);
-        gravity_class_bind(meta, "CHARACTER_COLOR", value);
-        gravity_class_bind(meta, "FIXED_FRAME_TIME", value);
-        gravity_class_bind(meta, "DELTA_TIME", value);
-        gravity_class_bind(meta, "FRAME_COUNTER", value);
-        gravity_class_bind(meta, "REFRESH_RATE", value);
-        gravity_class_bind(meta, "CURRENT_FPS", value);        
+        gravity_class_bind(meta, "SCREEN_WIDTH_U16", value);
+        gravity_class_bind(meta, "SCREEN_HEIGHT_U16", value);
+        gravity_class_bind(meta, "TILE_WIDTH_U8", value);
+        gravity_class_bind(meta, "TILE_HEIGHT_U8", value);
+        gravity_class_bind(meta, "MAP_WIDTH_U8", value);
+        gravity_class_bind(meta, "MAP_HEIGHT_U8", value);
+        gravity_class_bind(meta, "SPRITE_ATLAS_PITCH_U8", value);
+        gravity_class_bind(meta, "BITMAP_PITCH_U16", value);
+        gravity_class_bind(meta, "CHARACTER_COLOR_INDEX_U8", value);
+        gravity_class_bind(meta, "FIXED_FRAME_TIME_U32", value);
+        gravity_class_bind(meta, "DELTA_TIME_U32", value);
+        gravity_class_bind(meta, "FRAME_COUNTER_U32", value);
+        gravity_class_bind(meta, "REFRESH_RATE_U8", value);
+        gravity_class_bind(meta, "CURRENT_FPS_U8", value);
 
         // register class
         gravity_vm_setvalue(vm, "GPU", VALUE_FROM_OBJECT(c));

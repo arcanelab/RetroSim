@@ -26,7 +26,9 @@ namespace RetroSim::GPU
     void Initialize()
     {        
         memset(outputTexture, 0, textureSizeInBytes);
-        MMU::memory.gpu.tileWdith = 8;
+        MMU::memory.gpu.screenWidth = textureWidth;
+        MMU::memory.gpu.screenHeight = textureHeight;
+        MMU::memory.gpu.tileWidth = 8;
         MMU::memory.gpu.tileHeight = 16;
         MMU::memory.gpu.mapWidth = 30;
         MMU::memory.gpu.mapHeight = 16;
@@ -219,7 +221,7 @@ namespace RetroSim::GPU
 
     void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex = -1)
     {
-        uint8_t tileWidth = MMU::memory.gpu.tileWdith;
+        uint8_t tileWidth = MMU::memory.gpu.tileWidth;
         uint8_t tileHeight = MMU::memory.gpu.tileHeight;
         uint8_t mapWidth = MMU::memory.gpu.mapWidth;
         uint8_t mapHeight = MMU::memory.gpu.mapHeight;
