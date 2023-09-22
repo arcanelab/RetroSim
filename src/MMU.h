@@ -14,12 +14,12 @@ namespace RetroSim::MMU
 
     enum MemoryMap
     {
-        PALETTE_U32 = 0x1000,       // Color palette memory (4K)
-        MAP_U8 = 0x2000,            // Map memory (16K)
-        TILES_U8 = 0x6000,          // Tile memory bank (16K)
-        SPRITE_ATLAS_U8 = 0xA000,   // Sprite atlas/memory bank (16K)
+        MAP_U8 = 0x1000,            // Map memory (16K)
+        TILES_U8 = 0x5000,          // Tile memory bank (16K)
+        SPRITE_ATLAS_U8 = 0x9000,   // Sprite atlas/memory bank (16K)
         GPU_REGISTERS = 0xD000,     // GPU registers
         GENERAL_REGISTERS = 0xD100, // General registers
+        PALETTE_U32 = 0xE000,       // Color palette memory (4K)
         BITMAP_U8 = 0x10000,        // Bitmap memory (120K)
         CHARSET_U8 = 0x30000        // Character tile data (64K)
     };
@@ -49,10 +49,10 @@ namespace RetroSim::MMU
         uint8_t raw[memorySize];
 
         // memory sections
-        uint32_t *Palette_u32;
         uint8_t *Map_u8;
         uint8_t *Tiles_u8;
         uint8_t *SpriteAtlas_u8;
+        uint32_t *Palette_u32;
         uint8_t *Bitmap_u8;
         uint8_t *Charset_u8;
 
@@ -64,10 +64,10 @@ namespace RetroSim::MMU
               generalRegisters(*reinterpret_cast<GeneralRegisters *>(&raw[GENERAL_REGISTERS]))
         {
             memset(raw, 0, memorySize);
-            Palette_u32 = (uint32_t *)&raw[PALETTE_U32];
             Map_u8 = &raw[MAP_U8];
             Tiles_u8 = &raw[TILES_U8];
             SpriteAtlas_u8 = &raw[SPRITE_ATLAS_U8];
+            Palette_u32 = (uint32_t *)&raw[PALETTE_U32];
             Bitmap_u8 = &raw[BITMAP_U8];
             Charset_u8 = &raw[CHARSET_U8];
         }
