@@ -55,12 +55,12 @@
 | $0-$FF        |      |               | 65K vectors               | 256                 |
 | $100-$1FF     | u8   |               | 65xx stack                | 256                 |
 | $200-$FFF     |      |               | Free/user RAM             | 3.5K                |
-| $1000-$1FFF   | u32  | PALETTE       | Color palette memory      | 4K                  |
-| $2000-$5FFF   | u8   | MAP           | Map memory (16K)          | 16K                 |
-| $6000-$9FFF   | u8   | TILES         | Tile data memory          | 16K                 |
-| $A000-$CFFF   | u8   | SPRITE_ATLAS  | Sprite atlas/memory       | 16K                 |
+| $1000-$4FFF   | u8   | MAP           | Map memory (16K)          | 16K                 |
+| $5000-$8FFF   | u8   | TILES         | Tile data memory          | 16K                 |
+| $9000-$CFFF   | u8   | SPRITE_ATLAS  | Sprite atlas/memory       | 16K                 |
 | $D000-$DFFF   |      |               | Registers                 | 4K                  |
-| $E000-$FEFF   |      |               | Free/user RAM             | 8K                  |
+| $E000-$EFFF   | u32  | PALETTE       | Color palette memory      | 4K                  |
+| $F000-$FEFF   |      |               | Free/user RAM             | 3.8K                  |
 | $FF00-$FFFF   | u16  |               | 65xx CPU vectors          | 256                 |
 | $10000-$2DFFF | u8   | BITMAP        | Bitmap memory             | 120K                |
 | $30000-$3FFFF |      | CHARSET       | Character tile data       | 64K                 |
@@ -68,22 +68,22 @@
 
 ## Registers
 
-| Address | Size  | Symbol             | Description                                                        |
-| ------- | ----  | -----------------  | ------------------------------------------------------------------ |
-| $D000   | u16   | SCREEN_WIDTH       | Screen width (480)                                                 |
-| $D002   | u16   | SCREEN_HEIGHT      | Screen height (256)                                                |
-| $D004   | u8    | TILE_WIDTH         | Tile width (default: 8)                                            |
-| $D005   | u8    | TILE_HEIGHT        | Tile height (default: 8)                                           |
-| $D006   | u8    | MAP_WIDTH          | Map width in tiles (default: 60, max 128)                          |
-| $D007   | u8    | MAP_HEIGHT         | Map height in tiles (default: 16, max 128)                         |
-| $D008   | u8    | SPRITE_ATLAS_PITCH | Width of the sprite atlas (default: 128)                           |
-| $D009   | u8    | BITMAP_PITCH       | Width of the bitmap memory (default: 480)                          |
-| $D00A   | u8    | CHARACTER_COLOR    | The index of the color used for rendering text                     |
-| $D100   | u32   | FIXED_FRAME_TIME   | Fixed frame time in microseconds (µs): 1000000/f, f = refresh rate |
-| $D104   | u32   | DELTA_TIME         | The amount of time the last frame took in microseconds             |
-| $D108   | u32   | FRAME_COUNTER      | The number of frames that have elapsed since the start             |
-| $D10C   | u8    | REFRESH_RATE       | The refresh rate of the host screen                                |
-| $D10E   | u8    | CURRENT_FPS        | The fps calculated from the time spent in the last frame           |
+| Address | Size  | Symbol                   | Description                                                        |
+| ------- | ----  | ------------------------ | ------------------------------------------------------------------ |
+| $D000   | u16   | SCREEN_WIDTH_U16         | Screen width (480)                                                 |
+| $D002   | u16   | SCREEN_HEIGHT_U16        | Screen height (256)                                                |
+| $D004   | u8    | TILE_WIDTH_U8            | Tile width (default: 8)                                            |
+| $D005   | u8    | TILE_HEIGHT_U8           | Tile height (default: 8)                                           |
+| $D006   | u8    | MAP_WIDTH_U8             | Map width in tiles (default: 60, max 128)                          |
+| $D007   | u8    | MAP_HEIGHT_U8            | Map height in tiles (default: 16, max 128)                         |
+| $D008   | u8    | SPRITE_ATLAS_PITCH_U8    | Width of the sprite atlas (default: 128)                           |
+| $D009   | u16   | BITMAP_PITCH_U16         | Width of the bitmap memory (default: 480)                          |
+| $D00B   | u8    | CHARACTER_COLOR_INDEX_U8 | The index of the color used for rendering text                     |
+| $D100   | u32   | FIXED_FRAME_TIME_U32     | Fixed frame time in microseconds (µs): 1000000/f, f = refresh rate |
+| $D104   | u32   | DELTA_TIME_U32           | The amount of time the last frame took in microseconds             |
+| $D108   | u32   | FRAME_COUNTER_U32        | The number of frames that have elapsed since the start             |
+| $D10C   | u8    | REFRESH_RATE_U8          | The refresh rate of the host screen                                |
+| $D10E   | u8    | CURRENT_FPS_U8           | The fps calculated from the time spent in the last frame           |
 
 ## Graphics API
 
