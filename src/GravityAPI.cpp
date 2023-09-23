@@ -309,6 +309,34 @@ namespace RetroSim::GravityAPI
         RETURN_NOVALUE();
     }
 
+    bool DrawPixel(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    {
+        if (nArgs != 4)
+            RETURN_ERROR("DrawPixel() expects 3 arguments.");
+
+        gravity_value_t x = GET_VALUE(1);
+        gravity_value_t y = GET_VALUE(2);
+        gravity_value_t colorIndex = GET_VALUE(3);
+
+        if VALUE_ISA_FLOAT (x)
+            INTERNAL_CONVERT_INT(x, true);
+        else if (!VALUE_ISA_INT(x))
+            RETURN_ERROR("X must be an integer.");
+
+        if VALUE_ISA_FLOAT (y)
+            INTERNAL_CONVERT_INT(y, true);
+        else if (!VALUE_ISA_INT(y))
+            RETURN_ERROR("Y must be an integer.");
+
+        if VALUE_ISA_FLOAT (colorIndex)
+            INTERNAL_CONVERT_INT(colorIndex, true);
+        else if (!VALUE_ISA_INT(colorIndex))
+            RETURN_ERROR("Color must be an integer.");
+
+        GPU::DrawPixel((int)VALUE_AS_INT(x), (int)VALUE_AS_INT(y), (uint8_t)VALUE_AS_INT(colorIndex));
+        RETURN_NOVALUE();
+    }
+
     void RegisterMemoryAPI(gravity_vm *vm)
     {
         gravity_gc_setenabled(vm, false);
@@ -373,6 +401,10 @@ namespace RetroSim::GravityAPI
         gravity_function_t *clsnoclipf = gravity_function_new_internal(vm, NULL, ClsNoClip, 0);
         gravity_closure_t *clsnoclipc = gravity_closure_new(vm, clsnoclipf);
         gravity_class_bind(meta, "ClsNoClip", VALUE_FROM_OBJECT(clsnoclipc));
+
+        gravity_function_t *pixelf = gravity_function_new_internal(vm, NULL, DrawPixel, 0);
+        gravity_closure_t *pixelc = gravity_closure_new(vm, pixelf);
+        gravity_class_bind(meta, "Pixel", VALUE_FROM_OBJECT(pixelc));
 
         // properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(GPUPropertyGetter), NEW_FUNCTION(GPUPropertySetter));
