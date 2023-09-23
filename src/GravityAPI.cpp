@@ -411,6 +411,44 @@ namespace RetroSim::GravityAPI
         RETURN_NOVALUE();
     }
 
+    bool DrawCircle(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    {
+        if (nArgs != 6)
+            RETURN_ERROR("DrawCircle() expects 5 arguments.");
+
+        gravity_value_t x = GET_VALUE(1);
+        gravity_value_t y = GET_VALUE(2);
+        gravity_value_t radius = GET_VALUE(3);
+        gravity_value_t color = GET_VALUE(4);
+        gravity_value_t filled = GET_VALUE(5);
+
+        if VALUE_ISA_FLOAT (x)
+            INTERNAL_CONVERT_INT(x, true);
+        else if (!VALUE_ISA_INT(x))
+            RETURN_ERROR("X must be an integer.");
+
+        if VALUE_ISA_FLOAT (y)
+            INTERNAL_CONVERT_INT(y, true);
+        else if (!VALUE_ISA_INT(y))
+            RETURN_ERROR("Y must be an integer.");
+
+        if VALUE_ISA_FLOAT (radius)
+            INTERNAL_CONVERT_INT(radius, true);
+        else if (!VALUE_ISA_INT(radius))
+            RETURN_ERROR("Radius must be an integer.");
+
+        if VALUE_ISA_FLOAT (color)
+            INTERNAL_CONVERT_INT(color, true);
+        else if (!VALUE_ISA_INT(color))
+            RETURN_ERROR("Color must be an integer.");
+
+        if (!VALUE_ISA_BOOL (filled))
+            RETURN_ERROR("Filled must be a boolean.");
+
+        GPU::DrawCircle((int)VALUE_AS_INT(x), (int)VALUE_AS_INT(y), (int)VALUE_AS_INT(radius), (int)VALUE_AS_INT(color), (bool)VALUE_AS_BOOL(filled));
+        RETURN_NOVALUE();
+    }
+
     void RegisterMemoryAPI(gravity_vm *vm)
     {
         gravity_gc_setenabled(vm, false);
@@ -487,6 +525,10 @@ namespace RetroSim::GravityAPI
         gravity_function_t *linef = gravity_function_new_internal(vm, NULL, DrawLine, 0);
         gravity_closure_t *linec = gravity_closure_new(vm, linef);
         gravity_class_bind(meta, "Line", VALUE_FROM_OBJECT(linec));
+
+        gravity_function_t *circlef = gravity_function_new_internal(vm, NULL, DrawCircle, 0);
+        gravity_closure_t *circlec = gravity_closure_new(vm, circlef);
+        gravity_class_bind(meta, "Circle", VALUE_FROM_OBJECT(circlec));
 
         // properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(GPUPropertyGetter), NEW_FUNCTION(GPUPropertySetter));
