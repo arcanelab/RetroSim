@@ -337,6 +337,40 @@ namespace RetroSim::GravityAPI
         RETURN_NOVALUE();
     }
 
+    bool SetPaletteColor(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    {
+        if (nArgs != 5)
+            RETURN_ERROR("SetPaletteColor() expects 4 arguments.");
+
+        gravity_value_t index = GET_VALUE(1);
+        gravity_value_t r = GET_VALUE(2);
+        gravity_value_t g = GET_VALUE(3);
+        gravity_value_t b = GET_VALUE(4);
+
+        if VALUE_ISA_FLOAT (index)
+            INTERNAL_CONVERT_INT(index, true);
+        else if (!VALUE_ISA_INT(index))
+            RETURN_ERROR("Index must be an integer.");
+
+        if VALUE_ISA_FLOAT (r)
+            INTERNAL_CONVERT_INT(r, true);
+        else if (!VALUE_ISA_INT(r))
+            RETURN_ERROR("R must be an integer.");
+
+        if VALUE_ISA_FLOAT (g)
+            INTERNAL_CONVERT_INT(g, true);
+        else if (!VALUE_ISA_INT(g))
+            RETURN_ERROR("G must be an integer.");
+
+        if VALUE_ISA_FLOAT (b)
+            INTERNAL_CONVERT_INT(b, true);
+        else if (!VALUE_ISA_INT(b))
+            RETURN_ERROR("B must be an integer.");
+
+        GPU::SetPaletteColor((int)VALUE_AS_INT(index), (int)VALUE_AS_INT(r), (int)VALUE_AS_INT(g), (int)VALUE_AS_INT(b));
+        RETURN_NOVALUE();
+    }
+
     void RegisterMemoryAPI(gravity_vm *vm)
     {
         gravity_gc_setenabled(vm, false);
@@ -405,6 +439,10 @@ namespace RetroSim::GravityAPI
         gravity_function_t *pixelf = gravity_function_new_internal(vm, NULL, DrawPixel, 0);
         gravity_closure_t *pixelc = gravity_closure_new(vm, pixelf);
         gravity_class_bind(meta, "Pixel", VALUE_FROM_OBJECT(pixelc));
+
+        gravity_function_t *palcolorf = gravity_function_new_internal(vm, NULL, SetPaletteColor, 0);
+        gravity_closure_t *palcolorc = gravity_closure_new(vm, palcolorf);
+        gravity_class_bind(meta, "PalColor", VALUE_FROM_OBJECT(palcolorc));
 
         // properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(GPUPropertyGetter), NEW_FUNCTION(GPUPropertySetter));
