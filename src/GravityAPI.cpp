@@ -371,6 +371,46 @@ namespace RetroSim::GravityAPI
         RETURN_NOVALUE();
     }
 
+    bool DrawLine(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    {
+        if (nArgs != 6)
+            RETURN_ERROR("DrawLine() expects 5 arguments.");
+
+        gravity_value_t x0 = GET_VALUE(1);
+        gravity_value_t y0 = GET_VALUE(2);
+        gravity_value_t x1 = GET_VALUE(3);
+        gravity_value_t y1 = GET_VALUE(4);
+        gravity_value_t color = GET_VALUE(5);
+
+        if VALUE_ISA_FLOAT (x0)
+            INTERNAL_CONVERT_INT(x0, true);
+        else if (!VALUE_ISA_INT(x0))
+            RETURN_ERROR("X0 must be an integer.");
+
+        if VALUE_ISA_FLOAT (y0)
+            INTERNAL_CONVERT_INT(y0, true);
+        else if (!VALUE_ISA_INT(y0))
+            RETURN_ERROR("Y0 must be an integer.");
+
+        if VALUE_ISA_FLOAT (x1)
+            INTERNAL_CONVERT_INT(x1, true);
+        else if (!VALUE_ISA_INT(x1))
+            RETURN_ERROR("X1 must be an integer.");
+
+        if VALUE_ISA_FLOAT (y1)
+            INTERNAL_CONVERT_INT(y1, true);
+        else if (!VALUE_ISA_INT(y1))
+            RETURN_ERROR("Y1 must be an integer.");
+
+        if VALUE_ISA_FLOAT (color)
+            INTERNAL_CONVERT_INT(color, true);
+        else if (!VALUE_ISA_INT(color))
+            RETURN_ERROR("Color must be an integer.");
+
+        GPU::DrawLine((int)VALUE_AS_INT(x0), (int)VALUE_AS_INT(y0), (int)VALUE_AS_INT(x1), (int)VALUE_AS_INT(y1), (int)VALUE_AS_INT(color));
+        RETURN_NOVALUE();
+    }
+
     void RegisterMemoryAPI(gravity_vm *vm)
     {
         gravity_gc_setenabled(vm, false);
@@ -443,6 +483,10 @@ namespace RetroSim::GravityAPI
         gravity_function_t *palcolorf = gravity_function_new_internal(vm, NULL, SetPaletteColor, 0);
         gravity_closure_t *palcolorc = gravity_closure_new(vm, palcolorf);
         gravity_class_bind(meta, "PalColor", VALUE_FROM_OBJECT(palcolorc));
+
+        gravity_function_t *linef = gravity_function_new_internal(vm, NULL, DrawLine, 0);
+        gravity_closure_t *linec = gravity_closure_new(vm, linef);
+        gravity_class_bind(meta, "Line", VALUE_FROM_OBJECT(linec));
 
         // properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(GPUPropertyGetter), NEW_FUNCTION(GPUPropertySetter));
