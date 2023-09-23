@@ -56,6 +56,11 @@ namespace RetroSim
         return fullscreen;
     }
 
+    int CoreConfig::GetWindowScale()
+    {
+        return windowScale;
+    }
+
     void CoreConfig::LoadConfigFile()
     {
         const std::string fileName = basePath + "/retrosim.config";
@@ -98,6 +103,8 @@ namespace RetroSim
                         fpsOverride = stoi(value);
                     else if (key == "dataPath")
                         dataPath = basePath + "/" + value;
+                    else if (key == "windowScale")
+                        windowScale = stoi(value);
                     else
                         cout << "Unknown key in config file: " << key << endl;
                 }

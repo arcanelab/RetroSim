@@ -116,7 +116,9 @@ namespace RetroSim::Application
 
         SDL_DisplayMode displayMode;
         SDL_GetDesktopDisplayMode(0, &displayMode);
-        SDL_SetWindowSize(window, displayMode.w / 2, displayMode.h / 2);
+
+        int scale = Core::GetInstance()->GetCoreConfig().GetWindowScale();
+        SDL_SetWindowSize(window, GPU::textureWidth * scale, GPU::textureHeight * scale);
         SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
         if (Core::GetInstance()->GetCoreConfig().IsFullScreen())
