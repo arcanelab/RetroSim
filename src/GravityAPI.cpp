@@ -279,10 +279,33 @@ namespace RetroSim::GravityAPI
         }
         if (nArgs > 2)
         {
-            RETURN_ERROR("Invalid amount of arguments. Cls takes zero or a single optional argument: color index.");
+            RETURN_ERROR("Invalid amount of arguments. Cls takes zero or a single argument: color index.");
         }
 
         GPU::ClearScreen(colorIndexValue);
+        RETURN_NOVALUE();
+    }
+
+    bool ClsNoClip(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
+    {
+        int colorIndexValue = 0;
+        if (nArgs == 2)
+        {
+            gravity_value_t colorIndex = GET_VALUE(1);
+
+            if VALUE_ISA_FLOAT (colorIndex)
+                INTERNAL_CONVERT_INT(colorIndex, true);
+            else if (!VALUE_ISA_INT(colorIndex))
+                RETURN_ERROR("Color must be an integer.");
+
+            colorIndexValue = (int)VALUE_AS_INT(args[1]);
+        }
+        if (nArgs > 2)
+        {
+            RETURN_ERROR("Invalid amount of arguments. Cls takes zero or a single argument: color index.");
+        }
+
+        GPU::ClearScreenIgnoreClipping(colorIndexValue);
         RETURN_NOVALUE();
     }
 
@@ -346,6 +369,10 @@ namespace RetroSim::GravityAPI
         gravity_function_t *clscolorf = gravity_function_new_internal(vm, NULL, Cls, 0);
         gravity_closure_t *clscolorc = gravity_closure_new(vm, clscolorf);
         gravity_class_bind(meta, "Cls", VALUE_FROM_OBJECT(clscolorc));
+
+        gravity_function_t *clsnoclipf = gravity_function_new_internal(vm, NULL, ClsNoClip, 0);
+        gravity_closure_t *clsnoclipc = gravity_closure_new(vm, clsnoclipf);
+        gravity_class_bind(meta, "ClsNoClip", VALUE_FROM_OBJECT(clsnoclipc));
 
         // properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(GPUPropertyGetter), NEW_FUNCTION(GPUPropertySetter));
