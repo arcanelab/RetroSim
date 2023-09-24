@@ -44,3 +44,12 @@ Example:
     .word DrawPixelId
     .dword $800
 ```
+
+or
+
+```
+    mov.w [$800], 20 ; x
+    mov.w [$802], 30 ; y
+    mov.b [$804], 7  ; color
+    sys DrawPixelId, $800
+```
