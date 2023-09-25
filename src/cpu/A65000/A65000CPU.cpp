@@ -82,6 +82,7 @@ int A65000CPU::Tick() // return value: the number of cycles used
 
     return 2;
 }
+
 int A65000CPU::RunNextInstruction()
 {
     const InstructionWord &instr = FetchInstructionWord();

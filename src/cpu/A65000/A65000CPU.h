@@ -364,6 +364,7 @@ private:
 
         return (T)result;
     }
+
     template <class T>
     T Exec_Div(const T &value1, const T &value2)
     {
@@ -445,6 +446,7 @@ private:
             throw A65000Exception(EX_INVALID_INSTRUCTION);
         }
     }
+
     template <typename T>
     void WriteRegister(uint32_t *reg, const T &value)
     {
@@ -615,6 +617,7 @@ private:
             throw A65000Exception(EX_INVALID_INSTRUCTION);
         }
     }
+
     template <class T>
     int ExecuteMonadicInstructions_Memory(uint32_t address, int instructionCode)
     {
@@ -702,6 +705,7 @@ private:
 
         return cycles;
     }
+
     template <class T>
     int HandleAddressingMode_IndexedDst(const InstructionWord &inst) // sub.w [$1000+r0]-, r1
     {
@@ -899,6 +903,7 @@ private:
 
         return cycles;
     }
+    
     template <class T>
     int HandleAddressingMode_AbsoluteDst(const InstructionWord &inst) // DONE //  add.w [$1320], r9
     {
