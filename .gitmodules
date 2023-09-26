@@ -1,11 +1,11 @@
 [submodule "gravity"]
-	path = src/extern/gravity
-	url = git@github.com:arcanelab/Gravity-RetroSim.git
+    path = src/extern/gravity
+    url = git@github.com:arcanelab/Gravity-RetroSim.git
 
 [submodule "libtelnet"]
-	path = src/extern/libtelnet
-	url = git@github.com:seanmiddleditch/libtelnet.git
+    path = src/extern/libtelnet
+    url = git@github.com:seanmiddleditch/libtelnet.git
 
-[submodule "libtelnet"]
-	path = src/asmA65k
-	url = git@github.com:arcanelab/AsmA65k.git
+[submodule "asmA65k"]
+    path = src/asmA65k
+    url = git@github.com:arcanelab/AsmA65k.git
