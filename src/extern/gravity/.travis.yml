@@ -1,0 +1,10 @@
+language: c
+os:
+ - osx
+ - linux
+compiler:
+  - gcc
+  - clang
+script:
+  - make
+  - test/unittest/run_all.sh

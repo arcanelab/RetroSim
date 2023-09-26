@@ -1,9 +1,6 @@
-set_project("RetroSim")
-set_version("0.2.0")
-set_languages("cxx20")
+set_project("Gravity")
 add_rules("mode.debug", "mode.release")
-add_requires("libsdl 2.x")
-set_warnings("all")
+set_warnings("none")
 
 if is_mode("debug") then
     add_defines("DEBUG")
@@ -15,68 +12,18 @@ else
 end
 
 if is_plat("windows") then
-    set_warnings("all")
     add_defines("WIN32")
-    add_cxflags("/wd4068")
+        add_cxflags("/W0")
     -- add_ldflags("-subsystem:windows")
 elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
     add_defines("UNIX_HOST")
-    -- add_cxflags("-Wall")
+    add_cxflags("-w")
 end
 
-includes("src/extern/gravity")
-includes("src/AsmA65k")
-
-Target =
-{
-    standalone = 1,
-    libretro = 2
-}
-
-local _target = Target.standalone
-
-function AddTelnetDependencies() 
-    add_defines("TELNET_ENABLED")
-    add_includedirs("src/extern/libtelnet")
-    add_files("src/Telnet/*.cpp")
-    add_files("src/extern/libtelnet/*.c")
-end
-
-function AddCommon()
-    AddTelnetDependencies()
-    add_deps("Gravity")
-    add_deps("AsmA65k-lib")
-    add_files("src/*.cpp")
-    add_files("data/**.cpp")
-    add_files("src/cpu/A65000/*.cpp")
-    add_includedirs("src/cpu/A65000")
-    add_includedirs("src")
-    add_includedirs("data")
-    add_includedirs("src/extern/gravity/src/compiler", "src/extern/gravity/src/optionals", "src/extern/gravity/src/runtime", "src/extern/gravity/src/shared", "src/extern/gravity/src/utils")
-    set_targetdir("bin")
-end
-
-if _target == Target.standalone then
-    target("RetroSim")
-        AddCommon()
-        add_defines("SDL")
-        set_kind("binary")
-        add_packages("libsdl")
-        add_files("src/standalone/*.cpp")
-elseif _target == Target.libretro then
-    target("RetroSimCore")
-        AddCommon()
-        add_defines("LIBRETRO")
-        set_kind("shared")
-        add_includedirs("src/extern/libretro")
-        add_files("src/libretro/*.cpp")
-        if os.getenv("RETROARCH_COREPATH") then
-            set_targetdir(os.getenv("RETROARCH_COREPATH"))
-        else 
-            set_targetdir("bin")
-        end
-end
-
+target("Gravity")
+    set_kind("static")
+    add_files("src/**.c")
+    add_includedirs("src/compiler", "src/optionals", "src/runtime", "src/shared", "src/utils")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
