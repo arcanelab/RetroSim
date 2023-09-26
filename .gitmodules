@@ -7,5 +7,5 @@
 	url = git@github.com:seanmiddleditch/libtelnet.git
 
 [submodule "libtelnet"]
-	path = src/extern/AsmA65k
+	path = src/asmA65k
 	url = git@github.com:arcanelab/AsmA65k.git
