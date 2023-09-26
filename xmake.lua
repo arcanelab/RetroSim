@@ -25,6 +25,7 @@ elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
 end
 
 includes("gravity")
+includes("src/AsmA65k")
 
 Target =
 {
@@ -44,6 +45,7 @@ end
 function AddCommon()
     AddTelnetDependencies()
     add_deps("Gravity")
+    add_deps("AsmA65k-lib")
     add_files("src/*.cpp")
     add_files("data/**.cpp")
     add_files("src/cpu/A65000/*.cpp")
