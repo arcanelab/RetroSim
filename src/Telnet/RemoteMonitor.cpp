@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <unordered_map>
 #include "RemoteMonitor.h"
 #include "Logger.h"
 #include "MMU.h"
