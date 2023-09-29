@@ -73,7 +73,6 @@ public:
         REG_PC
     };
 
-public:
     enum SystemVectors
     {
         VEC_RESET = 0x00,
@@ -953,7 +952,7 @@ private:
     {
         // fetch operands (register selector, 32bit address)
         const uint32_t address = FetchAndAdvancePC<uint32_t>();
-        const T value = FetchAndAdvancePC<T>();
+        const T constValue = FetchAndAdvancePC<T>();
 
         T result = 0;
         int cycles = 3;
@@ -963,15 +962,15 @@ private:
         switch (inst.instructionCode)
         {
         case I_MOV:
-            result = value;
+            result = constValue;
             cycles = 2;
             break;
         case I_CMP:
-            result = Exec_Sub(valueAtAddress, value, false);
+            result = Exec_Sub(valueAtAddress, constValue, false);
             ModifyFlagsNZ(result);
             return 2; // we return, because we don't want to store the result
         default:
-            result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, value);
+            result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, constValue);
         }
 
         // store result
@@ -982,13 +981,43 @@ private:
     }
     
     template <class T>
-    int HandleAddressingMode_RegisterIndirectConst(const InstructionWord &instr, int constant) // mov.w [r1], 0
+    int HandleAddressingMode_RegisterIndirectConst(const InstructionWord &inst, int offset) // mov.w [r1], 0
     {
+        // fetch operand (register selector)
+        const uint8_t registerSelector = FetchSingleRegisterSelector();
 
+        // prepare values
+        const uint32_t destinationAddress = registers[registerSelector] + offset;
+        const T valueAtAddress = MMU::ReadMem<T>(destinationAddress);
+        const T constValue = FetchAndAdvancePC<T>();
+
+        T result = 0;
+        int cycles = 3;
+
+        // decode and execute instruction
+        switch (inst.instructionCode)
+        {
+        case I_MOV:
+            result = constValue;
+            cycles = 2;
+            break;
+        case I_CMP:
+            result = Exec_Sub(valueAtAddress, constValue, false);
+            ModifyFlagsNZ(result);
+            return 2; // we return because we don't want to store the result
+        default:
+            result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, constValue);
+        }
+
+        // store result
+        MMU::WriteMem(destinationAddress, result);
+        ModifyFlagsNZ(result);
+
+        return cycles;
     }
 
     template <class T>
-    int HandleAddressingMode_IndexedConst(const InstructionWord &instr) // mov.w [r1 + $200], 0
+    int HandleAddressingMode_IndexedConst(const InstructionWord &inst) // mov.w [r1 + $200], 0
     {
 
     }
