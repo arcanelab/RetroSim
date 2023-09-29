@@ -1019,6 +1019,14 @@ private:
     template <class T>
     int HandleAddressingMode_IndexedConst(const InstructionWord &inst) // mov.w [r1 + $200], 0
     {
+        CheckPreDecrementOperator<T>(inst.registerConfiguration);
 
+        const T operandConstant = MMU::ReadMem<uint32_t>(PC + 1);
+        const T cycles = HandleAddressingMode_RegisterIndirectConst<T>(inst, operandConstant);
+        PC += sizeof(uint32_t);
+
+        CheckPostIncrementOperator<T>(inst.registerConfiguration);
+
+        return (inst.instructionCode == I_MOV || inst.instructionCode == I_CMP) ? cycles : cycles + 1;
     }
 };
