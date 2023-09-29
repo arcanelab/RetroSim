@@ -92,6 +92,8 @@ public:
         I_CLR,
         I_ADD,
         I_SUB,
+        I_ADC,
+        I_SBC,
         I_INC,
         I_DEC,
         I_MUL,
@@ -134,10 +136,9 @@ public:
         I_SEV,
         I_CLV,
         I_SLP,
-        I_ADC,
-        I_SBC,
         I_SXB,
-        I_SXW
+        I_SXW,
+        I_SYS,
     };
 
     enum AddressingModes
