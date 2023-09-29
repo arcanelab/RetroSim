@@ -143,23 +143,27 @@ public:
 
     enum AddressingModes
     {
-        AM_NONE,                   //
-        AM_REG_IMMEDIATE,          // Rx, 55
-        AM_CONST_IMMEDIATE,        // 555 (for PUSH)
-        AM_REGISTER1,              // Rx
-        AM_REGISTER2,              // Rx, Ry
-        AM_ABSOLUTE1,              // [$f000]
-        AM_ABSOLUTE_SRC,           // Rx, [$f000]
-        AM_ABSOLUTE_DEST,          // [$f000], Rx
-        AM_REGISTER_INDIRECT1,     // [Rx]
-        AM_REGISTER_INDIRECT_SRC,  // Rx, [Ry]
-        AM_REGISTER_INDIRECT_DEST, // [Rx], Ry
-        AM_INDEXED1,               // [Rx + 234]
-        AM_INDEXED_SRC,            // Rx, [Ry + 432]
-        AM_INDEXED_DEST,           // [Rx + 432], Ry
-        AM_RELATIVE,               // 44              -- only branching instr.
-        AM_DIRECT,                 // $4244           -- only jmp/jsr
-        // AM_AMBIGOUS                 // used in getAddressingModeFromOperand() when encountering OS_CONSTANT, which can be either AM_IMMEDIATE or AM_RELATIVE or AM_DIRECT
+        AM_IMPLIED = 0,             // -no operand-
+        AM_REG_IMMEDIATE,           // Rx, const
+        AM_CONST_IMMEDIATE,         // const
+        AM_REGISTER1,               // Rx
+        AM_REGISTER2,               // Rx, Ry
+        AM_ABSOLUTE1,               // [Address]
+        AM_ABSOLUTE_SRC,            // Rx, [Address]
+        AM_ABSOLUTE_DEST,           // [Address], Rx
+        AM_ABSOLUTE_CONST,          // [Address], const       !
+        AM_REGISTER_INDIRECT1,      // [Rx]
+        AM_REGISTER_INDIRECT_SRC,   // Rx, [Ry]
+        AM_REGISTER_INDIRECT_DEST,  // [Rx], Ry
+        AM_REGISTER_INDIRECT_CONST, // [Rx], const            !
+        AM_INDEXED1,                // [Rx + const]
+        AM_INDEXED_SRC,             // Rx, [Ry + const]
+        AM_INDEXED_DEST,            // [Rx + const], Ry
+        AM_INDEXED_CONST,           // [Rx + const], const    !
+        AM_RELATIVE,                // branch
+        AM_DIRECT,                  // direct
+        AM_SYSCALL,                 // syscall
+        AM_AMBIGOUS,
     };
 
     enum PostfixType
@@ -218,7 +222,6 @@ public:
         uint16_t opcodeSize : 2;
     };
 
-public:
     // --- CPU state ---
 
     uint32_t registers[16];
@@ -277,8 +280,14 @@ private:
             return HandleAddressingMode_Absolute1<T>(instr); // inc.w [$200]
         case AM_RELATIVE:
             return HandleAddressingMode_Relative<T>(instr); // bne -50
-        case AM_NONE:
+        case AM_IMPLIED:
             return HandleAddressingMode_Implied(instr); // rts, cli, etc
+        case AM_ABSOLUTE_CONST:
+            return HandleAddressingMode_AbsoluteConst<T>(instr); // mov.w [$200], 0
+        case AM_REGISTER_INDIRECT_CONST:
+            return HandleAddressingMode_RegisterIndirectConst<T>(instr, 0); // mov.w [r1], 0
+        case AM_INDEXED_CONST:
+            return HandleAddressingMode_IndexedConst<T>(instr); // mov.w [r1 + $200], 0
         default:
             throw A65000Exception(EX_INVALID_INSTRUCTION);
         }
@@ -904,7 +913,7 @@ private:
 
         return cycles;
     }
-    
+
     template <class T>
     int HandleAddressingMode_AbsoluteDst(const InstructionWord &inst) // DONE //  add.w [$1320], r9
     {
@@ -937,5 +946,50 @@ private:
         ModifyFlagsNZ(result);
 
         return cycles;
+    }
+
+    template <class T>
+    int HandleAddressingMode_AbsoluteConst(const InstructionWord &inst) // mov.w [$200], 0
+    {
+        // fetch operands (register selector, 32bit address)
+        const uint32_t address = FetchAndAdvancePC<uint32_t>();
+        const T value = FetchAndAdvancePC<T>();
+
+        T result = 0;
+        int cycles = 3;
+        const T valueAtAddress = MMU::ReadMem<T>(address);
+
+        // decode and execute instruction
+        switch (inst.instructionCode)
+        {
+        case I_MOV:
+            result = value;
+            cycles = 2;
+            break;
+        case I_CMP:
+            result = Exec_Sub(valueAtAddress, value, false);
+            ModifyFlagsNZ(result);
+            return 2; // we return, because we don't want to store the result
+        default:
+            result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, value);
+        }
+
+        // store result
+        MMU::WriteMem(address, result);
+        ModifyFlagsNZ(result);
+
+        return cycles;
+    }
+    
+    template <class T>
+    int HandleAddressingMode_RegisterIndirectConst(const InstructionWord &instr, int constant) // mov.w [r1], 0
+    {
+
+    }
+
+    template <class T>
+    int HandleAddressingMode_IndexedConst(const InstructionWord &instr) // mov.w [r1 + $200], 0
+    {
+
     }
 };
