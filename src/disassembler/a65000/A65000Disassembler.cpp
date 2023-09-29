@@ -64,7 +64,7 @@ A65000Disassembler::Disassembly A65000Disassembler::disassembleChunk(Chunk chunk
 {
     uint32_t pc = chunk.address;
     if(chunk.maxLines == -1)
-        chunk.maxLines = 255;
+        chunk.maxLines = 127;
 
     while(chunk.maxLines--)
     {
@@ -84,7 +84,7 @@ A65000Disassembler::Disassembly A65000Disassembler::disassembleChunk(Chunk chunk
          */
         switch(iw.addressingMode)
         {
-            case A65000CPU::AddressingModes::AM_NONE:
+            case A65000CPU::AddressingModes::AM_IMPLIED:
                 print(addressStr(pc) + machineCode(machineCodePtr, 2) + opcodeToString(iw));
                 pc += 2;
                 break;
