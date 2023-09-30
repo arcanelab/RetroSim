@@ -550,6 +550,10 @@ private:
             SP -= sizeof(T);
             MMU::WriteMem<T>(SP, value);
         }
+        if (inst.instructionCode == I_JMP)
+        {
+            PC = value;
+        }
         else
             throw A65000Exception(EX_INVALID_INSTRUCTION);
 
