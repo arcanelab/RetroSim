@@ -16,6 +16,7 @@
 #include "unscii-16.h"
 #include "palette.h"
 #include "Logger.h"
+#include "A65000Disassembler.h"
 
 #ifdef SDL
 #include "SDL.h"
@@ -65,7 +66,7 @@ namespace RetroSim
     void Core::Initialize(const std::string &basePath)
     {
         // Libretro tends to call initialize multiple times
-        if(isInitialized)
+        if (isInitialized)
             return;
 
         LogPrintf(RETRO_LOG_INFO, "Initializing RetroSim...\n");
@@ -79,6 +80,7 @@ namespace RetroSim
             LogPrintf(RETRO_LOG_ERROR, "getcwd() error\n");
 
         coreConfig.Initialize(basePath);
+        cpu.syscallHandler = SyscallHandler;
         Reset();
 
 #ifdef TELNET_ENABLED
@@ -108,7 +110,7 @@ namespace RetroSim
         length = std::min(unscii_8_length, 0x8000);
         for (int i = 0; i < length; i++)
         {
-            MMU::memory.Charset_u8[i+0x8000] = unscii_8[i];
+            MMU::memory.Charset_u8[i + 0x8000] = unscii_8[i];
         }
 
         // copy first 16K from character ram to tile ram
@@ -134,12 +136,18 @@ namespace RetroSim
         MMU::WriteMem<uint32_t>(A65000CPU::VEC_ILLEGALINSTRUCTION, 0x00000200);
         // The interrupt handlers are located at $E000
         MMU::WriteMem<uint32_t>(A65000CPU::VEC_HWIRQ, 0x0000E000);
-        MMU::WriteMem<uint32_t>(A65000CPU::VEC_NMI, 0x0000E000);     
+        MMU::WriteMem<uint32_t>(A65000CPU::VEC_NMI, 0x0000E000);
 
         MMU::memory.generalRegisters.refreshRate = coreConfig.GetFPS();
         MMU::memory.generalRegisters.fixedFrameTime = 1000000 / coreConfig.GetFPS(); // microseconds
 
         LoadRetroSimBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.rsb");
+        A65000Disassembler disasm;
+        auto result = disasm.getDisassembly(MMU::memory.raw + 0x200, 0x200, 10);
+        for (auto &line : result.text)
+        {
+            LogPrintf(RETRO_LOG_INFO, "%s\n", line.c_str());
+        }
 
         cpu.Reset();
     }
@@ -160,7 +168,7 @@ namespace RetroSim
     {
         return true;
     }
-    
+
     int textPos = 0;
 
     void DrawTestScreen()
@@ -170,7 +178,7 @@ namespace RetroSim
         int colorIndex = (frameNumber / 20) % 64;
 
         textPos--;
-        if(textPos < -200)
+        if (textPos < -200)
             textPos = GPU::textureWidth + 200;
 
         GPU::RenderOpaqueText("RetroSim", textPos, 150, colorIndex, 20);
@@ -200,15 +208,15 @@ namespace RetroSim
     }
 
     void Core::RunNextFrame()
-    {        
+    {
         uint32_t cpuBefore = GetTicks();
         {
-            std::lock_guard<std::mutex> lock(memoryMutex);
-            DrawTestScreen();
+            // std::lock_guard<std::mutex> lock(memoryMutex);
+            // DrawTestScreen();
         }
-        
+
         int cycles = 0;
-        while(cycles < 20000)
+        while (cycles < 20000)
         {
             cycles += cpu.Tick();
         }
@@ -217,7 +225,7 @@ namespace RetroSim
         clock += timeDelta;
 
         uint32_t currentTime = GetTicks();
-        if(currentTime - cpuStartTime > 1000.0f)
+        if (currentTime - cpuStartTime > 1000.0f)
         {
             cpuStartTime = currentTime;
             // printf("CPU time: %d ms, fps = %d, deltaTime = %d, currentFPS = %d\n", timeDelta, frameCounter, MMU::memory.generalRegisters.deltaTime, MMU::memory.generalRegisters.currentFPS);
@@ -310,5 +318,10 @@ namespace RetroSim
 #ifdef TELNET_ENABLED
         TelnetServer::Stop();
 #endif
+    }
+
+    void Core::SyscallHandler(uint16_t syscallID, uint32_t argumentAddress)
+    {
+        LogPrintf(RETRO_LOG_DEBUG, "Syscall %d, argument struct address: %8x\n", syscallID, argumentAddress);
     }
 }

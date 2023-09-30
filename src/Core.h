@@ -43,5 +43,6 @@ namespace RetroSim
         void InitializePalette();
         void InitializeCPU();
         void UpdateRegisters();
+        static void SyscallHandler(uint16_t syscallID, uint32_t argumentAddress);
     };
 }
