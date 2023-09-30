@@ -180,6 +180,15 @@ int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
         sleep = true;
         break;
 
+    case I_SYS:
+    {
+        uint16_t syscallId = FetchAndAdvancePC<uint16_t>();
+        uint32_t syscallArgAddress = FetchAndAdvancePC<uint32_t>();
+        syscallHandler(syscallId, syscallArgAddress);
+    }
+        cycles = 3; // 2 memory reads + system call
+        break;
+
     default:
         throw A65000Exception(EX_INVALID_INSTRUCTION);
     }

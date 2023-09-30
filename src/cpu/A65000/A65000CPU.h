@@ -51,6 +51,8 @@ public:
 
     void CheckRegisterRange(const int8_t &reg) const;
 
+    void (*syscallHandler)(uint16_t syscallID, uint32_t argumentAddress);
+
     // --- enumerations ---
 
     enum Registers
