@@ -245,6 +245,7 @@ private:
 
     int HandleAddressingMode_Implied(const InstructionWord &inst);
     int HandleAddressingMode_Direct(const InstructionWord &inst);
+    int HandleAddressingMode_Syscall(const InstructionWord &inst);
 
     template <class T>
     int DecodeInstruction(const InstructionWord &instr)
@@ -289,6 +290,8 @@ private:
             return HandleAddressingMode_RegisterIndirectConst<T>(instr, 0); // mov.w [r1], 0
         case AM_INDEXED_CONST:
             return HandleAddressingMode_IndexedConst<T>(instr); // mov.w [r1 + $200], 0
+        case AM_SYSCALL:
+            return HandleAddressingMode_Syscall(instr); // sys 0, $200
         default:
             throw A65000Exception(EX_INVALID_INSTRUCTION);
         }
