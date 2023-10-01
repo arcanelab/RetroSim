@@ -217,8 +217,8 @@ public:
 
     struct InstructionWord
     {
-        uint16_t addressingMode : 4;
-        uint16_t registerConfiguration : 4;
+        uint16_t addressingMode : 5;
+        uint16_t registerConfiguration : 3;
         uint16_t instructionCode : 6;
         uint16_t opcodeSize : 2;
     };
