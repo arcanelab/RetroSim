@@ -22,41 +22,40 @@ struct A65000Disassembler
         vector<string> text;
         uint8_t bytesProcessed;
     };
-    
-    A65000Disassembler();
-    ~A65000Disassembler();
-    
+
+    A65000Disassembler() = default;
+    ~A65000Disassembler() = default;
+
     Disassembly result;
-    
+
     bool showMachineCode = true;
-    
-    vector<string> instructionNames = {"mov", "clr", "add", "sub", "inc", "dec", "mul", "div",
-        "and", "or", "xor", "shl", "shr", "rol", "ror", "cmp",
-        "sec", "clc", "sei", "cli", "push", "pop", "pusha",
-        "popa", "jmp", "jsr", "rts", "rti", "brk", "nop", "bra",
-        "beq", "bne", "bcc", "bcs", "bpl", "bmi", "bvc", "bvs",
-        "blt", "bgt", "ble", "bge", "sev", "clv", "slp", "adc",
-        "sbc", "sxb", "sxw"};
-    
-    Disassembly getDisassembly(uint8_t * const codePtr, const uint32_t address, const uint16_t lines);
+
+    std::vector<std::string> instructionNames = {
+        "mov", "clr", "add", "sub", "adc", "sbc", "inc", "dec", "mul", "div",
+        "and", "or", "xor", "shl", "shr", "rol", "ror", "cmp", "sec", "clc",
+        "sei", "cli", "push", "pop", "pusha", "popa", "jmp", "jsr", "rts", "rti",
+        "brk", "nop", "bra", "beq", "bne", "bcc", "bcs", "bpl", "bmi", "bvc",
+        "bvs", "blt", "bgt", "ble", "bge", "sev", "clv", "slp", "sxb", "sxw", "sys"};
+
+    Disassembly getDisassembly(uint8_t *const codePtr, const uint32_t address, const uint16_t lines);
     vector<string> getDisassembly(const char *fileName);
-    
+
     struct Error
     {
         string errorString;
-        
+
         Error(const vector<string> &errorStrings)
         {
-            for(string s : errorStrings)
+            for (string s : errorStrings)
                 errorString += s;
         }
-        
+
         Error(const string &errorString)
         {
             this->errorString = errorString;
         }
     };
-    
+
 private:
     struct Chunk
     {
@@ -65,6 +64,8 @@ private:
         uint8_t *data;
         int8_t maxLines = -1;
     };
+
+    int maxInstructionLength = 8;
 
     void print(string text);
     string addressStr(uint32_t address);
@@ -75,6 +76,6 @@ private:
     string addressToString(const uint32_t address);
     string registerStr(const uint8_t &reg);
     string machineCode(const uint8_t *ptr, const int &length);
-    vector<Chunk> parseRSXFileIntoChunks(vector<uint8_t> * data);
+    vector<Chunk> parseRSXFileIntoChunks(vector<uint8_t> *data);
     vector<uint8_t> *loadFile(const char *loadPath);
 };

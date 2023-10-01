@@ -9,22 +9,12 @@
 
 #include "A65000Disassembler.h"
 
-A65000Disassembler::A65000Disassembler()
-{
-    
-}
-
-A65000Disassembler::~A65000Disassembler()
-{
-    
-}
-
 A65000Disassembler::Disassembly A65000Disassembler::getDisassembly(uint8_t * const codePtr, const uint32_t address, const uint16_t lines = 0)
 {
     Chunk chunk;
     chunk.address = address;
     chunk.data = codePtr;
-    chunk.length = lines * 7;  // 7 = max. instruction length
+    chunk.length = lines * maxInstructionLength;  // max. instruction length
     chunk.maxLines = lines;
 
     return disassembleChunk(chunk);
@@ -241,7 +231,21 @@ A65000Disassembler::Disassembly A65000Disassembler::disassembleChunk(Chunk chunk
                 pc += 6;
                 break;
             }
+            case A65000CPU::AddressingModes::AM_SYSCALL:
+            {
+                uint32_t syscallNumber = *(uint32_t*)&(chunk.data[(pc+2) - chunk.address]);
+                uint32_t address = *(uint32_t *)&chunk.data[(pc+3) - chunk.address];
+                string output;
 
+                output += addressStr(pc); // $00001000
+                output += machineCode(machineCodePtr, 8);
+                output += opcodeToString(iw);
+                output += operandToString(syscallNumber, A65000CPU::OpcodeSize::OS_16BIT);
+                output += ", " + operandToString(address, A65000CPU::OpcodeSize::OS_32BIT);
+                print(output);
+                pc += 8;
+                break;
+            }
             default:
                 print(addressStr(pc) + machineCode(machineCodePtr, 1) + "???");
                 pc += 1;
@@ -358,7 +362,7 @@ string A65000Disassembler::machineCode(const uint8_t *ptr, const int &length)
             output += textBuffer;
         }
 
-        for(int i=0; i<7-length; i++)
+        for(int i=0; i<maxInstructionLength-length; i++)
         {
             output += "   ";
         }
