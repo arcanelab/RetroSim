@@ -224,7 +224,7 @@ A65000Disassembler::Disassembly A65000Disassembler::disassembleChunk(Chunk chunk
         case A65000CPU::AddressingModes::AM_SYSCALL:
         {
             uint32_t syscallNumber = *(uint32_t *)&(chunk.data[(pc + 2) - chunk.address]);
-            uint32_t address = *(uint32_t *)&chunk.data[(pc + 3) - chunk.address];
+            uint32_t address = *(uint32_t *)&chunk.data[(pc + 4) - chunk.address];
             string output;
 
             output += addressStr(pc); // $00001000
@@ -371,7 +371,6 @@ vector<A65000Disassembler::Chunk> A65000Disassembler::parseRSXFileIntoChunks(vec
 
         Chunk c;
         c.address = *(uint32_t *)&data->data()[i];
-        ;
         i += 4;
         c.length = *(uint32_t *)&data->data()[i];
         i += 4;
