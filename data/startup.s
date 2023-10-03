@@ -1,6 +1,18 @@
+.def PRINT = $face
+
+.pc = $14
+
+.dword InstructionExceptionHandler
+
 .pc = $200
 
 start:
-    sys $8412, $12345678
+    sys PRINT, $12345678
+
 loop:
-    jmp loop
+    bra loop
+
+InstructionExceptionHandler:
+
+    slp
+    bra InstructionExceptionHandler

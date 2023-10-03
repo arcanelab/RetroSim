@@ -8,6 +8,9 @@
 #include <thread>
 #include <algorithm>
 #include <chrono>
+#include <iostream>
+#include <sstream>
+#include <fstream>
 
 #include "GPU.h"
 #include "Core.h"
@@ -17,6 +20,7 @@
 #include "palette.h"
 #include "Logger.h"
 #include "A65000Disassembler.h"
+#include "Asm65k.h"
 
 #ifdef SDL
 #include "SDL.h"
@@ -59,6 +63,48 @@ namespace RetroSim
             {
                 uint8_t value = MMU::memory.Bitmap_u8[y * 320 + x];
                 MMU::memory.SpriteAtlas_u8[y * 128 + x] = value;
+            }
+        }
+    }
+
+    using namespace std;
+
+    void AssembleStartup()
+    {
+        ifstream fs(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.s");
+        stringstream buffer;
+        buffer << fs.rdbuf();
+        fs.close();
+
+        if (buffer.str().empty())
+        {
+            printf("Could not load file '%s'\n", "startup.s");
+            return;
+        }
+
+        AsmA65k asm65k;
+        std::vector<Segment> *segments;
+        try
+        {
+            segments = asm65k.assemble(buffer);
+        }
+        catch (AsmError error)
+        {
+            LogPrintf(RETRO_LOG_ERROR, "Assembly error in line %d: \"%s\"\n", error.lineNumber, error.errorMessage.c_str());
+            LogPrintf(RETRO_LOG_ERROR, "in line: %s\n", error.lineContent.c_str());
+            return;
+        }
+
+        for (int i = 0; i < segments->size(); i++)
+        {
+            Segment actSegment = (*segments)[i];
+            uint32_t address = actSegment.address;
+            uint32_t length = actSegment.data.size();
+            
+            for(int memoryPtr = address; memoryPtr < address + length; memoryPtr++)
+            {
+                //MMU::memory.raw[memoryPtr] = actSegment.data[memoryPtr - address];
+                MMU::WriteMem<uint8_t>(memoryPtr, actSegment.data[memoryPtr - address]);
             }
         }
     }
@@ -141,7 +187,10 @@ namespace RetroSim
         MMU::memory.generalRegisters.refreshRate = coreConfig.GetFPS();
         MMU::memory.generalRegisters.fixedFrameTime = 1000000 / coreConfig.GetFPS(); // microseconds
 
-        LoadRetroSimBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.rsb");
+        // LoadRetroSimBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.rsb");
+        // LoadRetroSimBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/test.rsb");
+        AssembleStartup();
+
         A65000Disassembler disasm;
         auto result = disasm.getDisassembly(MMU::memory.raw + 0x200, 0x200, 10);
         for (auto &line : result.text)
@@ -216,9 +265,13 @@ namespace RetroSim
         }
 
         int cycles = 0;
-        while (cycles < 20000)
+
+        if (cpu.sleep == false)
         {
-            cycles += cpu.Tick();
+            while (cycles < 32768)
+            {
+                cycles += cpu.Tick();
+            }
         }
         uint32_t cpuAfter = GetTicks();
         int timeDelta = cpuAfter - cpuBefore;

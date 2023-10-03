@@ -11,6 +11,7 @@ if is_mode("debug") then
     set_optimize("none")
 else 
     set_symbols("hidden")
+    -- set_symbols("debug")
     set_optimize("fastest")
 end
 
@@ -50,11 +51,12 @@ function AddCommon()
     add_files("data/**.cpp")
     add_files("src/cpu/A65000/*.cpp")
     add_files("src/disassembler/a65000/*.cpp")
+    add_includedirs("src/asmA65k/src")
     add_includedirs("src/disassembler/a65000")
     add_includedirs("src/cpu/A65000")
     add_includedirs("src")
     add_includedirs("data")
-    add_includedirs("src/extern/gravity/src/compiler", "src/extern/gravity/src/optionals", "src/extern/gravity/src/runtime", "src/extern/gravity/src/shared", "src/extern/gravity/src/utils")
+    add_includedirs("src/extern/gravity/src/compiler", "src/extern/gravity/src/optionals", "src/extern/gravity/src/runtime", "src/extern/gravity/src/shared", "src/extern/gravity/src/utils")    
     set_targetdir("bin")
 end
 
