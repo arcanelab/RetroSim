@@ -101,7 +101,7 @@ namespace RetroSim
             uint32_t address = actSegment.address;
             uint32_t length = actSegment.data.size();
             
-            for(int memoryPtr = address; memoryPtr < address + length; memoryPtr++)
+            for(uint32_t memoryPtr = address; memoryPtr < address + length; memoryPtr++)
             {
                 //MMU::memory.raw[memoryPtr] = actSegment.data[memoryPtr - address];
                 MMU::WriteMem<uint8_t>(memoryPtr, actSegment.data[memoryPtr - address]);
