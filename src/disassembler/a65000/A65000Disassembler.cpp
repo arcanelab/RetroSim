@@ -209,16 +209,36 @@ A65000Disassembler::Disassembly A65000Disassembler::disassembleChunk(Chunk chunk
         }
         case A65000CPU::AddressingModes::AM_RELATIVE:
         {
-            int32_t operand32 = *(uint32_t *)&(chunk.data[(pc + 2) - chunk.address]);
-            uint32_t address = (int)pc + (int)operand32;
+            int32_t operand = 0;
+            int operandLength = 1;
+            switch (iw.opcodeSize)
+            {
+            case A65000CPU::OS_8BIT:
+                operand = *(int8_t *)&(chunk.data[(pc + 2) - chunk.address]);
+                operandLength = 1;
+                break;
+            case A65000CPU::OS_16BIT:
+                operand = *(int16_t *)&(chunk.data[(pc + 2) - chunk.address]);
+                operandLength = 2;
+                break;
+            case A65000CPU::OS_32BIT:
+                operand = *(int32_t *)&(chunk.data[(pc + 2) - chunk.address]);
+                operandLength = 4;
+                break;
+            default:
+                throw; // TODO: handle this sensibly
+            }
+
+            // int32_t operand32 = *(uint32_t *)&(chunk.data[(pc + 2) - chunk.address]);
+            uint32_t address = (int)pc + (int)operand;
             string output;
 
             output += addressStr(pc); // $00001000
-            output += machineCode(machineCodePtr, 6);
-            output += opcodeToString(iw);
-            output += operandToString(address, (A65000CPU::OpcodeSize)iw.opcodeSize);
+            output += machineCode(machineCodePtr, 2 + operandLength);
+            output += opcodeToString(iw, true);
+            output += operandToString(address, A65000CPU::OS_32BIT);
             print(output);
-            pc += 6;
+            pc += operandLength + 2;
             break;
         }
         case A65000CPU::AddressingModes::AM_SYSCALL:
@@ -245,7 +265,7 @@ A65000Disassembler::Disassembly A65000Disassembler::disassembleChunk(Chunk chunk
     return result;
 }
 
-string A65000Disassembler::opcodeToString(const A65000CPU::InstructionWord &iw)
+string A65000Disassembler::opcodeToString(const A65000CPU::InstructionWord &iw, bool omitSizeSpecifier)
 {
     string output;
     if (iw.instructionCode >= instructionNames.size())
@@ -258,10 +278,13 @@ string A65000Disassembler::opcodeToString(const A65000CPU::InstructionWord &iw)
     for (int i = 0; i < diff; i++)
         space += " ";
 
-    if (iw.opcodeSize == A65000CPU::OpcodeSize::OS_8BIT)
-        return output + ".b" + space;
-    if (iw.opcodeSize == A65000CPU::OpcodeSize::OS_16BIT)
-        return output + ".w" + space;
+    if (omitSizeSpecifier == false)
+    {
+        if (iw.opcodeSize == A65000CPU::OpcodeSize::OS_8BIT)
+            return output + ".b" + space;
+        if (iw.opcodeSize == A65000CPU::OpcodeSize::OS_16BIT)
+            return output + ".w" + space;
+    }
 
     return output + "  " + space;
 }

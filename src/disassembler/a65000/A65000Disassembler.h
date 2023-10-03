@@ -70,7 +70,7 @@ private:
     void print(string text);
     string addressStr(uint32_t address);
     Disassembly disassembleChunk(Chunk chunk);
-    string opcodeToString(const A65000CPU::InstructionWord &iw);
+    string opcodeToString(const A65000CPU::InstructionWord &iw, bool omitSizeSpecifier = false);
     uint8_t operandSizeInBytes(const A65000CPU::OpcodeSize &size);
     string operandToString(const uint32_t &operand, const A65000CPU::OpcodeSize &size);
     string addressToString(const uint32_t address);
