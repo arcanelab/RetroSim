@@ -98,7 +98,7 @@ namespace RetroSim::MMU
         }
         else
         {
-            LogPrintf(RETRO_LOG_ERROR, "WriteMem: invalid address: %08X\n", address);
+            LogPrintf(RETRO_LOG_ERROR, "WriteMem: invalid address: $%08X. Upper bound: $%08X.\n", address, memorySize);
         }
     }
 
