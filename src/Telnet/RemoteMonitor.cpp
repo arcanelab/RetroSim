@@ -12,6 +12,7 @@
 #include "Logger.h"
 #include "MMU.h"
 #include "Core.h"
+#include "A65000Disassembler.h"
 
 using namespace std;
 using namespace RetroSim::Logger;
@@ -25,6 +26,8 @@ namespace RetroSim::RemoteMonitor
         {"set8", setMemoryU8},
         {"set16", setMemoryU16},
         {"set32", setMemoryU32},
+        {"dasm", disassemble},
+        {"d", disassemble},
         {"stopGPU", stopGPU},
         {"startGPU", startGPU},
         {"stopCPU", stopCPU},
@@ -36,12 +39,17 @@ namespace RetroSim::RemoteMonitor
 
     string DisplayHelp()
     {
-        return "Available commands:\nhelp, mem, set8, set16, set32";
+        return "Available commands:\nhelp, mem, set8, set16, set32, dasm (short: d)";
     }
 
     string DisplayMemoryHelp()
     {
         return "mem <address> [bytes]";
+    }
+
+    string DisplayDisassemblyHelp()
+    {
+        return "d <address> [lines]";
     }
 
     string DisplayMemory(std::vector<string> tokens)
@@ -66,7 +74,7 @@ namespace RetroSim::RemoteMonitor
         }
         catch (...)
         {
-            return "Invalid argument";
+            return DisplayMemoryHelp();
         }
 
         if (address > MMU::memorySize || address + bytes > MMU::memorySize)
@@ -151,6 +159,45 @@ namespace RetroSim::RemoteMonitor
         return "Resetting.";
     }
 
+    string Disassemble(std::vector<std::string> tokens)
+    {
+        if (tokens.size() < 2 && tokens.size() > 3)
+        {
+            return DisplayDisassemblyHelp();
+        }
+
+        uint32_t address = 0;
+        uint32_t lines = 16;
+
+        try
+        {
+            address = std::stoul(tokens[1], nullptr, 0);
+
+            if (tokens.size() == 3)
+                lines = std::stoul(tokens[2], nullptr, 0);
+
+            if (lines < 1)
+                throw;
+        }
+        catch (...)
+        {
+            return DisplayDisassemblyHelp();
+        }
+
+        if (address > MMU::memorySize)
+            return "Invalid address";
+
+        string result;
+        A65000Disassembler disasm;
+        auto disassembly = disasm.getDisassembly(MMU::memory.raw + address, address, lines);
+        for (auto &line : disassembly.text)
+        {
+            result += line + "\n";
+        }
+
+        return result;
+    }
+
     string ProcessCommand(const string &command)
     {
         std::vector<string> tokens;
@@ -182,6 +229,8 @@ namespace RetroSim::RemoteMonitor
                 return SetMemory<uint16_t>(tokens);
             case setMemoryU32:
                 return SetMemory<uint32_t>(tokens);
+            case disassemble:
+                return Disassemble(tokens);
             case stopGPU:
                 return "stopGPU";
             case startGPU:
