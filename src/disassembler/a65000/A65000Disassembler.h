@@ -31,10 +31,10 @@ struct A65000Disassembler
     bool showMachineCode = true;
 
     std::vector<std::string> instructionNames = {
-        "mov", "clr", "add", "sub", "adc", "sbc", "inc", "dec", "mul", "div",
+        "brk", "mov", "clr", "add", "sub", "adc", "sbc", "inc", "dec", "mul", "div",
         "and", "or", "xor", "shl", "shr", "rol", "ror", "cmp", "sec", "clc",
         "sei", "cli", "push", "pop", "pusha", "popa", "jmp", "jsr", "rts", "rti",
-        "brk", "nop", "bra", "beq", "bne", "bcc", "bcs", "bpl", "bmi", "bvc",
+        "nop", "bra", "beq", "bne", "bcc", "bcs", "bpl", "bmi", "bvc",
         "bvs", "blt", "bgt", "ble", "bge", "sev", "clv", "slp", "sxb", "sxw", "sys"};
 
     Disassembly getDisassembly(uint8_t *const codePtr, const uint32_t address, const uint16_t lines);
