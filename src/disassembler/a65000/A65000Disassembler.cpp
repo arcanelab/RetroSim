@@ -256,6 +256,38 @@ A65000Disassembler::Disassembly A65000Disassembler::disassembleChunk(Chunk chunk
             pc += 8;
             break;
         }
+        case A65000CPU::AddressingModes::AM_REGISTER_INDIRECT_CONST: // mov.b [r0], 123
+        {
+            uint8_t registerSelector = chunk.data[(pc + 2) - chunk.address];
+            uint32_t operand32 = *(uint32_t *)&(chunk.data[(pc + 3) - chunk.address]);
+            string output;
+
+            output += addressStr(pc); // $00001000
+            output += machineCode(machineCodePtr, 4);
+            output += opcodeToString(iw);
+            output += "[" + registerStr(registerSelector) + "], ";
+            output += operandToString(operand32, (A65000CPU::OpcodeSize)iw.opcodeSize);
+            print(output);
+            pc += 3 + operandSizeInBytes((A65000CPU::OpcodeSize)iw.opcodeSize);
+            break;
+        }
+        case A65000CPU::AddressingModes::AM_INDEXED_CONST: // mov.b [r0 + const], 123
+        {
+            uint8_t registerSelector = chunk.data[(pc + 2) - chunk.address];
+            uint32_t index = *(uint32_t *)&(chunk.data[(pc + 3) - chunk.address]);
+            uint32_t operand32 = *(uint32_t *)&(chunk.data[(pc + 7) - chunk.address]);
+            string output;
+
+            output += addressStr(pc); // $00001000
+            output += machineCode(machineCodePtr, 7 + operandSizeInBytes((A65000CPU::OpcodeSize)iw.opcodeSize));
+            output += opcodeToString(iw);
+            output += "[" + registerStr(registerSelector) + " + ";
+            output += operandToString(index, A65000CPU::OpcodeSize::OS_32BIT) + "], ";
+            output += operandToString(operand32, (A65000CPU::OpcodeSize)iw.opcodeSize);
+            print(output);
+            pc += 7 + operandSizeInBytes((A65000CPU::OpcodeSize)iw.opcodeSize);
+            break;
+        }
         default:
             print(addressStr(pc) + machineCode(machineCodePtr, 1) + "???");
             pc += 1;

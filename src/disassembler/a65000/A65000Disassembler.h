@@ -65,7 +65,7 @@ private:
         int8_t maxLines = -1;
     };
 
-    int maxInstructionLength = 8;
+    int maxInstructionLength = 11;
 
     void print(string text);
     string addressStr(uint32_t address);
