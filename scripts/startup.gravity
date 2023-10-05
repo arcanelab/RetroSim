@@ -1,0 +1,29 @@
+// vim: syntax=Swift
+extern var Memory;
+extern var GPU;
+
+func start()
+{
+    System.print("Script running.\n")
+
+    GPU.Cls(3)
+
+    for(var y in 0...GPU.SCREEN_HEIGHT_U16)
+    {
+        for(var x in 0...GPU.SCREEN_WIDTH_U16)
+        {
+            GPU.PalColor(1, x, y, x^y)
+            GPU.Pixel(x, y, 1)
+        }
+    }
+
+    GPU.Line(0, 0, GPU.SCREEN_WIDTH_U16, GPU.SCREEN_HEIGHT_U16, 2)
+    GPU.Circle(100, 100, 50, 3, true)
+    //GPU.Print(0, 0, "RetroSim", 8)
+    GPU.SetFont(8, 8, 0x8000)
+    GPU.PrintOpaque(0, 0, "RetroSim (c) 2023 Zoltan Majoros", 8, 0)
+}
+
+func update()
+{
+}
