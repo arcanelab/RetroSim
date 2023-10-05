@@ -591,8 +591,8 @@ namespace RetroSim::GravityAPI
 
     bool SetFont(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
     {
-        if (nArgs != 3)
-            RETURN_ERROR("SetFont() expects 2 arguments.");
+        if (nArgs != 4)
+            RETURN_ERROR("SetFont() expects 3 arguments.");
 
         gravity_value_t width = GET_VALUE(1);
         gravity_value_t height = GET_VALUE(2);
@@ -619,8 +619,8 @@ namespace RetroSim::GravityAPI
 
     bool RenderText(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
     {
-        if (nArgs != 4)
-            RETURN_ERROR("RenderText() expects 3 arguments.");
+        if (nArgs < 4 || nArgs > 5)
+            RETURN_ERROR("RenderText() expects 4 arguments.");
 
         gravity_value_t x = GET_VALUE(1);
         gravity_value_t y = GET_VALUE(2);
@@ -651,8 +651,8 @@ namespace RetroSim::GravityAPI
 
     bool RenderTextOpaque(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
     {
-        if (nArgs != 5)
-            RETURN_ERROR("RenderTextOpaque() expects 4 arguments.");
+        if (nArgs != 6)
+            RETURN_ERROR("RenderTextOpaque() expects 5 arguments.");
 
         gravity_value_t x = GET_VALUE(1);
         gravity_value_t y = GET_VALUE(2);
