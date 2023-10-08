@@ -51,6 +51,7 @@ namespace RetroSim::Application
         bool quit = false;
 
         uint32_t lastFrameTime = 0;
+        SDL_Rect destinationRect = {15, 15, GPU::textureWidth, GPU::textureHeight};
         while (!quit)
         {
             if (scriptingEnabled)
@@ -60,7 +61,7 @@ namespace RetroSim::Application
             Core::GetInstance()->RunNextFrame();
             SDL_UpdateTexture(texture, NULL, GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
             SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, texture, NULL, NULL);
+            SDL_RenderCopy(renderer, texture, NULL, &destinationRect);
             SDL_RenderPresent(renderer);
 
             while (SDL_PollEvent(&event))
@@ -95,7 +96,7 @@ namespace RetroSim::Application
         SDL_Init(SDL_INIT_EVERYTHING);
 
         window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                  GPU::textureWidth, GPU::textureHeight,
+                                  GPU::windowWidth, GPU::windowHeight,
                                   SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -104,21 +105,21 @@ namespace RetroSim::Application
                                     GPU::textureWidth, GPU::textureHeight);
 
         // Set the logical size to maintain aspect ratio
-        float aspectRatio = (float)GPU::textureWidth / (float)GPU::textureHeight;
-        SDL_RenderSetLogicalSize(renderer, GPU::textureWidth, (int)(GPU::textureWidth / aspectRatio));
+        float aspectRatio = (float)GPU::windowWidth / (float)GPU::windowHeight;
+        SDL_RenderSetLogicalSize(renderer, GPU::windowWidth, (int)(GPU::windowWidth / aspectRatio));
 
         // Set the scale to fit the window while maintaining aspect ratio
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        float scaleX = (float)windowWidth / (float)GPU::textureWidth;
-        float scaleY = (float)windowHeight / (float)(GPU::textureWidth / aspectRatio);
+        float scaleX = (float)windowWidth / (float)GPU::windowWidth;
+        float scaleY = (float)windowHeight / (float)(GPU::windowWidth / aspectRatio);
         SDL_RenderSetScale(renderer, scaleX, scaleY);
 
         SDL_DisplayMode displayMode;
         SDL_GetDesktopDisplayMode(0, &displayMode);
 
         int scale = Core::GetInstance()->GetCoreConfig().GetWindowScale();
-        SDL_SetWindowSize(window, GPU::textureWidth * scale, GPU::textureHeight * scale);
+        SDL_SetWindowSize(window, GPU::windowWidth * scale, GPU::windowHeight * scale);
         SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
         if (Core::GetInstance()->GetCoreConfig().IsFullScreen())

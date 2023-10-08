@@ -6,7 +6,9 @@
 
 namespace RetroSim::GPU
 {
-    const uint_fast16_t textureWidth = 480;
+    const uint16_t windowWidth = 480;
+    const uint16_t windowHeight = 270;
+    const uint_fast16_t textureWidth = 464;
     const uint_fast16_t textureHeight = 256;
     const uint_fast32_t pixelCount = textureWidth * textureHeight;
     const uint_fast32_t textureSizeInBytes = pixelCount * 4;

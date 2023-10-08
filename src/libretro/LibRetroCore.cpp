@@ -47,11 +47,29 @@ namespace RetroSim
             GravityScripting::CompileScriptFromFile(config.GetScriptPath());
             GravityScripting::RunScript("start", {}, 0);
         }
+
+        if(windowBuffer == nullptr)
+            windowBuffer = new uint32_t[GPU::windowWidth * GPU::windowHeight];
+
+        memset(windowBuffer, 0, GPU::windowWidth * GPU::windowHeight * sizeof(uint32_t));
     }
 
     void LibRetroCore::SetVideoRefreshCallback(retro_video_refresh_t renderCallback)
     {
         this->renderCallback = renderCallback;
+    }
+
+    void LibRetroCore::BlitToRenderBuffer()
+    {
+        uint32_t *dst = (uint32_t *)windowBuffer + GPU::windowWidth * (GPU::windowHeight - GPU::textureHeight) / 2 + (GPU::windowWidth - GPU::textureWidth) / 2;
+        uint32_t *src = (uint32_t *)GPU::outputTexture;
+        for (int y = 0; y < GPU::textureHeight; y++)
+        {
+            for (int x = 0; x < GPU::textureWidth; x++)
+                *dst++ = *src++;
+
+            dst += GPU::windowWidth - GPU::textureWidth;
+        }
     }
 
     void LibRetroCore::Run()
@@ -64,7 +82,8 @@ namespace RetroSim
 
         Core::GetInstance()->RunNextFrame();
 
-        renderCallback(GPU::outputTexture, GPU::textureWidth, GPU::textureHeight, GPU::textureWidth * sizeof(uint32_t));
+        BlitToRenderBuffer();
+        renderCallback(windowBuffer, GPU::windowWidth, GPU::windowHeight, GPU::windowWidth * sizeof(uint32_t));
     }
 
     void LibRetroCore::GetSystemInfo(struct retro_system_info *info)
@@ -82,10 +101,10 @@ namespace RetroSim
         float aspect = 0; // zero defaults to width/height
         float sampling_rate = 48000.0f;
 
-        info->geometry.base_width = GPU::textureWidth;
-        info->geometry.base_height = GPU::textureHeight;
-        info->geometry.max_width = GPU::textureWidth;
-        info->geometry.max_height = GPU::textureHeight;
+        info->geometry.base_width = GPU::windowWidth;
+        info->geometry.base_height = GPU::windowHeight;
+        info->geometry.max_width = GPU::windowWidth;
+        info->geometry.max_height = GPU::windowHeight;
         info->geometry.aspect_ratio = 0;
         info->timing.fps = coreInstance->GetCoreConfig().GetFPS();
 

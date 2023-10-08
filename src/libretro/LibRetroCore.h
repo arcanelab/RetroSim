@@ -30,6 +30,7 @@ namespace RetroSim
     private:
         std::string systemDirectory = ".";
         std::string saveDirectory = ".";
+        uint32_t *windowBuffer = nullptr;
 
         Core *coreInstance = nullptr;
         bool scriptingEnabled;
@@ -49,6 +50,7 @@ namespace RetroSim
         void SetupControllers();
         void GetSystemDirectory();
         void SetupCore();
+        void BlitToRenderBuffer();
     }; // class LibRetroCore
 } // namespace RetroSim
 
