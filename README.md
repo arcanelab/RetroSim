@@ -4,7 +4,7 @@ _(Please don't submit this repo to Hacker News yet, as it's not ready for the pu
 
 RetroSim is a modern fantasy retro-computer similar to PICO-8 or TIC-80.
 
-While we all know that constraints have a positive effect on creativity, there are occasions when the limitations of just 16 colors or a 128x128 pixel canvas can feel slightly too restrictive. In addition to having more colors (256) and higher resolution (450x240), RetroSim introduces some exciting new features. It supports high-level scripting languages like Lua and Gravity and also offers the ability to use assembly language for CPUs such as the 6502, 65816, and A65000.
+While we all know that constraints have a positive effect on creativity, there are occasions when the limitations of just 16 colors or a 128x128 pixel canvas can feel slightly too restrictive. In addition to having more colors (256) and higher resolution (464x256), RetroSim introduces some exciting new features. It supports high-level scripting languages like Lua and Gravity and also offers the ability to use assembly language for CPUs such as the 6502, 65816, and A65000.
 
 For detailed specifications, check out the [Wiki](https://github.com/arcanelab/RetroSim/wiki).
 

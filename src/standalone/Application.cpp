@@ -51,7 +51,7 @@ namespace RetroSim::Application
         bool quit = false;
 
         uint32_t lastFrameTime = 0;
-        SDL_Rect destinationRect = {15, 15, GPU::textureWidth, GPU::textureHeight};
+        SDL_Rect destinationRect = {(GPU::windowWidth - GPU::textureWidth) / 2, (GPU::windowHeight - GPU::textureHeight) / 2, GPU::textureWidth, GPU::textureHeight};
         while (!quit)
         {
             if (scriptingEnabled)
