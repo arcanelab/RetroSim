@@ -5,8 +5,17 @@ extern var GPU;
 func start()
 {
     System.print("Script running.\n")
+    GPU.PalColor(0, 0, 0, 0)
+}
 
-    GPU.Cls(3)
+var deltaTime = 0
+var clock = 0
+
+func update()
+{
+    clock = clock + GPU.DELTA_TIME_U32 / 50000;
+
+    // GPU.Cls(2)
 
     for(var y in 0...GPU.SCREEN_HEIGHT_U16)
     {
@@ -18,12 +27,17 @@ func start()
     }
 
     GPU.Line(0, 0, GPU.SCREEN_WIDTH_U16, GPU.SCREEN_HEIGHT_U16, 2)
-    GPU.Circle(100, 100, 50, 3, true)
-    //GPU.Print(0, 0, "RetroSim", 8)
-    GPU.SetFont(8, 8, 0x8000)
-    GPU.PrintOpaque(0, 0, "RetroSim (c) 2023 Zoltan Majoros", 8, 0)
-}
 
-func update()
-{
+    for(var i in 0...255)
+    {
+        GPU.Line(0, i, Math.sin(clock/6.0 - i/20.0) * 8 + 16, i, i)
+    }
+
+    GPU.Circle(GPU.SCREEN_WIDTH_U16 / 2, GPU.SCREEN_HEIGHT_U16 / 2, 16, 34, true)
+    GPU.Circle(GPU.SCREEN_WIDTH_U16 / 2, GPU.SCREEN_HEIGHT_U16 / 2, 16, 10, false)
+    GPU.SetFont(8, 8, 0x8000)
+    GPU.Print(0, 0, "RetroSim (c) 2023 Zoltan Majoros", 36)
+
+    GPU.Bitmap(245, 0, 0, 0, 220, 192, 320, 1);
+    // GPU.Print(37*8, 0, "\(clock)", 8)
 }
