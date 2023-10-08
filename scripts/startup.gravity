@@ -8,8 +8,12 @@ func start()
     GPU.PalColor(0, 0, 0, 0)
 }
 
-var deltaTime = 0
-var clock = 0
+var deltaTime = 0.0
+var clock = 0.0
+
+var avgFps = 0.0
+var fpsSum = 0.0
+var avgFpsClock = 0.0
 
 func update()
 {
@@ -38,11 +42,21 @@ func update()
         GPU.Line(x, i, 64-x, i, i+32)
     }
 
-    GPU.Circle(GPU.SCREEN_WIDTH_U16 / 2, GPU.SCREEN_HEIGHT_U16 / 2, 16, 34, true)
-    GPU.Circle(GPU.SCREEN_WIDTH_U16 / 2, GPU.SCREEN_HEIGHT_U16 / 2, 16, 10, false)
-    GPU.SetFont(8, 8, 0x8000)
-    GPU.Print(0, 0, "RetroSim (c) 2023 Zoltan Majoros \(GPU.DELTA_TIME_U32)", 36)
-
     GPU.Bitmap(245, 0, 0, 0, 220, 192, 320, 1);
+
+    GPU.SetFont(8, 8, 0x8000)
+    GPU.Print(64, 1, "RetroSim (c) 2023 Zoltan Majoros", 36)
+    GPU.Print(400, 1, "FPS: \(avgFps)", 36)
+
     // GPU.Print(37*8, 0, "\(clock)", 8)
+
+    fpsSum += 1
+    avgFpsClock += GPU.DELTA_TIME_U32
+
+    if(avgFpsClock > 1000000.0)
+    {
+        avgFps = fpsSum
+        avgFpsClock = 0.0
+        fpsSum = 0.0
+    }
 }
