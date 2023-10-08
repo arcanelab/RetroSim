@@ -13,30 +13,35 @@ var clock = 0
 
 func update()
 {
-    clock = clock + GPU.DELTA_TIME_U32 / 50000;
+    clock = clock + GPU.DELTA_TIME_U32 / 30000.0;
 
-    // GPU.Cls(2)
+    // for(var y in 0...GPU.SCREEN_HEIGHT_U16)
+    // {
+    //     for(var x in 0...GPU.SCREEN_WIDTH_U16)
+    //     {
+    //         GPU.PalColor(1, x, y, x^y)
+    //         GPU.Pixel(x, y, 1)
+    //     }
+    // }
 
-    for(var y in 0...GPU.SCREEN_HEIGHT_U16)
-    {
-        for(var x in 0...GPU.SCREEN_WIDTH_U16)
-        {
-            GPU.PalColor(1, x, y, x^y)
-            GPU.Pixel(x, y, 1)
-        }
-    }
+    GPU.Cls(2)
 
     GPU.Line(0, 0, GPU.SCREEN_WIDTH_U16, GPU.SCREEN_HEIGHT_U16, 2)
 
+    var x = 0
     for(var i in 0...255)
     {
-        GPU.Line(0, i, Math.sin(clock/6.0 - i/20.0) * 8 + 16, i, i)
+        x = Math.sin(clock/6.0 - i/20.0) * 8 + 16
+        GPU.Line(0, i, x, i, i + Math.sin(clock/60.0)*128+128)
+        //GPU.Line(0, i, 32, i, i+32)
+        GPU.Line(0, i, x, i, i)
+        GPU.Line(x, i, 64-x, i, i+32)
     }
 
     GPU.Circle(GPU.SCREEN_WIDTH_U16 / 2, GPU.SCREEN_HEIGHT_U16 / 2, 16, 34, true)
     GPU.Circle(GPU.SCREEN_WIDTH_U16 / 2, GPU.SCREEN_HEIGHT_U16 / 2, 16, 10, false)
     GPU.SetFont(8, 8, 0x8000)
-    GPU.Print(0, 0, "RetroSim (c) 2023 Zoltan Majoros", 36)
+    GPU.Print(0, 0, "RetroSim (c) 2023 Zoltan Majoros \(GPU.DELTA_TIME_U32)", 36)
 
     GPU.Bitmap(245, 0, 0, 0, 220, 192, 320, 1);
     // GPU.Print(37*8, 0, "\(clock)", 8)

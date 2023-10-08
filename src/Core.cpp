@@ -12,6 +12,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "GravityScripting.h"
 #include "GPU.h"
 #include "Core.h"
 #include "MMU.h"
@@ -126,6 +127,16 @@ namespace RetroSim
             LogPrintf(RETRO_LOG_ERROR, "getcwd() error\n");
 
         coreConfig.Initialize(basePath);
+
+        scriptingEnabled = !coreConfig.GetScriptPath().empty();
+        if (scriptingEnabled)
+        {
+            printf("Running script: %s\n", coreConfig.GetScriptPath().c_str());
+            GravityScripting::RegisterAPIFunctions();
+            GravityScripting::CompileScriptFromFile(coreConfig.GetScriptPath());
+            GravityScripting::RunScript("start", {}, 0);
+        }
+
         cpu.syscallHandler = SyscallHandler;
         Reset();
 
@@ -260,6 +271,9 @@ namespace RetroSim
     {
         uint32_t cpuBefore = GetTicks();
         {
+            if (scriptingEnabled)
+                GravityScripting::RunScript("update", {}, 0);
+
             // std::lock_guard<std::mutex> lock(memoryMutex);
             // DrawTestScreen();
         }
@@ -281,7 +295,7 @@ namespace RetroSim
         if (currentTime - cpuStartTime > 1000.0f)
         {
             cpuStartTime = currentTime;
-            // printf("CPU time: %d ms, fps = %d, deltaTime = %d, currentFPS = %d\n", timeDelta, frameCounter, MMU::memory.generalRegisters.deltaTime, MMU::memory.generalRegisters.currentFPS);
+            printf("CPU time: %d ms, fps = %d, deltaTime = %d, currentFPS = %d\n", timeDelta, frameCounter, MMU::memory.generalRegisters.deltaTime, MMU::memory.generalRegisters.currentFPS);
             MMU::memory.generalRegisters.currentFPS = frameCounter;
             clock = 0;
             frameCounter = 0;

@@ -4,7 +4,6 @@
 #ifdef LIBRETRO
 
 #include "LibRetroCore.h"
-#include "GravityScripting.h"
 #include "GPU.h"
 #include "MMU.h"
 #include "Logger.h"
@@ -38,16 +37,6 @@ namespace RetroSim
         // GetSystemDirectory();
         SetupCore();
 
-        CoreConfig config = coreInstance->GetCoreConfig();
-        scriptingEnabled = !config.GetScriptPath().empty();
-        if (scriptingEnabled)
-        {
-            printf("Running script: %s\n", config.GetScriptPath().c_str());
-            GravityScripting::RegisterAPIFunctions();
-            GravityScripting::CompileScriptFromFile(config.GetScriptPath());
-            GravityScripting::RunScript("start", {}, 0);
-        }
-
         if(windowBuffer == nullptr)
             windowBuffer = new uint32_t[GPU::windowWidth * GPU::windowHeight];
 
@@ -76,9 +65,6 @@ namespace RetroSim
     {
         // TODO: check for input
         // TODO: check for variable changes via RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE
-
-        if (scriptingEnabled)
-            GravityScripting::RunScript("update", {}, 0);
 
         Core::GetInstance()->RunNextFrame();
 

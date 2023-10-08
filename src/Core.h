@@ -38,6 +38,7 @@ namespace RetroSim
         bool isInitialized = false;
         uint32_t frameCounter;
         A65000CPU cpu;
+        bool scriptingEnabled = false;
 
         void InitializeFonts();
         void InitializePalette();

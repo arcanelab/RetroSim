@@ -37,16 +37,6 @@ namespace RetroSim::Application
 
     void RunMainLoop()
     {
-        CoreConfig config = Core::GetInstance()->GetCoreConfig();
-        bool scriptingEnabled = !config.GetScriptPath().empty();
-        if (scriptingEnabled)
-        {
-            printf("Running script: %s\n", config.GetScriptPath().c_str());
-            GravityScripting::RegisterAPIFunctions();
-            GravityScripting::CompileScriptFromFile(config.GetScriptPath());
-            GravityScripting::RunScript("start", {}, 0);
-        }
-
         SDL_Event event;
         bool quit = false;
 
@@ -54,9 +44,6 @@ namespace RetroSim::Application
         SDL_Rect destinationRect = {(GPU::windowWidth - GPU::textureWidth) / 2, (GPU::windowHeight - GPU::textureHeight) / 2, GPU::textureWidth, GPU::textureHeight};
         while (!quit)
         {
-            if (scriptingEnabled)
-                GravityScripting::RunScript("update", {}, 0);
-
             uint32_t frameStartTime = SDL_GetTicks();
             Core::GetInstance()->RunNextFrame();
             SDL_UpdateTexture(texture, NULL, GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
@@ -79,9 +66,6 @@ namespace RetroSim::Application
             }
             lastFrameTime = SDL_GetTicks() - frameStartTime;
         }
-
-        if (scriptingEnabled)
-            GravityScripting::Cleanup();
 
         Core::GetInstance()->Shutdown();
 

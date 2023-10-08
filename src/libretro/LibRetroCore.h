@@ -33,7 +33,6 @@ namespace RetroSim
         uint32_t *windowBuffer = nullptr;
 
         Core *coreInstance = nullptr;
-        bool scriptingEnabled;
 
         retro_video_refresh_t renderCallback;
         retro_environment_t envCallback;
