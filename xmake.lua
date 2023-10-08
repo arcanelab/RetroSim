@@ -30,11 +30,12 @@ includes("src/AsmA65k")
 
 Target =
 {
-    standalone = 1,
-    libretro = 2
+    sdl = 1,
+    sdlgpu = 2,
+    libretro = 3
 }
 
-local _target = Target.standalone
+local _target = Target.libretro
 
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")
@@ -60,13 +61,13 @@ function AddCommon()
     set_targetdir("bin")
 end
 
-if _target == Target.standalone then
+if _target == Target.sdl then
     target("RetroSim")
         AddCommon()
         add_defines("SDL")
         set_kind("binary")
         add_packages("libsdl")
-        add_files("src/standalone/*.cpp")
+        add_files("src/sdl/*.cpp")
 elseif _target == Target.libretro then
     target("RetroSimCore")
         AddCommon()

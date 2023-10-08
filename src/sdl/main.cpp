@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include "Application.h"
+#include "SDLApp.h"
 
 std::string GetFilenameFromArgs(int argc, char *argv[]);
 
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     std::string scriptFileName = GetFilenameFromArgs(argc, argv);
 
-    RetroSim::Application::Run(scriptFileName);
+    RetroSim::SDLApp::Run(scriptFileName);
 }
 
 std::string GetFilenameFromArgs(int argc, char *argv[])

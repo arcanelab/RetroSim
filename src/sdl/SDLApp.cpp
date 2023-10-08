@@ -2,7 +2,7 @@
 // https://github.com/arcanelab
 
 #include "GravityScripting.h"
-#include "Application.h"
+#include "SDLApp.h"
 #include "CoreConfig.h"
 #include "Core.h"
 #include "GPU.h"
@@ -10,7 +10,7 @@
 
 using namespace RetroSim;
 
-namespace RetroSim::Application
+namespace RetroSim::SDLApp
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
