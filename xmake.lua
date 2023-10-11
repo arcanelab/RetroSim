@@ -35,7 +35,7 @@ Target =
     libretro = 3
 }
 
-local _target = Target.libretro
+local _target = Target.sdlgpu
 
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")
@@ -61,13 +61,23 @@ function AddCommon()
     set_targetdir("bin")
 end
 
-if _target == Target.sdl then
+if _target == Target.sdl or _target == Target.sdlgpu then
     target("RetroSim")
         AddCommon()
-        add_defines("SDL")
         set_kind("binary")
         add_packages("libsdl")
-        add_files("src/sdl/*.cpp")
+        if _target == Target.sdl then
+            add_defines("SDL")
+            add_files("src/sdl/*.cpp")
+        end
+        if _target == Target.sdlgpu then
+            add_packages("egl")
+            add_defines("SDLGPU")
+            add_files("src/sdlgpu/*.cpp")
+            -- includes("src/extern/sdl-gpu/include")
+            -- includes("src/extern/sdl-gpu/src/externals/**.h")
+            -- add_files("src/extern/sdl-gpu/src/**.c")
+        end
 elseif _target == Target.libretro then
     target("RetroSimCore")
         AddCommon()
