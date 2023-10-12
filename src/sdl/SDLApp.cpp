@@ -38,16 +38,23 @@ namespace RetroSim::SDLApp
     {
         SDL_Event event;
         bool quit = false;
-
+        Core *core = Core::GetInstance();
+        // int windowWidth, windowHeight;
+        
         uint32_t lastFrameTime = 0;
         SDL_Rect destinationRect = {(GPU::windowWidth - GPU::textureWidth) / 2, (GPU::windowHeight - GPU::textureHeight) / 2, GPU::textureWidth, GPU::textureHeight};
         while (!quit)
         {
             uint32_t frameStartTime = SDL_GetTicks();
-            Core::GetInstance()->RunNextFrame();
-            SDL_UpdateTexture(texture, NULL, GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
+
+            // SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+            //core->SetWindowSize(GPU::windowWidth, GPU::windowHeight); // later we'll include the border, too.
+            core->SetWindowSize(GPU::textureWidth * core->scaleValue, GPU::textureHeight * core->scaleValue); // for now, we just shader the content area.
+            core->RunNextFrame();
+            SDL_UpdateTexture(texture, NULL, core->shadedTexture, GPU::textureWidth * sizeof(uint32_t) * core->scaleValue);
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, texture, NULL, &destinationRect);
+            // SDL_RenderCopy(renderer, texture, NULL, NULL);
             SDL_RenderPresent(renderer);
 
             while (SDL_PollEvent(&event))
@@ -66,7 +73,7 @@ namespace RetroSim::SDLApp
             lastFrameTime = SDL_GetTicks() - frameStartTime;
         }
 
-        Core::GetInstance()->Shutdown();
+        core->Shutdown();
 
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(renderer);
@@ -78,34 +85,36 @@ namespace RetroSim::SDLApp
     {
         SDL_Init(SDL_INIT_EVERYTHING);
 
+        Core *core = Core::GetInstance();
+
         window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                  GPU::windowWidth, GPU::windowHeight,
+                                  GPU::windowWidth * core->scaleValue, GPU::windowHeight * core->scaleValue,
                                   SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
         texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-                                    GPU::textureWidth, GPU::textureHeight);
+                                    GPU::textureWidth * core->scaleValue, GPU::textureHeight * core->scaleValue);
 
         // Set the logical size to maintain aspect ratio
         float aspectRatio = (float)GPU::windowWidth / (float)GPU::windowHeight;
         SDL_RenderSetLogicalSize(renderer, GPU::windowWidth, (int)(GPU::windowWidth / aspectRatio));
 
         // Set the scale to fit the window while maintaining aspect ratio
-        int windowWidth, windowHeight;
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        float scaleX = (float)windowWidth / (float)GPU::windowWidth;
-        float scaleY = (float)windowHeight / (float)(GPU::windowWidth / aspectRatio);
-        SDL_RenderSetScale(renderer, scaleX, scaleY);
+        // int windowWidth, windowHeight;
+        // SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+        // float scaleX = (float)windowWidth / (float)GPU::windowWidth;
+        // float scaleY = (float)windowHeight / (float)(GPU::windowWidth / aspectRatio);
+        // SDL_RenderSetScale(renderer, scaleX, scaleY);
 
-        SDL_DisplayMode displayMode;
-        SDL_GetDesktopDisplayMode(0, &displayMode);
+        // SDL_DisplayMode displayMode;
+        // SDL_GetDesktopDisplayMode(0, &displayMode);
 
-        int scale = Core::GetInstance()->GetCoreConfig().GetWindowScale();
+        int scale = core->GetCoreConfig().GetWindowScale();
         SDL_SetWindowSize(window, GPU::windowWidth * scale, GPU::windowHeight * scale);
         SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-        if (Core::GetInstance()->GetCoreConfig().IsFullScreen())
+        if (core->GetCoreConfig().IsFullScreen())
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
         // check for errors

@@ -128,6 +128,9 @@ namespace RetroSim
 
         coreConfig.Initialize(basePath);
 
+        //windowWidth = 
+        //shadedTexture = 
+
         scriptingEnabled = !coreConfig.GetScriptPath().empty();
         if (scriptingEnabled)
         {
@@ -287,6 +290,19 @@ namespace RetroSim
                 cycles += cpu.Tick();
             }
         }
+
+        if(shadedTexture == nullptr)
+            shadedTexture = new uint32_t[GPU::textureWidth * GPU::textureHeight * scaleValue * scaleValue];
+
+        shaderParams.filterMode = CPUShader::Point;
+        shaderParams.inputTexture = GPU::outputTexture;
+        shaderParams.outputTexture = shadedTexture;
+        shaderParams.inputWidth = GPU::textureWidth;
+        shaderParams.inputHeight = GPU::textureHeight;
+        shaderParams.outputWidth = windowWidth;
+        shaderParams.outputHeight = windowHeight;
+        CPUShader::RunShader(shaderParams);
+
         uint32_t cpuAfter = GetTicks();
         int timeDelta = cpuAfter - cpuBefore;
         clock += timeDelta;
@@ -390,5 +406,11 @@ namespace RetroSim
     void Core::SyscallHandler(uint16_t syscallID, uint32_t argumentAddress)
     {
         LogPrintf(RETRO_LOG_DEBUG, "Syscall %d, argument struct address: %8x\n", syscallID, argumentAddress);
+    }
+
+    void Core::SetWindowSize(uint16_t width, uint16_t height)
+    {
+        windowWidth = width;
+        windowHeight = height;
     }
 }

@@ -7,6 +7,7 @@
 #include <mutex>
 #include "CoreConfig.h"
 #include "A65000CPU.h"
+#include "CPUShader.h"
 
 namespace RetroSim
 {
@@ -29,9 +30,13 @@ namespace RetroSim
         void Reset();
         void Shutdown();
         void SetRefreshRate(int refreshRate);
+        void SetWindowSize(uint16_t width, uint16_t height);
 
         std::mutex memoryMutex;
 
+        uint32_t *shadedTexture = nullptr;
+        uint8_t scaleValue = 3;
+        
     private:
         static Core *instance;
         CoreConfig coreConfig;
@@ -39,6 +44,10 @@ namespace RetroSim
         uint32_t frameCounter;
         A65000CPU cpu;
         bool scriptingEnabled = false;
+
+        uint16_t windowWidth;
+        uint16_t windowHeight;
+        CPUShader::ShaderParams shaderParams;
 
         void InitializeFonts();
         void InitializePalette();
