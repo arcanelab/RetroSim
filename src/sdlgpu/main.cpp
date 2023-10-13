@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include "SDLGPUApp.h"
-#include "sdl_gpu.h"
 
 std::string GetFilenameFromArgs(int argc, char *argv[]);
 
