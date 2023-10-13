@@ -61,6 +61,25 @@ function AddCommon()
     set_targetdir("bin")
 end
 
+-- How to build and include SDL_gpu on macOS:
+-- * Place sdl-gpu in src/extern/sdl-gpu
+-- * Build SDL_gpu with cmake:
+--   - Modify CMakeLists.txt to build static library (option(BUILD_FRAMEWORK "Build SDL_gpu as Apple framework" ON)), then
+--   cmake -G "Unix Makefiles"
+--   make
+-- * Library will be placed in src/extern/sdl-gpu/SDL_gpu/lib
+-- * Include files will be placed in src/extern/sdl-gpu/SDL_gpu/include
+-- For Windows: use cmake-gui
+function AddSDL_GPU()
+    if is_plat("windows") then
+        add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
+    elseif is_plat("macosx") then
+        add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
+    end
+
+    add_includedirs("src/extern/sdl-gpu/include")
+end
+
 if _target == Target.sdl or _target == Target.sdlgpu then
     target("RetroSim")
         AddCommon()
@@ -71,12 +90,8 @@ if _target == Target.sdl or _target == Target.sdlgpu then
             add_files("src/sdl/*.cpp")
         end
         if _target == Target.sdlgpu then
-            add_packages("egl")
-            add_defines("SDLGPU")
+            AddSDL_GPU()
             add_files("src/sdlgpu/*.cpp")
-            -- includes("src/extern/sdl-gpu/include")
-            -- includes("src/extern/sdl-gpu/src/externals/**.h")
-            -- add_files("src/extern/sdl-gpu/src/**.c")
         end
 elseif _target == Target.libretro then
     target("RetroSimCore")

@@ -9,3 +9,11 @@
 [submodule "asmA65k"]
     path = src/asmA65k
     url = git@github.com:arcanelab/AsmA65k.git
+
+[submodule "RetroSim-wiki"]
+    path = RetroSim.wiki
+    url = https://github.com/arcanelab/RetroSim.wiki.git
+
+[submodule "src/extern/sdl-gpu"]
+	path = src/extern/sdl-gpu
+	url = git@github.com:grimfang4/sdl-gpu.git
