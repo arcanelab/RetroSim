@@ -10,19 +10,18 @@ namespace RetroSim::Audio
 {
     uint16_t *audioBuffer = nullptr;
     size_t audioBufferSize = 0;
-
     uint32_t sampleRate = 44100;
-
     uint8_t *songData = nullptr;
 
     void Initialize()
     {
         size_t songDataLength;
-        songData = ReadBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/Crimson_Cascade_Groove.sid", songDataLength);
+        // songData = ReadBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/Crimson_Cascade_Groove.sid", songDataLength);
+        songData = ReadBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/Turok 2 - Cave Stage.sid", songDataLength);
 
         libcsid_init(sampleRate * 2, SIDMODEL_8580);
         libcsid_load(songData, songDataLength, 0);
-        audioBufferSize = sampleRate / 50 / 2;//Core::GetInstance()->GetCoreConfig().GetFPS();
+        audioBufferSize = sampleRate / Core::GetInstance()->GetCoreConfig().GetFPS();
         audioBuffer = new uint16_t[audioBufferSize];
     }
 
