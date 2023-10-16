@@ -85,7 +85,7 @@ namespace RetroSim
     void LibRetroCore::GetSystemAudioVideoInfo(struct retro_system_av_info *info)
     {
         float aspect = 0; // zero defaults to width/height
-        float sampling_rate = 48000.0f;
+        float sampling_rate = Core::GetInstance()->GetSampleRate();
 
         info->geometry.base_width = GPU::windowWidth;
         info->geometry.base_height = GPU::windowHeight;
@@ -93,6 +93,7 @@ namespace RetroSim
         info->geometry.max_height = GPU::windowHeight;
         info->geometry.aspect_ratio = 0;
         info->timing.fps = coreInstance->GetCoreConfig().GetFPS();
+        info->timing.sample_rate = sampling_rate;
 
         last_aspect = aspect;
         last_sample_rate = sampling_rate;
@@ -142,13 +143,19 @@ namespace RetroSim
     void LibRetroCore::GenerateAudio()
     {
         // test sine wave
-        for (unsigned i = 0; i < 48000 / 60; i++, phase++)
-        {
-            int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 48000.0f);
-            // audioCallback(val, val);
-        }
+        // for (unsigned i = 0; i < 48000 / 60; i++, phase++)
+        // {
+        //     int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 48000.0f);
+        //     audioCallback(val, val);
+        // }
 
-        phase %= 100;
+        // phase %= 100;
+
+        Core *core = Core::GetInstance();
+        uint16_t *audioBuffer = nullptr;
+        uint32_t audioBufferSize = 0;
+        core->RenderAudio(&audioBuffer, &audioBufferSize);
+        batchedAudioCallback((const int16_t *)audioBuffer, audioBufferSize / 2);
     }
 
     void LibRetroCore::SetAudioState(bool value)

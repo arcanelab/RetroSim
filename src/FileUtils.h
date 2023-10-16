@@ -7,5 +7,6 @@
 namespace RetroSim
 {
     std::string ReadTextFile(const std::string &filename);
+    uint8_t *ReadBinaryFile(const std::string &filename, size_t &size);
     bool FileExists(const std::string &filename);
 }

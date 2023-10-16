@@ -27,6 +27,7 @@ end
 
 includes("src/extern/gravity")
 includes("src/AsmA65k")
+includes("src/extern/csid-mod")
 
 Target =
 {
@@ -48,6 +49,7 @@ function AddCommon()
     AddTelnetDependencies()
     add_deps("Gravity")
     add_deps("AsmA65k-lib")
+    add_deps("csid-mod")
     add_files("src/*.cpp")
     add_files("data/**.cpp")
     add_files("src/cpu/A65000/*.cpp")
@@ -58,6 +60,7 @@ function AddCommon()
     add_includedirs("src")
     add_includedirs("data")
     add_includedirs("src/extern/gravity/src/compiler", "src/extern/gravity/src/optionals", "src/extern/gravity/src/runtime", "src/extern/gravity/src/shared", "src/extern/gravity/src/utils")    
+    add_includedirs("src/extern/csid-mod/include")
     set_targetdir("bin")
 end
 

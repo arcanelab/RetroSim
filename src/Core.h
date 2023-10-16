@@ -30,6 +30,9 @@ namespace RetroSim
         void Shutdown();
         void SetRefreshRate(int refreshRate);
 
+        void RenderAudio(uint16_t **audioBuffer, uint32_t *audioBufferSize);
+        uint32_t GetSampleRate();
+
         std::mutex memoryMutex;
 
     private:

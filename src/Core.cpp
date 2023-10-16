@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "A65000Disassembler.h"
 #include "Asm65k.h"
+#include "Audio.h"
 
 #ifdef SDL
 #include "SDL.h"
@@ -127,6 +128,8 @@ namespace RetroSim
             LogPrintf(RETRO_LOG_ERROR, "getcwd() error\n");
 
         coreConfig.Initialize(basePath);
+
+        Audio::Initialize();
 
         scriptingEnabled = !coreConfig.GetScriptPath().empty();
         if (scriptingEnabled)
@@ -390,5 +393,17 @@ namespace RetroSim
     void Core::SyscallHandler(uint16_t syscallID, uint32_t argumentAddress)
     {
         LogPrintf(RETRO_LOG_DEBUG, "Syscall %d, argument struct address: %8x\n", syscallID, argumentAddress);
+    }
+
+    void Core::RenderAudio(uint16_t **audioBuffer, uint32_t *audioBufferSize)
+    {
+        Audio::RenderAudio();
+        *audioBuffer = Audio::GetAudioBuffer();
+        *audioBufferSize = Audio::GetAudioBufferSize();        
+    }
+
+    uint32_t Core::GetSampleRate()
+    {
+        return Audio::GetSampleRate();
     }
 }
