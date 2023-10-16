@@ -5,7 +5,17 @@ extern var GPU;
 func start()
 {
     System.print("Script running.\n")
-    GPU.PalColor(0, 0, 0, 0)
+    // GPU.PalColor(0, 0, 0, 0)
+    GPU.SetFont(8, 8, 0x8000)
+
+    for(var y in 0...GPU.SCREEN_HEIGHT_U16)
+    {
+        for(var x in 0...GPU.SCREEN_WIDTH_U16)
+        {
+            GPU.PalColor(1, x, y, x^y)
+            GPU.Pixel(x, y, 1)
+        }
+    }
 }
 
 var deltaTime = 0.0
@@ -19,18 +29,7 @@ func update()
 {
     clock = clock + GPU.DELTA_TIME_U32 / 30000.0;
 
-    // for(var y in 0...GPU.SCREEN_HEIGHT_U16)
-    // {
-    //     for(var x in 0...GPU.SCREEN_WIDTH_U16)
-    //     {
-    //         GPU.PalColor(1, x, y, x^y)
-    //         GPU.Pixel(x, y, 1)
-    //     }
-    // }
-
     GPU.Cls(2)
-
-    GPU.Line(0, 0, GPU.SCREEN_WIDTH_U16, GPU.SCREEN_HEIGHT_U16, 2)
 
     var x = 0
     for(var i in 0...255)
@@ -44,7 +43,6 @@ func update()
 
     GPU.Bitmap(245, 0, 0, 0, 220, 192, 320, 1);
 
-    GPU.SetFont(8, 8, 0x8000)
     GPU.Print(64, 1, "RetroSim (c) 2023 Zoltan Majoros", 36)
     GPU.Print(400, 1, "FPS: \(avgFps)", 36)
 
