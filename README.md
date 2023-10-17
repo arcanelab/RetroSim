@@ -27,4 +27,4 @@ RetroSim is not free software at the moment. I'm planning to release it under a 
 # Credits
 
 * Written by Zoltán Majoros ([GitHub](https://github.com/arcanelab)) ([Twitter](https://twitter.com/arcanelab))
-* See /src/extern for contributors of 3rd party dependencies 
+* See /src/extern for contributors of 3rd party dependencies.
