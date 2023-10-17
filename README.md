@@ -15,6 +15,10 @@ RetroSim is written in C++ using SDL. [Xmake](https://xmake.io/) is used to mana
 ## 3rd-party libraries
 * [SDL](http://www.libsdl.org/)
 * [Gravity](https://marcobambini.github.io/gravity/)
+* [libretro](https://www.libretro.com/)
+* [libtelnet](http://github.com/seanmiddleditch/libtelnet)
+* [sdl-gpu](https://github.com/grimfang4/sdl-gpu)
+* [CSID-mod](https://github.com/possan/csid-mod)
 
 # License
 
@@ -23,3 +27,4 @@ RetroSim is not free software at the moment. I'm planning to release it under a 
 # Credits
 
 * Written by Zoltán Majoros ([GitHub](https://github.com/arcanelab)) ([Twitter](https://twitter.com/arcanelab))
+* See /src/extern for contributors of 3rd party dependencies.
