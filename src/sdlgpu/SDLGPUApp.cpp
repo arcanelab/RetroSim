@@ -518,7 +518,6 @@ namespace RetroSim::SDLGPUApp
             // GPU_Clear(gpuRenderTarget);
             Core::GetInstance()->RunNextFrame();
             // copy texture to screen
-            // GPU_UpdateImageBytes(gpuScreenTexture, nullptr, (uint8_t *)GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
             GPU_UpdateImageBytes(gpuScreenTexture, &gpuRect, (uint8_t *)GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
             GPU_ActivateShaderProgram(shader, &shaderBlock);
 
@@ -529,12 +528,8 @@ namespace RetroSim::SDLGPUApp
 
             GPU_Blit(gpuScreenTexture, NULL, gpuRenderTarget, 0, 0);
             
-            // GPU_BlitScale(gpuScreenTexture, NULL, gpuRenderTarget, gpuRect.x, gpuRect.y, 1, 1);
-            // GPU_BlitScale(gpuScreenTexture, &gpuRect, gpuRenderTarget, 100, 100, 0.2f, 0.2f);
-
             GPU_DeactivateShaderProgram();
             GPU_Flip(gpuRenderTarget);
-            SDL_Delay(8);
         }
     }
 }
