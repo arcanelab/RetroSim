@@ -236,16 +236,22 @@ namespace RetroSim::SDLGPUApp
         while (!quit)
         {
             quit = PollEvents(event);
-            // GPU_Clear(gpuRenderTarget);
+            GPU_Clear(gpuRenderTarget);
             Core::GetInstance()->RunNextFrame();
             // copy texture to screen
             GPU_UpdateImageBytes(gpuScreenTexture, &gpuRect, (uint8_t *)GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
             GPU_ActivateShaderProgram(shader, &shaderBlock);
 
-            static const char *Uniforms[] = {"trg_x", "trg_y", "trg_w", "trg_h"};
+            static const char *Uniforms[] = {"trg_x", "trg_y", "trg_w", "trg_h", "scale"};
 
-            for (int i = 0; i < COUNT_OF(Uniforms); ++i)
-                GPU_SetUniformf(GPU_GetUniformLocation(shader, Uniforms[i]), (&rect.x)[i]);
+            GPU_SetUniformf(GPU_GetUniformLocation(shader, "trg_x"), rect.x);
+            GPU_SetUniformf(GPU_GetUniformLocation(shader, "trg_y"), rect.y);
+            GPU_SetUniformf(GPU_GetUniformLocation(shader, "trg_w"), rect.w);
+            GPU_SetUniformf(GPU_GetUniformLocation(shader, "trg_h"), rect.h);
+            GPU_SetUniformf(GPU_GetUniformLocation(shader, "scale"), (float)scalingFactor);
+
+            // for (int i = 0; i < COUNT_OF(Uniforms); ++i)
+            //     GPU_SetUniformf(GPU_GetUniformLocation(shader, Uniforms[i]), (&rect.x)[i]);
 
             GPU_Blit(gpuScreenTexture, NULL, gpuRenderTarget, 0, 0);
 
