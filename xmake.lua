@@ -22,6 +22,7 @@ if is_plat("windows") then
     -- add_ldflags("-subsystem:windows")
 elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
     add_defines("UNIX_HOST")
+    add_defines("SDL_GPU_DISABLE_GLES")
     -- add_cxflags("-Wall")
 end
 
@@ -77,11 +78,12 @@ function AddSDL_GPU()
     if is_plat("windows") then
         add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
     elseif is_plat("macosx") then
-        add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
+        add_linkdirs("src/extern/sdl-gpu/SDL_gpu-0.11.0/lib/")
     end
 
-    add_links("GL")
-    add_links("SDL2_gpu")
+    add_frameworks("OpenGL")
+    -- add_links("GL")
+    add_links("sdlgpu")
     add_includedirs("src/extern/sdl-gpu/include")
 end
 
