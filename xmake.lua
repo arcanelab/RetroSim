@@ -77,13 +77,13 @@ end
 function AddSDL_GPU()
     if is_plat("windows") then
         add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
+        -- add_links("GL")
     elseif is_plat("macosx") then
-        add_linkdirs("src/extern/sdl-gpu/SDL_gpu-0.11.0/lib/")
+        add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
+        add_frameworks("OpenGL")
     end
 
-    add_frameworks("OpenGL")
-    -- add_links("GL")
-    add_links("sdlgpu")
+    add_links("sdl2_gpu")
     add_includedirs("src/extern/sdl-gpu/include")
 end
 

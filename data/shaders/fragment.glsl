@@ -31,7 +31,7 @@ float hardPix = -2.0;
 vec2 warp = vec2(0.0, 0.0); 
 
 // Amount of shadow mask.
-float maskStrength = 0.1;
+float maskStrength = 0.1 * scale / 2.0;
 float maskDark = 1.0 - maskStrength;
 float maskLight = 1.0 + maskStrength;
 
@@ -157,6 +157,18 @@ vec3 Mask(vec2 pos) {
     return mask;
 }
 
+// vec3 Mask(vec2 pos) {
+//     pos.x += pos.y * 3.0;
+//     vec3 mask = vec3(maskDark, maskDark, maskDark);
+//     pos.x = fract(pos.x / 6.0);
+    
+//     float lightness = (pos.x < 0.333 || pos.x > 0.666) ? maskLight : maskDark;
+//     mask = vec3(lightness, lightness, lightness);
+    
+//     return mask;
+// }
+
+
 vec4 GetColor(vec2 pos) {
     vec4 l = texture2D(source, vec2(pos.x - 1.0 / res.x, pos.y));
     vec4 r = texture2D(source, vec2(pos.x + 1.0 / res.x, pos.y));
@@ -164,7 +176,11 @@ vec4 GetColor(vec2 pos) {
     // vec4 d = texture2D(source, vec2(pos.x, pos.y + 1.0 / res.y));
     vec4 c = texture2D(source, pos);
 
-    float bias = 0.3; // how much effect the horizontal neighbor pixels have
+    // if scale == 1, then bias = 0, otherwise bias = 0.3
+    float isScaleOne = step(0.9999, scale) * step(scale, 1.0001);
+    float bias = (1.0 - isScaleOne) * 0.3;
+
+    // float bias = 0.3; // how much effect the horizontal neighbor pixels have
     // blend between the current and the horizontal neighbors
     vec4 result = (l * bias + r * bias + c) / (1.0 + bias * 2.0); 
 
@@ -183,9 +199,11 @@ void main() {
     // gl_FragColor.rgb=texture2D(source,pos.xy, -16.0).rgb * Mask(gl_FragCoord.xy);
 
     vec2 scaledPos = vec2(gl_FragCoord.x * scale, gl_FragCoord.y * 1.0);
+    // vec2 scaledPos = gl_FragCoord.xy * scale;
 
     // if(pos.y < 0.045)
     // gl_FragColor = vec4(texture2D(source, pos.xy, -16.0).rgb, 1.0);
     // else
+
     gl_FragColor = vec4(GetColor(pos).rgb * Mask(scaledPos).bgr, 1.0);
 }

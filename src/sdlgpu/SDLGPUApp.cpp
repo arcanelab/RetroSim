@@ -15,33 +15,12 @@
 
 namespace RetroSim::SDLGPUApp
 {
-    GPU_Target *gpuRenderTarget; // renderer
+    GPU_Target *windowRenderTarget; // renderer
     GPU_Image *gpuScreenTexture; // screen texture
     SDL_Window *window;
 
-    uint32_t shader;
+    uint32_t linkedShaders;
     GPU_ShaderBlock shaderBlock;
-
-    void RenderClear(GPU_Target *target)
-    {
-        GPU_Clear(target);
-    }
-
-    void RenderPresent(GPU_Target *target)
-    {
-        GPU_Flip(target);
-    }
-
-    void RenderCopy(GPU_Target *target, GPU_Image *texture, GPU_Rect *srcRect, GPU_Rect *dstRect)
-    {
-        GPU_BlitScale(texture, srcRect, target, dstRect->x, dstRect->y, dstRect->w, dstRect->h);
-        // GPU_Blit(texture, srcRect, target, dstRect->x, dstRect->y);
-    }
-
-    void UpdateTextureBytes(GPU_Image *texture, const void *data, int width, int height)
-    {
-        GPU_UpdateImageBytes(texture, nullptr, (uint8_t *)data, width * sizeof(uint32_t));
-    }
 
     bool PollEvents(SDL_Event &event)
     {
@@ -62,56 +41,39 @@ namespace RetroSim::SDLGPUApp
         return false;
     }
 
-    void LoadShader()
+    void LoadShaders()
     {
         std::string shaderPath = Core::GetInstance()->GetCoreConfig().GetDataPath() + "/shaders/";
         RetroSim::Logger::LogPrintf(RETRO_LOG_INFO, "Loading shaders from %s\n", shaderPath.c_str());
 
-        // print directory contents in C++
-        namespace fs = std::filesystem;
+        string pixelShaderSource = RetroSim::ReadTextFile(shaderPath + "fragment.glsl");
+        string vertexShaderSource = RetroSim::ReadTextFile(shaderPath + "vertex.glsl");
 
-        for (const auto &entry : fs::directory_iterator(shaderPath))
-        {
-            if (entry.is_regular_file())
-            {
-                std::cout << "Found file: " << entry.path() << std::endl;
-            }
-            else if (entry.is_directory())
-            {
-                std::cout << "Found directory: " << entry.path() << std::endl;
-            }
-        }
+        uint32_t vertexShaderId = GPU_CompileShader(GPU_VERTEX_SHADER, vertexShaderSource.c_str());
 
-        string PixelShader = RetroSim::ReadTextFile(shaderPath + "fragment.glsl");
-        string VertexShader = RetroSim::ReadTextFile(shaderPath + "vertex.glsl");
-
-        // printf("Vertex shader:\n%s\n", RetroSim::ReadTextFile(shaderPath + "vertex.glsl").c_str());
-
-        uint32_t vertex = GPU_CompileShader(GPU_VERTEX_SHADER, VertexShader.c_str());
-
-        if (!vertex)
+        if (!vertexShaderId)
         {
             printf("Failed to load vertex shader: %s\n", GPU_GetShaderMessage());
             return;
         }
 
-        uint32_t pixel = GPU_CompileShader(GPU_PIXEL_SHADER, PixelShader.c_str());
+        uint32_t pixelShaderId = GPU_CompileShader(GPU_PIXEL_SHADER, pixelShaderSource.c_str());
 
-        if (!pixel)
+        if (!pixelShaderId)
         {
             printf("Failed to load pixel shader: %s\n", GPU_GetShaderMessage());
             return;
         }
 
-        if (shader)
-            GPU_FreeShaderProgram(shader);
+        if (linkedShaders)
+            GPU_FreeShaderProgram(linkedShaders);
 
-        shader = GPU_LinkShaders(vertex, pixel);
+        linkedShaders = GPU_LinkShaders(vertexShaderId, pixelShaderId);
 
-        if (shader)
+        if (linkedShaders)
         {
-            shaderBlock = GPU_LoadShaderBlock(shader, "gpu_Vertex", "gpu_TexCoord", "gpu_Color", "gpu_ModelViewProjectionMatrix");
-            GPU_ActivateShaderProgram(shader, &shaderBlock);
+            shaderBlock = GPU_LoadShaderBlock(linkedShaders, "gpu_Vertex", "gpu_TexCoord", "gpu_Color", "gpu_ModelViewProjectionMatrix");
+            GPU_ActivateShaderProgram(linkedShaders, &shaderBlock);
         }
         else
         {
@@ -119,7 +81,133 @@ namespace RetroSim::SDLGPUApp
         }
     }
 
-    void printRenderers(void)
+    int GetScreenRefreshRate()
+    {
+        SDL_DisplayMode displayMode;
+        if(SDL_GetDesktopDisplayMode(0, &displayMode) == 0)
+        {
+            printf("Display mode: %dx%d@%d\n", displayMode.w, displayMode.h, displayMode.refresh_rate);
+            return displayMode.refresh_rate;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    int InitializeSDL()
+    {
+        int error = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+        if (error != 0)
+        {
+            printf("Failed to initialize SDL: %s\n", SDL_GetError());
+            return -1;
+        }
+
+        return 0;
+    }
+
+    void Run(std::string scriptFileName)
+    {
+        if(InitializeSDL()) return;
+
+        char basePath[] = ".";
+        Core *core = Core::GetInstance();
+
+        core->Initialize(basePath);
+
+        int windowScalingFactor = core->GetCoreConfig().GetWindowScale();
+
+        int scaledWindowWidth = GPU::windowWidth * windowScalingFactor;
+        int scaledWindowHeight = GPU::windowHeight * windowScalingFactor;
+
+        float internalScale = windowScalingFactor;//3.0f;
+        int internalContentWidth = GPU::textureWidth * internalScale;
+        int internalContentHeight = GPU::textureHeight * internalScale;
+
+        int internalWindowWidth = GPU::windowWidth * internalScale;
+        int internalWindowHeight = GPU::windowHeight * internalScale;
+
+        window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, scaledWindowWidth, scaledWindowHeight, SDL_WINDOW_OPENGL);
+        // int width, height;
+        // SDL_GetWindowSize(window, &width, &height);
+        // printRenderers();
+
+        uint32_t windowId = SDL_GetWindowID(window);
+
+        GPU_SetInitWindow(windowId);
+        GPU_SetPreInitFlags(GPU_INIT_ENABLE_VSYNC);
+        windowRenderTarget = GPU_InitRenderer(GPU_RENDERER_OPENGL_2, internalWindowWidth, internalWindowHeight, GPU_DEFAULT_INIT_FLAGS);
+        if (windowRenderTarget == NULL)
+        {
+            printf("Failed to create renderer\n");
+            return;
+        }
+
+        // GPU_SetWindowResolution(GPU::windowWidth, GPU::windowHeight);
+        // GPU_SetVirtualResolution(gpuRenderTarget, GPU::windowWidth, GPU::windowHeight);
+        GPU_SetVirtualResolution(windowRenderTarget, GPU::textureWidth, GPU::textureHeight);
+        gpuScreenTexture = GPU_CreateImage(GPU::windowWidth, GPU::windowHeight, GPU_FORMAT_RGBA);
+        GPU_SetAnchor(gpuScreenTexture, 0, 0);
+        GPU_SetImageFilter(gpuScreenTexture, GPU_FILTER_NEAREST); // GPU_FILTER_LINEAR, GPU_FILTER_NEAREST
+
+        LoadShaders();
+
+        int refreshRate = GetScreenRefreshRate();
+        if (refreshRate != -1)
+            Core::GetInstance()->SetRefreshRate(refreshRate);
+
+        if (scriptFileName.empty() == false)
+            Core::GetInstance()->GetCoreConfig().SetScriptPath(scriptFileName);
+
+        int borderWidth = (GPU::windowWidth - GPU::textureWidth) / 2;
+        int borderHeight = (GPU::windowHeight - GPU::textureHeight) / 2;
+
+        GPU_Rect contentRect;
+        contentRect.x = borderWidth;
+        contentRect.y = borderHeight;
+        contentRect.w = GPU::textureWidth;
+        contentRect.h = GPU::textureHeight;
+
+        SDL_Rect windowRect;
+        windowRect.x = 0;
+        windowRect.y = 0;
+        windowRect.w = scaledWindowWidth;
+        windowRect.h = scaledWindowHeight;
+
+        bool quit = false;
+        SDL_Event event;
+        while (!quit)
+        {
+            quit = PollEvents(event);
+            // clear screen
+            GPU_Clear(windowRenderTarget);
+            Core::GetInstance()->RunNextFrame();
+            // copy texture to screen
+            GPU_UpdateImageBytes(gpuScreenTexture, &contentRect, (uint8_t *)GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
+
+            // Set up shader variables
+            GPU_ActivateShaderProgram(linkedShaders, &shaderBlock);
+            static const char *Uniforms[] = {"trg_x", "trg_y", "trg_w", "trg_h", "scale"};
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "trg_x"), windowRect.x);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "trg_y"), windowRect.y);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "trg_w"), windowRect.w);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "trg_h"), windowRect.h);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "scale"), (float)windowScalingFactor);
+
+            // copy rendered screen to window render target
+            GPU_Blit(gpuScreenTexture, NULL, windowRenderTarget, 0, 0);
+            // GPU_BlitRotate(gpuScreenTexture, NULL, windowRenderTarget, 0, 0, 45.0f);
+            // GPU_BlitScale(gpuContentTexture, NULL, windowRenderTarget, borderWidth, borderHeight, 1, 1);
+
+            GPU_DeactivateShaderProgram();
+
+            // Display rendertarget to window
+            GPU_Flip(windowRenderTarget);
+        }
+    }
+
+    void PrintRenderers(void)
     {
         SDL_version compiled;
         SDL_version linked;
@@ -155,108 +243,5 @@ namespace RetroSim::SDLGPUApp
         GPU_Log("\n");
 
         free(renderers);
-    }
-
-    void Run(std::string scriptFileName)
-    {
-        int error = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-        if (error != 0)
-        {
-            printf("Failed to initialize SDL: %s\n", SDL_GetError());
-            return;
-        }
-
-        char basePath[] = ".";
-        Core *core = Core::GetInstance();
-
-        core->Initialize(basePath);
-
-        int scalingFactor = core->GetCoreConfig().GetWindowScale();
-
-        int originalWidth = GPU::windowWidth;
-        int originalHeight = GPU::windowHeight;
-
-        int scaledWidth = originalWidth * scalingFactor;
-        int scaledHeight = originalHeight * scalingFactor;
-
-        window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, scaledWidth, scaledHeight, SDL_WINDOW_OPENGL);
-        // int width, height;
-        // SDL_GetWindowSize(window, &width, &height);
-        printRenderers();
-
-        uint32_t windowId = SDL_GetWindowID(window);
-
-        GPU_SetInitWindow(windowId);
-        GPU_SetPreInitFlags(GPU_INIT_ENABLE_VSYNC);
-        gpuRenderTarget = GPU_Init(scaledWidth, scaledHeight, GPU_DEFAULT_INIT_FLAGS);
-        if (gpuRenderTarget == NULL)
-        {
-            printf("Failed to create renderer\n");
-            return;
-        }
-        // GPU_SetWindowResolution(GPU::windowWidth, GPU::windowHeight);
-        // GPU_SetVirtualResolution(gpuRenderTarget, GPU::windowWidth, GPU::windowHeight);
-        GPU_SetVirtualResolution(gpuRenderTarget, GPU::textureWidth, GPU::textureHeight);
-        gpuScreenTexture = GPU_CreateImage(GPU::windowWidth, GPU::windowHeight, GPU_FORMAT_RGBA);
-        GPU_SetAnchor(gpuScreenTexture, 0, 0);
-        GPU_SetImageFilter(gpuScreenTexture, GPU_FILTER_NEAREST); // GPU_FILTER_LINEAR, GPU_FILTER_NEAREST
-
-        LoadShader();
-
-        int refreshRate = 120;
-        if (refreshRate != -1)
-            Core::GetInstance()->SetRefreshRate(refreshRate);
-
-        if (scriptFileName.empty() == false)
-            Core::GetInstance()->GetCoreConfig().SetScriptPath(scriptFileName);
-
-        SDL_Rect rect;
-        rect.x = 0;
-        rect.y = 0;
-        rect.w = scaledWidth;
-        rect.h = scaledHeight;
-
-        int borderWidth = (GPU::windowWidth - GPU::textureWidth) / 2;
-        int borderHeight = (GPU::windowHeight - GPU::textureHeight) / 2;
-
-        GPU_Rect gpuRect;
-        gpuRect.x = borderWidth;
-        gpuRect.y = borderHeight;
-        gpuRect.w = GPU::textureWidth;
-        gpuRect.h = GPU::textureHeight;
-
-        SDL_Rect shaderRect;
-        shaderRect.x = borderWidth;
-        shaderRect.y = borderHeight;
-        shaderRect.w = GPU::textureWidth;
-        shaderRect.h = GPU::textureHeight;
-
-        bool quit = false;
-        SDL_Event event;
-        while (!quit)
-        {
-            quit = PollEvents(event);
-            GPU_Clear(gpuRenderTarget);
-            Core::GetInstance()->RunNextFrame();
-            // copy texture to screen
-            GPU_UpdateImageBytes(gpuScreenTexture, &gpuRect, (uint8_t *)GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
-            GPU_ActivateShaderProgram(shader, &shaderBlock);
-
-            static const char *Uniforms[] = {"trg_x", "trg_y", "trg_w", "trg_h", "scale"};
-
-            GPU_SetUniformf(GPU_GetUniformLocation(shader, "trg_x"), rect.x);
-            GPU_SetUniformf(GPU_GetUniformLocation(shader, "trg_y"), rect.y);
-            GPU_SetUniformf(GPU_GetUniformLocation(shader, "trg_w"), rect.w);
-            GPU_SetUniformf(GPU_GetUniformLocation(shader, "trg_h"), rect.h);
-            GPU_SetUniformf(GPU_GetUniformLocation(shader, "scale"), (float)scalingFactor);
-
-            // for (int i = 0; i < COUNT_OF(Uniforms); ++i)
-            //     GPU_SetUniformf(GPU_GetUniformLocation(shader, Uniforms[i]), (&rect.x)[i]);
-
-            GPU_Blit(gpuScreenTexture, NULL, gpuRenderTarget, 0, 0);
-
-            GPU_DeactivateShaderProgram();
-            GPU_Flip(gpuRenderTarget);
-        }
     }
 }
