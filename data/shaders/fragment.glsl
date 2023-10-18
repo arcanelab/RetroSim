@@ -157,18 +157,6 @@ vec3 Mask(vec2 pos) {
     return mask;
 }
 
-// vec3 Mask(vec2 pos) {
-//     pos.x += pos.y * 3.0;
-//     vec3 mask = vec3(maskDark, maskDark, maskDark);
-//     pos.x = fract(pos.x / 6.0);
-    
-//     float lightness = (pos.x < 0.333 || pos.x > 0.666) ? maskLight : maskDark;
-//     mask = vec3(lightness, lightness, lightness);
-    
-//     return mask;
-// }
-
-
 vec4 GetColor(vec2 pos) {
     vec4 l = texture2D(source, vec2(pos.x - 1.0 / res.x, pos.y));
     vec4 r = texture2D(source, vec2(pos.x + 1.0 / res.x, pos.y));
@@ -200,10 +188,6 @@ void main() {
 
     vec2 scaledPos = vec2(gl_FragCoord.x * scale, gl_FragCoord.y * 1.0);
     // vec2 scaledPos = gl_FragCoord.xy * scale;
-
-    // if(pos.y < 0.045)
-    // gl_FragColor = vec4(texture2D(source, pos.xy, -16.0).rgb, 1.0);
-    // else
 
     gl_FragColor = vec4(GetColor(pos).rgb * Mask(scaledPos).bgr, 1.0);
 }
