@@ -80,6 +80,7 @@ function AddSDL_GPU()
         add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
     end
 
+    add_links("GL")
     add_links("SDL2_gpu")
     add_includedirs("src/extern/sdl-gpu/include")
 end
