@@ -55,7 +55,14 @@ namespace RetroSim
         for (int y = 0; y < GPU::textureHeight; y++)
         {
             for (int x = 0; x < GPU::textureWidth; x++)
-                *dst++ = *src++;
+            {
+                uint32_t pixel = *src++;
+                uint8_t a = (pixel >> 24) & 0xff;
+                uint8_t r = (pixel >> 16) & 0xff;
+                uint8_t g = (pixel >> 8) & 0xff;
+                uint8_t b = (pixel >> 0) & 0xff;
+                *dst++ = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+            }
 
             dst += GPU::windowWidth - GPU::textureWidth;
         }

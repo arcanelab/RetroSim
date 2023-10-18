@@ -22,6 +22,7 @@ if is_plat("windows") then
     -- add_ldflags("-subsystem:windows")
 elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
     add_defines("UNIX_HOST")
+    add_defines("SDL_GPU_DISABLE_GLES")
     -- add_cxflags("-Wall")
 end
 
@@ -36,7 +37,7 @@ Target =
     libretro = 3
 }
 
-local _target = Target.libretro
+local _target = Target.sdlgpu
 
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")
@@ -64,13 +65,41 @@ function AddCommon()
     set_targetdir("bin")
 end
 
-if _target == Target.sdl then
+-- How to build and include SDL_gpu on macOS:
+-- * Place sdl-gpu in src/extern/sdl-gpu
+-- * Build SDL_gpu with cmake:
+--   - Modify CMakeLists.txt to build static library (option(BUILD_FRAMEWORK "Build SDL_gpu as Apple framework" ON)), then
+--   cmake -G "Unix Makefiles"
+--   make
+-- * Library will be placed in src/extern/sdl-gpu/SDL_gpu/lib
+-- * Include files will be placed in src/extern/sdl-gpu/SDL_gpu/include
+-- For Windows: use cmake-gui
+function AddSDL_GPU()
+    if is_plat("windows") then
+        add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
+        -- add_links("GL")
+    elseif is_plat("macosx") then
+        add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
+        add_frameworks("OpenGL")
+    end
+
+    add_links("sdl2_gpu")
+    add_includedirs("src/extern/sdl-gpu/include")
+end
+
+if _target == Target.sdl or _target == Target.sdlgpu then
     target("RetroSim")
         AddCommon()
-        add_defines("SDL")
         set_kind("binary")
         add_packages("libsdl")
-        add_files("src/sdl/*.cpp")
+        if _target == Target.sdl then
+            add_defines("SDL")
+            add_files("src/sdl/*.cpp")
+        end
+        if _target == Target.sdlgpu then
+            AddSDL_GPU()
+            add_files("src/sdlgpu/*.cpp")
+        end
 elseif _target == Target.libretro then
     target("RetroSimCore")
         AddCommon()
