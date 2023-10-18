@@ -157,9 +157,19 @@ vec3 Mask(vec2 pos) {
     return mask;
 }
 
-// vec4 GetColor(vec2 pos) {
-//     return texture2D(source, pos);
-// }
+vec4 GetColor(vec2 pos) {
+    vec4 l = texture2D(source, vec2(pos.x - 1.0 / res.x, pos.y));
+    vec4 r = texture2D(source, vec2(pos.x + 1.0 / res.x, pos.y));
+    // vec4 u = texture2D(source, vec2(pos.x, pos.y - 1.0 / res.y));
+    // vec4 d = texture2D(source, vec2(pos.x, pos.y + 1.0 / res.y));
+    vec4 c = texture2D(source, pos);
+
+    float bias = 0.3; // how much effect the horizontal neighbor pixels have
+    // blend between the current and the horizontal neighbors
+    vec4 result = (l * bias + r * bias + c) / (1.0 + bias * 2.0); 
+
+    return result;
+}
 
 void main() {
     hardScan = -12.0;
@@ -174,5 +184,8 @@ void main() {
 
     vec2 scaledPos = vec2(gl_FragCoord.x * scale, gl_FragCoord.y * 1.0);
 
-    gl_FragColor = vec4(texture2D(source, pos).rgb * Mask(scaledPos).bgr, 1.0);
+    // if(pos.y < 0.045)
+    // gl_FragColor = vec4(texture2D(source, pos.xy, -16.0).rgb, 1.0);
+    // else
+    gl_FragColor = vec4(GetColor(pos).rgb * Mask(scaledPos).bgr, 1.0);
 }
