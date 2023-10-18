@@ -31,7 +31,7 @@ float hardPix = -2.0;
 vec2 warp = vec2(0.0, 0.0); 
 
 // Amount of shadow mask.
-float maskStrength = 0.2;
+float maskStrength = 0.1;
 float maskDark = 1.0 - maskStrength;
 float maskLight = 1.0 + maskStrength;
 
@@ -157,6 +157,10 @@ vec3 Mask(vec2 pos) {
     return mask;
 }
 
+// vec4 GetColor(vec2 pos) {
+//     return texture2D(source, pos);
+// }
+
 void main() {
     hardScan = -12.0;
     //maskDark=maskLight;
@@ -170,9 +174,5 @@ void main() {
 
     vec2 scaledPos = vec2(gl_FragCoord.x * scale, gl_FragCoord.y * 1.0);
 
-    // gl_FragColor = vec4(texture2D(source, pos).rgb * Mask(scaledPos).rgb, 1.0);
-    gl_FragColor = vec4(texture2D(source, pos).rgb, 1.0);
-    // gl_FragColor = ToLinear(gl_FragColor.rgb);
-    // gl_FragColor = vec4(ToSrgb(gl_FragColor.rgb), 1.0);
-//    gl_FragColor = vec4(texture2D(source,pos));
+    gl_FragColor = vec4(texture2D(source, pos).rgb * Mask(scaledPos).bgr, 1.0);
 }
