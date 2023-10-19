@@ -41,9 +41,9 @@ local _target = Target.sdlgpu
 
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")
-    add_includedirs("src/extern/libtelnet")
     add_files("src/network/*.cpp")
     add_files("src/extern/libtelnet/*.c")
+    add_includedirs("src/extern/libtelnet")
     add_includedirs("src/network")
 end
 

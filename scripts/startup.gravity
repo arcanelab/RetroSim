@@ -29,7 +29,7 @@ func update()
 {
     clock = clock + GPU.DELTA_TIME_U32 / 30000.0;
 
-    GPU.Cls(2)
+    GPU.Cls(0)
 
     var x = 0
     for(var i in 0...255)
@@ -41,7 +41,7 @@ func update()
         GPU.Line(x, i, 64-x, i, i+32)
     }
 
-    GPU.Bitmap(245, 0, 0, 0, 220, 192, 320, 1);
+    GPU.Bitmap(146, 0, 0, 0, 320, 256, 320, 1);
 
     GPU.Print(64, 1, "RetroSim (c) 2023 Zoltan Majoros", 36)
     GPU.Print(400, 1, "FPS: \(avgFps)", 36)
