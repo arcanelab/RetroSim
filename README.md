@@ -1,4 +1,4 @@
-_(Please don't submit this repo to Hacker News yet, as it's not ready for the public spotlight just yet. Thank you!)_
+_(Please don't submit this repo to Hacker News yet, as it's heavily work-in-progress and not ready for the public spotlight just yet. Thank you!)_
 
 # About
 
