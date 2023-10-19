@@ -10,7 +10,7 @@
 
 namespace RetroSim::GPU
 {
-    uint32_t *outputTexture = new uint32_t[textureWidth * textureHeight]; // ARGB8888;
+    uint32_t *outputTexture = new uint32_t[textureWidth * textureHeight]; // RGBA8888;
 
     // clipping rectangle
     uint16_t clipX0 = 0;
