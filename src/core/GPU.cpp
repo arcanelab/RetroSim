@@ -286,7 +286,7 @@ namespace RetroSim::GPU
     // TODO: test
     void SetPaletteColor(int index, int r, int g, int b)
     {
-        MMU::memory.Palette_u32[index] = r << 16 | g << 8 | b;
+        MMU::memory.Palette_u32[index] = b << 16 | g << 8 | r;
     }
 
     uint32_t GetPaletteColor(uint8_t colorIndex)
