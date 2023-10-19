@@ -27,7 +27,7 @@ elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
 end
 
 includes("src/extern/gravity")
-includes("src/AsmA65k")
+includes("src/cpu/A65000/AsmA65k")
 includes("src/extern/csid-mod")
 
 Target =
@@ -44,6 +44,7 @@ function AddTelnetDependencies()
     add_includedirs("src/extern/libtelnet")
     add_files("src/telnet/*.cpp")
     add_files("src/extern/libtelnet/*.c")
+    add_includedirs("src/telnet")
 end
 
 function AddCommon()
@@ -51,7 +52,7 @@ function AddCommon()
     add_deps("Gravity")
     add_deps("AsmA65k-lib")
     add_deps("csid-mod")
-    add_files("src/*.cpp")
+    add_files("src/utils/*.cpp")
     add_files("src/scripting/gravity/*.cpp")
     add_files("src/core/*.cpp")
     add_files("src/cpu/A65000/*.cpp")
@@ -59,9 +60,9 @@ function AddCommon()
     add_includedirs("src/compiled-data/")
     add_includedirs("src/scripting/gravity")
     add_includedirs("src/core")
-    add_includedirs("src/asmA65k/src")
     add_includedirs("src/cpu/A65000")
-    add_includedirs("src")
+    add_includedirs("src/cpu/A65000/asmA65k/src")
+    add_includedirs("src/utils")
     add_includedirs("src/extern/gravity/src/compiler", "src/extern/gravity/src/optionals", "src/extern/gravity/src/runtime", "src/extern/gravity/src/shared", "src/extern/gravity/src/utils")    
     add_includedirs("src/extern/csid-mod/include")
     set_targetdir("bin")

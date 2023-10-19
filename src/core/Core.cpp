@@ -29,7 +29,7 @@
 #endif
 
 #ifdef TELNET_ENABLED
-#include "Telnet/TelnetServer.h"
+#include "TelnetServer.h"
 #endif
 
 using namespace RetroSim::Logger;
