@@ -42,7 +42,7 @@ local _target = Target.sdlgpu
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")
     add_includedirs("src/extern/libtelnet")
-    add_files("src/Telnet/*.cpp")
+    add_files("src/telnet/*.cpp")
     add_files("src/extern/libtelnet/*.c")
 end
 
@@ -54,9 +54,7 @@ function AddCommon()
     add_files("src/*.cpp")
     add_files("data/**.cpp")
     add_files("src/cpu/A65000/*.cpp")
-    add_files("src/disassembler/a65000/*.cpp")
     add_includedirs("src/asmA65k/src")
-    add_includedirs("src/disassembler/a65000")
     add_includedirs("src/cpu/A65000")
     add_includedirs("src")
     add_includedirs("data")
@@ -94,11 +92,11 @@ if _target == Target.sdl or _target == Target.sdlgpu then
         add_packages("libsdl")
         if _target == Target.sdl then
             add_defines("SDL")
-            add_files("src/sdl/*.cpp")
+            add_files("src/system/sdl/*.cpp")
         end
         if _target == Target.sdlgpu then
             AddSDL_GPU()
-            add_files("src/sdlgpu/*.cpp")
+            add_files("src/system/sdlgpu/*.cpp")
         end
 elseif _target == Target.libretro then
     target("RetroSimCore")
@@ -106,7 +104,7 @@ elseif _target == Target.libretro then
         add_defines("LIBRETRO")
         set_kind("shared")
         add_includedirs("src/extern/libretro")
-        add_files("src/libretro/*.cpp")
+        add_files("src/system/libretro/*.cpp")
         if os.getenv("RETROARCH_COREPATH") then
             set_targetdir(os.getenv("RETROARCH_COREPATH"))
         else 
