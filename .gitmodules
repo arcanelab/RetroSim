@@ -7,7 +7,7 @@
     url = git@github.com:seanmiddleditch/libtelnet.git
 
 [submodule "asmA65k"]
-    path = src/asmA65k
+    path = src/cpu/A65000/asmA65k
     url = git@github.com:arcanelab/AsmA65k.git
 
 [submodule "RetroSim-wiki"]
