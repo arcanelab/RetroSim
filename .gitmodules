@@ -1,7 +1,3 @@
-[submodule "gravity"]
-    path = src/extern/gravity
-    url = git@github.com:arcanelab/Gravity-RetroSim.git
-
 [submodule "libtelnet"]
     path = src/extern/libtelnet
     url = git@github.com:seanmiddleditch/libtelnet.git
