@@ -2,6 +2,7 @@
 // https://github.com/arcanelab
 
 #include "MMU.h"
+#include "FileUtils.h"
 
 using namespace RetroSim::Logger;
 
@@ -9,8 +10,9 @@ namespace RetroSim::MMU
 {
     MemorySections memory;
 
-    int LoadFile(const char *filename, uint32_t address)
+    int LoadFile(const char *path, uint32_t address)
     {
+        const char *filename = ConvertToWindowsPath(std::string(path)).c_str();
         FILE *file = fopen(filename, "rb");
         if (file == nullptr)
         {
@@ -38,6 +40,6 @@ namespace RetroSim::MMU
 
     int LoadFile(std::string filename, uint32_t address)
     {
-        return LoadFile(filename.c_str(), address);
+        return LoadFile(ConvertToWindowsPath(filename).c_str(), address);
     }
 }

@@ -4,17 +4,19 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include "FileUtils.h"
 
 namespace RetroSim
 {
     std::string ReadTextFile(const std::string &filename)
     {
-        std::ifstream file(filename);
+        std::string path = ConvertToWindowsPath(filename);
+        std::ifstream file(path);
 
         if (!file.good())
         {
-            std::cout << "Error: couldn't open file " << filename << std::endl;
+            std::cout << "Error: couldn't open file " << path << std::endl;
             return "";
         }
 
@@ -27,7 +29,7 @@ namespace RetroSim
 
     uint8_t *ReadBinaryFile(const std::string &filename, size_t &size)
     {
-        std::ifstream file(filename, std::ios::binary | std::ios::ate);
+        std::ifstream file(ConvertToWindowsPath(filename), std::ios::binary | std::ios::ate);
 
         if (!file.good())
         {
@@ -39,7 +41,7 @@ namespace RetroSim
         file.seekg(0, std::ios::beg);
 
         uint8_t *buffer = new uint8_t[size];
-        file.read((char*)buffer, size);
+        file.read((char *)buffer, size);
         file.close();
 
         return buffer;
@@ -49,5 +51,12 @@ namespace RetroSim
     {
         std::ifstream file(filename);
         return file.good();
+    }
+
+    std::string ConvertToWindowsPath(std::string path)
+    {
+        std::string result = path;
+        std::replace(result.begin(), result.end(), '/', '\\');
+        return result;
     }
 }

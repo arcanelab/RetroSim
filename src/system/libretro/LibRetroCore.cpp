@@ -7,11 +7,7 @@
 #include "GPU.h"
 #include "MMU.h"
 #include "Logger.h"
-
-// TODO: test if this is needed on Windows.
-#if defined(_WIN32) && !defined(_XBOX)
-#include <windows.h>
-#endif
+#include "FileUtils.h"
 
 namespace RetroSim
 {
@@ -92,7 +88,7 @@ namespace RetroSim
     void LibRetroCore::GetSystemAudioVideoInfo(struct retro_system_av_info *info)
     {
         float aspect = 0; // zero defaults to width/height
-        float sampling_rate = Core::GetInstance()->GetSampleRate();
+        float sampling_rate = (float)Core::GetInstance()->GetSampleRate();
 
         info->geometry.base_width = GPU::windowWidth;
         info->geometry.base_height = GPU::windowHeight;
@@ -216,7 +212,12 @@ namespace RetroSim
         const char *dir = NULL;
         if (envCallback(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
         {
+#ifdef WIN32
+            systemDirectory = RetroSim::ConvertToWindowsPath(dir);
+#else
             systemDirectory = dir;
+#endif
+
             Logger::LogPrintf(RETRO_LOG_DEBUG, "System directory: %s\n", systemDirectory.c_str());
         }
         else
@@ -227,6 +228,7 @@ namespace RetroSim
 
     void LibRetroCore::SetupCore()
     {
+        GetSystemDirectory();
         coreInstance = Core::GetInstance();
         coreInstance->Initialize(systemDirectory.c_str());
         // CoreConfig config = coreInstance->GetCoreConfig();
