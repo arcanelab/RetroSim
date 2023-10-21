@@ -13,3 +13,6 @@
 [submodule "src/extern/sdl-gpu"]
 	path = src/extern/sdl-gpu
 	url = git@github.com:grimfang4/sdl-gpu.git
+[submodule "src/extern/gravity"]
+	path = src/extern/gravity
+	url = git@github.com:arcanelab/Gravity-RetroSim.git
