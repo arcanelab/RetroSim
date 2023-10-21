@@ -128,9 +128,12 @@ namespace RetroSim::SDLGPUApp
         int internalWindowWidth = GPU::windowWidth * internalScale;
         int internalWindowHeight = GPU::windowHeight * internalScale;
 
-        window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, scaledWindowWidth, scaledWindowHeight, SDL_WINDOW_OPENGL);
-        // int width, height;
-        // SDL_GetWindowSize(window, &width, &height);
+        window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+                                              scaledWindowWidth, scaledWindowHeight,
+                                              SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+        int width, height;
+        SDL_GetWindowSize(window, &width, &height);
+        // SDL_SetWindowSize(window, width, height);
         // printRenderers();
 
         uint32_t windowId = SDL_GetWindowID(window);
@@ -144,12 +147,13 @@ namespace RetroSim::SDLGPUApp
             return;
         }
 
-        // GPU_SetWindowResolution(GPU::windowWidth, GPU::windowHeight);
-        // GPU_SetVirtualResolution(gpuRenderTarget, GPU::windowWidth, GPU::windowHeight);
+        // GPU_SetWindowResolution(scaledWindowWidth, scaledWindowHeight);
+        // GPU_SetVirtualResolution(windowRenderTarget, scaledWindowWidth, scaledWindowHeight);
         GPU_SetVirtualResolution(windowRenderTarget, GPU::textureWidth, GPU::textureHeight);
+        // GPU_UnsetVirtualResolution(windowRenderTarget);
         gpuScreenTexture = GPU_CreateImage(GPU::windowWidth, GPU::windowHeight, GPU_FORMAT_RGBA);
         GPU_SetAnchor(gpuScreenTexture, 0, 0);
-        GPU_SetImageFilter(gpuScreenTexture, GPU_FILTER_NEAREST); // GPU_FILTER_LINEAR, GPU_FILTER_NEAREST
+        GPU_SetImageFilter(gpuScreenTexture, GPU_FILTER_LINEAR); // GPU_FILTER_LINEAR, GPU_FILTER_NEAREST
 
         LoadShaders();
 
@@ -171,7 +175,7 @@ namespace RetroSim::SDLGPUApp
 
         SDL_Rect windowRect;
         windowRect.x = 0;
-        windowRect.y = 0;
+        windowRect.y = 550;
         windowRect.w = scaledWindowWidth;
         windowRect.h = scaledWindowHeight;
 
@@ -196,9 +200,9 @@ namespace RetroSim::SDLGPUApp
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "scale"), (float)windowScalingFactor);
 
             // copy rendered screen to window render target
-            GPU_Blit(gpuScreenTexture, NULL, windowRenderTarget, 0, 0);
+            // GPU_Blit(gpuScreenTexture, NULL, windowRenderTarget, 0, 0);
             // GPU_BlitRotate(gpuScreenTexture, NULL, windowRenderTarget, 0, 0, 45.0f);
-            // GPU_BlitScale(gpuContentTexture, NULL, windowRenderTarget, borderWidth, borderHeight, 1, 1);
+            GPU_BlitScale(gpuScreenTexture, NULL, windowRenderTarget, borderWidth, borderHeight, 2.0f, 2.0f);
 
             GPU_DeactivateShaderProgram();
 
