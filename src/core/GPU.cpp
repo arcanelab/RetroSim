@@ -24,7 +24,7 @@ namespace RetroSim::GPU
     uint32_t fontOffset = 0; // defines how many characters to skip at the start of CHARSET
 
     void Initialize()
-    {        
+    {
         memset(outputTexture, 0, textureSizeInBytes);
         MMU::memory.gpu.screenWidth = textureWidth;
         MMU::memory.gpu.screenHeight = textureHeight;
@@ -43,7 +43,7 @@ namespace RetroSim::GPU
         fontOffset = offset;
     }
 
-    void RenderOpaqueText(const char *text, int x, int y, int colorIndex, int16_t backgroundColorIndex)
+    void RenderOpaqueText(const char *text, int x, int y, uint8_t colorIndex, uint8_t backgroundColorIndex)
     {
         int characterCount = 0;
         while (char c = *text++)
@@ -63,7 +63,7 @@ namespace RetroSim::GPU
         }
     }
 
-    void RenderText(const char *text, int x, int y, int colorIndex)
+    void RenderText(const char *text, int x, int y, uint8_t colorIndex)
     {
         int characterCount = 0;
         while (char c = *text++)
@@ -98,7 +98,7 @@ namespace RetroSim::GPU
         }
     }
 
-    void DrawLine(int x0, int y0, int x1, int y1, int color)
+    void DrawLine(int x0, int y0, int x1, int y1, uint8_t colorIndex)
     {
         int dx = abs(x1 - x0);
         int dy = abs(y1 - y0);
@@ -108,7 +108,7 @@ namespace RetroSim::GPU
 
         while (true)
         {
-            DrawPixel(x0, y0, color);
+            DrawPixel(x0, y0, colorIndex);
 
             if (x0 == x1 && y0 == y1)
                 break;
@@ -127,10 +127,10 @@ namespace RetroSim::GPU
             }
         }
 
-        DrawPixel(x1, y1, color);
+        DrawPixel(x1, y1, colorIndex);
     }
 
-    void DrawCircle(int x, int y, int radius, int color, bool filled)
+    void DrawCircle(int x, int y, int radius, uint8_t colorIndex, bool filled)
     {
         // Compute the coordinates of the center of the circle
         int cx = x;
@@ -157,38 +157,38 @@ namespace RetroSim::GPU
                     // Draw the pixel
                     if (filled || d2 >= r2 - 2 * radius)
                     {
-                        DrawPixel(px, py, color);
+                        DrawPixel(px, py, colorIndex);
                     }
                     else if ((dx2 + (dy - 1) * (dy - 1)) > r2 || (dx2 + (dy + 1) * (dy + 1)) > r2 || ((dx - 1) * (dx - 1) + dy2) > r2 || ((dx + 1) * (dx + 1) + dy2) > r2)
                     {
-                        DrawPixel(px, py, color);
+                        DrawPixel(px, py, colorIndex);
                     }
                 }
             }
         }
     }
 
-    void DrawRect(int x, int y, int width, int height, int color, bool filled)
+    void DrawRect(int x, int y, int width, int height, uint8_t colorIndex, bool filled)
     {
         if (filled)
         {
             for (int i = 0; i < height; i++)
-                DrawLine(x, y + i, x + width, y + i, color);
+                DrawLine(x, y + i, x + width, y + i, colorIndex);
         }
         else
         {
-            DrawLine(x, y, x + width, y, color);
-            DrawLine(x + width, y, x + width, y + height, color);
-            DrawLine(x + width, y + height, x, y + height, color);
-            DrawLine(x, y + height, x, y, color);
+            DrawLine(x, y, x + width, y, colorIndex);
+            DrawLine(x + width, y, x + width, y + height, colorIndex);
+            DrawLine(x + width, y + height, x, y + height, colorIndex);
+            DrawLine(x, y + height, x, y, colorIndex);
         }
     }
 
-    void DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool filled)
+    void DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, uint8_t colorIndex, bool filled)
     {
-        DrawLine(x0, y0, x1, y1, color);
-        DrawLine(x1, y1, x2, y2, color);
-        DrawLine(x2, y2, x0, y0, color);
+        DrawLine(x0, y0, x1, y1, colorIndex);
+        DrawLine(x1, y1, x2, y2, colorIndex);
+        DrawLine(x2, y2, x0, y0, colorIndex);
     }
 
     void DrawTexturedTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int u0, int v0, int u1, int v1, int u2, int v2)

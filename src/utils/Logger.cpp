@@ -1,5 +1,7 @@
 #include "Logger.h" // Replace with the correct path to your header file
 
+#include <cstdarg>
+
 namespace RetroSim::Logger
 {
 #ifdef LIBRETRO

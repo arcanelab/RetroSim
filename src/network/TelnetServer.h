@@ -4,5 +4,5 @@
 namespace RetroSim::TelnetServer
 {
     extern int Start();
-    extern int Stop();
+    extern void Stop();
 }

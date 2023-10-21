@@ -2,9 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#ifdef WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "Ws2_32.lib")
+#else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#endif
 #include <libtelnet.h>
 #include <assert.h>
 #include "Logger.h"
@@ -30,7 +36,11 @@ namespace RetroSim::TelnetServer
 
     static void EventHandler(telnet_t *telnet, telnet_event_t *ev, void *user_data)
     {
+#ifdef WIN32
+        SOCKET *sock = (SOCKET *)user_data;
+#else
         int *sock = (int *)user_data;
+#endif
 
         switch (ev->type)
         {
@@ -54,10 +64,14 @@ namespace RetroSim::TelnetServer
         }
         break;
         case TELNET_EV_SEND:
-            send(*sock, ev->data.buffer, ev->data.size, 0);
+            send(*sock, ev->data.buffer, (int)ev->data.size, 0);
             break;
         case TELNET_EV_ERROR:
+#ifdef WIN32
+            closesocket(*sock);
+#else
             close(*sock);
+#endif
             telnet_free(telnet);
             LogPrintf(RETRO_LOG_INFO, "Client error, connection closed.\n");
             break;
@@ -68,7 +82,85 @@ namespace RetroSim::TelnetServer
 
     int listen_sock;
 
-    int Start()
+#ifdef WIN32
+    int StartSocketWindows()
+    {
+        WSADATA wsaData;
+        int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+        if (iResult != 0)
+        {
+            printf("WSAStartup failed: %d\n", iResult);
+            return -1; // return an error code
+        }
+
+        std::string address = "127.0.0.1"; // for example
+        int port = 8080;                   // for example
+
+        SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (listenSocket == INVALID_SOCKET)
+        {
+            printf("socket failed with error: %ld\n", WSAGetLastError());
+            WSACleanup();
+            return -1;
+        }
+
+        sockaddr_in service;
+        service.sin_family = AF_INET;
+        // using inet_pton instead of inet_addr
+        if (inet_pton(AF_INET, address.c_str(), &service.sin_addr) <= 0)
+        {
+            printf("inet_pton failed with error\n");
+            closesocket(listenSocket);
+            WSACleanup();
+            return -1;
+        }
+        service.sin_port = htons(port);
+
+        if (bind(listenSocket, (SOCKADDR *)&service, sizeof(service)) == SOCKET_ERROR)
+        {
+            printf("bind failed with error: %d\n", WSAGetLastError());
+            closesocket(listenSocket);
+            WSACleanup();
+            return -1;
+        }
+
+        if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR)
+        {
+            printf("listen failed with error: %d\n", WSAGetLastError());
+            closesocket(listenSocket);
+            WSACleanup();
+            return -1;
+        }
+
+        while (true)
+        {
+            SOCKET clientSocket = accept(listenSocket, NULL, NULL);
+            if (clientSocket == INVALID_SOCKET)
+            {
+                printf("accept failed with error: %d\n", WSAGetLastError());
+                closesocket(listenSocket);
+                WSACleanup();
+                return -1;
+            }
+
+            telnet_t *telnet = telnet_init(telopts, EventHandler, 0, &clientSocket);
+            if (telnet == NULL)
+            {
+                printf("telnet_init failed\n");
+                closesocket(clientSocket);
+                continue;
+            }
+
+            telnet_send(telnet, "Welcome to RetroSim!\r\n", strlen("Welcome to RetroSim!\r\n"));
+            telnet_send(telnet, "Username: ", strlen("Username: "));
+
+            // handle telnet client
+        }
+
+        return 0; // return value to signify success
+    }
+#else
+    int StartSocketUnix()
     {
         listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -141,10 +233,24 @@ namespace RetroSim::TelnetServer
 
         return 0;
     }
+#endif
+
+    int Start()
+    {
+#ifdef WIN32
+        return StartSocketWindows();
+#else
+        return StartSocketUnix();
+#endif
+    }
 
     void Stop()
     {
         LogPrintf(RETRO_LOG_INFO, "Stopping telnet server.\n");
+#ifdef WIN32
+        closesocket(listen_sock);
+#else
         close(listen_sock);
+#endif
     }
 } // namespace RetroSim::TelnetServer

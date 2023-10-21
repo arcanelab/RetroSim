@@ -4,7 +4,10 @@
 #include <cstring>
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef WIN32
 #include <unistd.h>
+#include <direct.h>
+#endif
 #include <thread>
 #include <algorithm>
 #include <chrono>
@@ -23,6 +26,7 @@
 #include "A65000Disassembler.h"
 #include "Asm65k.h"
 #include "Audio.h"
+#include "FileUtils.h"
 
 #ifdef SDL
 #include "SDL.h"
@@ -73,22 +77,31 @@ namespace RetroSim
 
     void AssembleStartup()
     {
-        ifstream fs(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.s");
-        stringstream buffer;
-        buffer << fs.rdbuf();
-        fs.close();
+        // ifstream fs(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.s");
+        // stringstream buffer;
+        // buffer << fs.rdbuf();
+        // fs.close();
 
-        if (buffer.str().empty())
+        // if (buffer.str().empty())
+        // {
+        //     printf("Could not load file '%s'\n", "startup.s");
+        //     return;
+        // }
+
+        string buffer = ReadTextFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/startup.s");
+        if (buffer.empty())
         {
             printf("Could not load file '%s'\n", "startup.s");
             return;
         }
 
+        stringstream bufferStringStream(buffer);
+
         AsmA65k asm65k;
         std::vector<Segment> *segments;
         try
         {
-            segments = asm65k.assemble(buffer);
+            segments = asm65k.assemble(bufferStringStream);
         }
         catch (AsmError error)
         {
@@ -101,11 +114,11 @@ namespace RetroSim
         {
             Segment actSegment = (*segments)[i];
             uint32_t address = actSegment.address;
-            uint32_t length = actSegment.data.size();
-            
-            for(uint32_t memoryPtr = address; memoryPtr < address + length; memoryPtr++)
+            uint32_t length = (uint32_t)actSegment.data.size();
+
+            for (uint32_t memoryPtr = address; memoryPtr < address + length; memoryPtr++)
             {
-                //MMU::memory.raw[memoryPtr] = actSegment.data[memoryPtr - address];
+                // MMU::memory.raw[memoryPtr] = actSegment.data[memoryPtr - address];
                 MMU::WriteMem<uint8_t>(memoryPtr, actSegment.data[memoryPtr - address]);
             }
         }
@@ -120,12 +133,16 @@ namespace RetroSim
         LogPrintf(RETRO_LOG_INFO, "Initializing RetroSim...\n");
         LogPrintf(RETRO_LOG_INFO, "Base path: %s\n", basePath.c_str());
 
+#ifdef UNIX_HOST
         // print current directory
         char cwd[1024];
         if (getcwd(cwd, sizeof(cwd)) != nullptr)
+        {
             LogPrintf(RETRO_LOG_INFO, "Current working dir: %s\n", cwd);
+        }
         else
             LogPrintf(RETRO_LOG_ERROR, "getcwd() error\n");
+#endif
 
         coreConfig.Initialize(basePath);
 
@@ -399,7 +416,7 @@ namespace RetroSim
     {
         Audio::RenderAudio();
         *audioBuffer = Audio::GetAudioBuffer();
-        *audioBufferSize = Audio::GetAudioBufferSize();        
+        *audioBufferSize = Audio::GetAudioBufferSize();
     }
 
     uint32_t Core::GetSampleRate()

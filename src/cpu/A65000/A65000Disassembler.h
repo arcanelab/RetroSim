@@ -37,7 +37,7 @@ struct A65000Disassembler
         "nop", "bra", "beq", "bne", "bcc", "bcs", "bpl", "bmi", "bvc",
         "bvs", "blt", "bgt", "ble", "bge", "sev", "clv", "slp", "sxb", "sxw", "sys"};
 
-    Disassembly getDisassembly(uint8_t *const codePtr, const uint32_t address, const uint16_t lines);
+    Disassembly getDisassembly(uint8_t *const codePtr, const uint32_t address, const uint8_t lines);
     vector<string> getDisassembly(const char *fileName);
 
     struct Error

@@ -41,15 +41,15 @@ namespace RetroSim::GPU
     // API
     void SetFont(int width, int height, int offset);
     void SetPaletteColor(int index, int r, int g, int b);
-    void RenderText(const char *text, int x, int y, int colorIndex);
-    void RenderOpaqueText(const char *text, int x, int y, int colorIndex, int16_t backgroundColorIndex);
+    void RenderText(const char *text, int x, int y, uint8_t colorIndex);
+    void RenderOpaqueText(const char *text, int x, int y, uint8_t colorIndex, uint8_t backgroundColorIndex);
     void ClearScreen(uint8_t colorIndex = 0);
     void ClearScreenIgnoreClipping(uint8_t colorIndex = 0);
     void DrawPixel(int x, int y, uint8_t colorIndex);
-    void DrawLine(int x0, int y0, int x1, int y1, int color);
-    void DrawRect(int x, int y, int width, int height, int color, bool filled);
-    void DrawCircle(int x, int y, int radius, int color, bool filled);
-    void DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool filled);
+    void DrawLine(int x0, int y0, int x1, int y1, uint8_t colorIndex);
+    void DrawRect(int x, int y, int width, int height, uint8_t colorIndex, bool filled);
+    void DrawCircle(int x, int y, int radius, uint8_t colorIndex, bool filled);
+    void DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, uint8_t colorIndex, bool filled);
     void DrawTexturedTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int u0, int v0, int u1, int v1, int u2, int v2);
     void DrawMap(int screenX, int screenY, int mapX, int mapY, int width, int height, int16_t transparentColorIndex);
     void DrawSprite(int x, int y, int spritex, int spritey, int width, int height, int16_t transparentColorIndex);

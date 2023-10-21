@@ -7,8 +7,11 @@
 //
 
 #include "A65000Disassembler.h"
+#ifdef WIN32
+#include <algorithm>
+#endif
 
-A65000Disassembler::Disassembly A65000Disassembler::getDisassembly(uint8_t *const codePtr, const uint32_t address, const uint16_t lines = 0)
+A65000Disassembler::Disassembly A65000Disassembler::getDisassembly(uint8_t *const codePtr, const uint32_t address, const uint8_t lines = 0)
 {
     Chunk chunk;
     chunk.address = address;

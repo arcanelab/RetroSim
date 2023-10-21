@@ -37,7 +37,7 @@ Target =
     libretro = 3
 }
 
-local _target = Target.sdlgpu
+local _target = Target.sdl
 
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")
@@ -79,14 +79,20 @@ end
 -- For Windows: use cmake-gui
 function AddSDL_GPU()
     if is_plat("windows") then
-        add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
+        if is_mode("debug") then
+            add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu-VS-0.11.0/lib/Debug")
+        end
+        if is_mode("release") then
+            add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu-VS-0.11.0/lib/Release")
+        end
+        add_links("sdl2_gpu_s")
         -- add_links("GL")
     elseif is_plat("macosx") then
         add_linkdirs("src/extern/sdl-gpu/SDL_gpu/lib/")
         add_frameworks("OpenGL")
+        add_links("sdl2_gpu")
     end
 
-    add_links("sdl2_gpu")
     add_includedirs("src/extern/sdl-gpu/include")
 end
 
@@ -95,6 +101,7 @@ if _target == Target.sdl or _target == Target.sdlgpu then
         AddCommon()
         set_kind("binary")
         add_packages("libsdl")
+        add_ldflags("/NODEFAULTLIB:MSVCRT")
         if _target == Target.sdl then
             add_defines("SDL")
             add_files("src/system/sdl/*.cpp")

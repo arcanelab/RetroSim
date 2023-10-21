@@ -3,6 +3,7 @@
 
 #pragma once
 #include <string>
+#include <vector>
 #include "MMU.h"
 
 namespace RetroSim::RemoteMonitor

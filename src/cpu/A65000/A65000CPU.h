@@ -20,6 +20,11 @@
 #include <vector> // for logging
 #include <string>
 #include <cassert>
+#ifdef WIN32
+#undef max
+#undef min
+#include <limits>
+#endif
 
 using std::string;
 using std::vector;
@@ -329,13 +334,12 @@ private:
     template <class T>
     void ModifyFlagsCV(const T &value1, const T &value2, const int64_t &result)
     {
-        std::numeric_limits<T> limits; // TODO: verify limits.min() and limits.max()
-        if ((uint64_t)result > (uint64_t)limits.max())
+        if ((uint64_t)result > (uint64_t)std::numeric_limits<T>::max())
             statusRegister.c = 1;
         else
             statusRegister.c = 0;
 
-        if (result > limits.max() || result < limits.min())
+        if (result > std::numeric_limits<T>::max() || result < std::numeric_limits<T>::min())
             statusRegister.v = 1;
         else
             statusRegister.v = 0;
@@ -394,7 +398,7 @@ private:
 
         const uint64_t result = value1 * value2;
         registers[13] = (result & 0xffff0000) >> 16;
-        return result & 0xffff;
+        return (T)(result & 0xffff);
     }
 
     template <class T>
@@ -988,7 +992,7 @@ private:
 
         return cycles;
     }
-    
+
     template <class T>
     int HandleAddressingMode_RegisterIndirectConst(const InstructionWord &inst, int offset) // mov.w [r1], 0
     {

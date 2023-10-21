@@ -3,6 +3,9 @@
 
 #include <cstdint>
 #include <mutex>
+#ifdef WIN32
+#include <limits>
+#endif
 #include "Core.h"
 #include "MMU.h"
 #include "GPU.h"
@@ -12,10 +15,33 @@
 #include "gravity_vm.h"
 #include "gravity_vmmacros.h"
 
+#define _CRT_SECURE_NO_WARNINGS
+
 using namespace RetroSim;
 
 namespace RetroSim::GravityAPI
 {
+    template <typename T>
+    T GetMaxValue();
+
+    template <>
+    uint8_t GetMaxValue<uint8_t>()
+    {
+        return UINT8_MAX;
+    }
+
+    template <>
+    uint16_t GetMaxValue<uint16_t>()
+    {
+        return UINT16_MAX;
+    }
+
+    template <>
+    uint32_t GetMaxValue<uint32_t>()
+    {
+        return UINT32_MAX;
+    }
+
     template <typename T>
     bool Write(gravity_vm *vm, gravity_value_t *args, uint16_t nArgs, uint32_t rindex)
     {
@@ -50,7 +76,7 @@ namespace RetroSim::GravityAPI
             RETURN_ERROR("Value must be an integer or a string.");
         }
 
-        if (value.n > std::numeric_limits<T>::max())
+        if (value.n > GetMaxValue<T>())
             RETURN_ERROR("Value is too large to fit into the specified type.");
 
         if (address.n > MMU::memorySize - sizeof(T))
