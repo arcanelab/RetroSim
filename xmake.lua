@@ -37,7 +37,7 @@ Target =
     libretro = 3
 }
 
-local _target = Target.sdl
+local _target = Target.libretro
 
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")

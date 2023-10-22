@@ -12,7 +12,7 @@ namespace RetroSim::MMU
 
     int LoadFile(const char *path, uint32_t address)
     {
-        const char *filename = ConvertToWindowsPath(std::string(path)).c_str();
+        const char *filename = ConvertPathToPlatformCompatibleFormat(std::string(path)).c_str();
         FILE *file = fopen(filename, "rb");
         if (file == nullptr)
         {
@@ -40,6 +40,6 @@ namespace RetroSim::MMU
 
     int LoadFile(std::string filename, uint32_t address)
     {
-        return LoadFile(ConvertToWindowsPath(filename).c_str(), address);
+        return LoadFile(ConvertPathToPlatformCompatibleFormat(filename).c_str(), address);
     }
 }
