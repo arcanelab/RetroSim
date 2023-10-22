@@ -34,10 +34,9 @@ Target =
 {
     sdl = 1,
     sdlgpu = 2,
-    libretro = 3
 }
 
-local _target = Target.libretro
+local _sdltarget = Target.sdl
 
 function AddTelnetDependencies() 
     add_defines("TELNET_ENABLED")
@@ -93,36 +92,37 @@ function AddSDL_GPU()
         add_links("sdl2_gpu")
     end
 
+    add_files("src/system/sdlgpu/*.cpp")
     add_includedirs("src/extern/sdl-gpu/include")
 end
 
-if _target == Target.sdl or _target == Target.sdlgpu then
-    target("RetroSim")
-        AddCommon()
-        set_kind("binary")
-        add_packages("libsdl")
+target("RetroSim")
+    AddCommon()
+    set_kind("binary")
+    add_packages("libsdl")
+    if is_plat("windows") then
         add_ldflags("/NODEFAULTLIB:MSVCRT")
-        if _target == Target.sdl then
-            add_defines("SDL")
-            add_files("src/system/sdl/*.cpp")
-        end
-        if _target == Target.sdlgpu then
-            AddSDL_GPU()
-            add_files("src/system/sdlgpu/*.cpp")
-        end
-elseif _target == Target.libretro then
-    target("RetroSimCore")
-        AddCommon()
-        add_defines("LIBRETRO")
-        set_kind("shared")
-        add_includedirs("src/extern/libretro")
-        add_files("src/system/libretro/*.cpp")
-        if os.getenv("RETROARCH_COREPATH") then
-            set_targetdir(os.getenv("RETROARCH_COREPATH"))
-        else 
-            set_targetdir("bin")
-        end
-end
+    end
+    if _sdltarget == Target.sdl then
+        add_defines("SDL")
+        add_files("src/system/sdl/*.cpp")
+    end
+    if _sdltarget == Target.sdlgpu then
+        AddSDL_GPU()
+    end
+
+target("RetroSimCore")
+    AddCommon()
+    add_defines("LIBRETRO")
+    set_kind("shared")
+    add_includedirs("src/extern/libretro")
+    add_files("src/system/libretro/*.cpp")
+    if os.getenv("RETROARCH_COREPATH") then
+        set_targetdir(os.getenv("RETROARCH_COREPATH"))
+    else 
+        set_targetdir("bin")
+    end
+-- end
 
 
 --
