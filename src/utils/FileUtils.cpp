@@ -11,7 +11,7 @@ namespace RetroSim
 {
     std::string ReadTextFile(const std::string &filename)
     {
-        std::string path = ConvertToWindowsPath(filename);
+        std::string path = ConvertPathToPlatformCompatibleFormat(filename);
         std::ifstream file(path);
 
         if (!file.good())
@@ -29,7 +29,7 @@ namespace RetroSim
 
     uint8_t *ReadBinaryFile(const std::string &filename, size_t &size)
     {
-        std::ifstream file(ConvertToWindowsPath(filename), std::ios::binary | std::ios::ate);
+        std::ifstream file(ConvertPathToPlatformCompatibleFormat(filename), std::ios::binary | std::ios::ate);
 
         if (!file.good())
         {
@@ -53,10 +53,14 @@ namespace RetroSim
         return file.good();
     }
 
-    std::string ConvertToWindowsPath(std::string path)
+    std::string ConvertPathToPlatformCompatibleFormat(std::string path)
     {
+#ifdef _WIN32
         std::string result = path;
         std::replace(result.begin(), result.end(), '/', '\\');
         return result;
+#else
+        return path;
+#endif
     }
 }

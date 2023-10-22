@@ -45,7 +45,7 @@ namespace RetroSim::GPU
 
     void RenderOpaqueText(const char *text, int x, int y, uint8_t colorIndex, uint8_t backgroundColorIndex)
     {
-        int characterCount = 0;
+        // int characterCount = 0;
         while (char c = *text++)
         {
             for (int k = 0; k < fontHeight; k++)
@@ -65,7 +65,7 @@ namespace RetroSim::GPU
 
     void RenderText(const char *text, int x, int y, uint8_t colorIndex)
     {
-        int characterCount = 0;
+        // int characterCount = 0;
         while (char c = *text++)
         {
             for (int k = 0; k < fontHeight; k++)
@@ -224,7 +224,7 @@ namespace RetroSim::GPU
         uint8_t tileWidth = MMU::memory.gpu.tileWidth;
         uint8_t tileHeight = MMU::memory.gpu.tileHeight;
         uint8_t mapWidth = MMU::memory.gpu.mapWidth;
-        uint8_t mapHeight = MMU::memory.gpu.mapHeight;
+        // uint8_t mapHeight = MMU::memory.gpu.mapHeight;
 
         for (int tileY = mapY; tileY < mapY + height; tileY++)
         {
