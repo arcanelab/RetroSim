@@ -4,7 +4,7 @@ extern var GPU;
 
 func start()
 {
-    System.print("Script running.\n")
+    System.print("Hello from Startup.start().")
     // GPU.PalColor(0, 0, 0, 0)
     GPU.SetFont(8, 8, 0x8000)
 

@@ -58,10 +58,10 @@ namespace RetroSim
         }
 
         // load image palette
-        MMU::LoadFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/freedom.png.pal", MMU::PALETTE_U32);
+        MMU::LoadFileToAddress(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/freedom.png.pal", MMU::PALETTE_U32);
 
         // load image bitmap
-        MMU::LoadFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/freedom.png.bitmap", MMU::BITMAP_U8);
+        MMU::LoadFileToAddress(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/freedom.png.bitmap", MMU::BITMAP_U8);
 
         // copy image from BITMAP_U8 to SPRITE_ATLAS_U8, crop at 128x128
         for (int y = 0; y < 128; y++)
@@ -152,7 +152,7 @@ namespace RetroSim
         scriptingEnabled = !coreConfig.GetScriptPath().empty();
         if (scriptingEnabled)
         {
-            printf("Running script: %s\n", coreConfig.GetScriptPath().c_str());
+            LogPrintf(RETRO_LOG_INFO, "Running script: %s\n", coreConfig.GetScriptPath().c_str());
             GravityScripting::RegisterAPIFunctions();
             GravityScripting::CompileScriptFromFile(coreConfig.GetScriptPath());
             GravityScripting::RunScript("start", {}, 0);

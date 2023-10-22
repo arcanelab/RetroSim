@@ -103,5 +103,5 @@ namespace RetroSim::MMU
     }
 
     int LoadFile(const char *filename, uint32_t address);
-    int LoadFile(std::string filename, uint32_t address);
+    int LoadFileToAddress(std::string filename, uint32_t address);
 }

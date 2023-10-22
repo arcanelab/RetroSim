@@ -16,8 +16,16 @@ namespace RetroSim::Audio
     void Initialize()
     {
         int songDataLength;
+        string filename = "Turok 2 - Cave Stage.sid";
+        // string filename = "/Crimson_Cascade_Groove.sid";
         // songData = ReadBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/Crimson_Cascade_Groove.sid", songDataLength);
-        songData = ReadBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/Turok 2 - Cave Stage.sid", (size_t &)songDataLength);
+        songData = ReadBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/" + filename, (size_t &)songDataLength);
+
+        if(songData == nullptr)
+        {
+            LogPrintf(RETRO_LOG_ERROR, "Failed to open SID file: %s\n", filename.c_str());
+            return;
+        }
 
         libcsid_init(sampleRate * 2, SIDMODEL_8580);
         libcsid_load(songData, songDataLength, 0);

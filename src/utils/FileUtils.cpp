@@ -6,6 +6,9 @@
 #include <sstream>
 #include <algorithm>
 #include "FileUtils.h"
+#include "Logger.h"
+
+using namespace RetroSim::Logger;
 
 namespace RetroSim
 {
@@ -16,7 +19,7 @@ namespace RetroSim
 
         if (!file.good())
         {
-            std::cout << "Error: couldn't open file " << path << std::endl;
+            LogPrintf(RETRO_LOG_ERROR, "Error: couldn't open text file %s\n", path.c_str());
             return "";
         }
 
@@ -24,6 +27,7 @@ namespace RetroSim
         buffer << file.rdbuf();
         file.close();
 
+        LogPrintf(RETRO_LOG_INFO, "Loaded text file: %s, length = %d\n", path.c_str(), buffer.str().length());
         return buffer.str();
     }
 
@@ -33,7 +37,7 @@ namespace RetroSim
 
         if (!file.good())
         {
-            std::cout << "Error: couldn't open file " << filename << std::endl;
+            LogPrintf(RETRO_LOG_ERROR, "Error: couldn't open file %s\n", filename.c_str());
             return nullptr;
         }
 
@@ -44,6 +48,8 @@ namespace RetroSim
         file.read((char *)buffer, size);
         file.close();
 
+        LogPrintf(RETRO_LOG_INFO, "Loaded file: %s, size: %d\n", filename.c_str(), size);
+
         return buffer;
     }
 
@@ -53,9 +59,9 @@ namespace RetroSim
         return file.good();
     }
 
-    std::string ConvertPathToPlatformCompatibleFormat(std::string path)
+    std::string ConvertPathToPlatformCompatibleFormat(const std::string path)
     {
-#ifdef _WIN32
+#ifdef WIN32
         std::string result = path;
         std::replace(result.begin(), result.end(), '/', '\\');
         return result;

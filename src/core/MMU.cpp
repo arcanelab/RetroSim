@@ -10,36 +10,23 @@ namespace RetroSim::MMU
 {
     MemorySections memory;
 
-    int LoadFile(const char *path, uint32_t address)
+    int LoadFileToAddress(const std::string path, uint32_t address)
     {
-        const char *filename = ConvertPathToPlatformCompatibleFormat(std::string(path)).c_str();
-        FILE *file = fopen(filename, "rb");
-        if (file == nullptr)
+        size_t fileSize;
+        uint8_t *buffer = RetroSim::ReadBinaryFile(path, fileSize);
+        if (buffer == nullptr)
         {
-            LogPrintf(RETRO_LOG_ERROR, "Failed to open file: %s\n", filename);
+            LogPrintf(RETRO_LOG_ERROR, "Failed to open file: %s\n", path.c_str());
             return -1;
         }
-
-        fseek(file, 0, SEEK_END);
-        uint32_t fileSize = ftell(file);
-        fseek(file, 0, SEEK_SET);
 
         if (address + fileSize > memorySize)
         {
             LogPrintf(RETRO_LOG_ERROR, "LoadFile: file size exceeds memory size: %08X\n", address + fileSize);
             return -1;
         }
-
-        fread(memory.raw + address, 1, fileSize, file);
-        fclose(file);
-
-        LogPrintf(RETRO_LOG_INFO, "Loaded %d bytes to $%x from %s\n", fileSize, address, filename);
-
-        return 0;
-    }
-
-    int LoadFile(std::string filename, uint32_t address)
-    {
-        return LoadFile(ConvertPathToPlatformCompatibleFormat(filename).c_str(), address);
+        
+        memcpy(memory.raw + address, buffer, fileSize);
+        delete buffer;
     }
 }

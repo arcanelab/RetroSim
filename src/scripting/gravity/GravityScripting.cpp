@@ -35,6 +35,7 @@ namespace RetroSim::GravityScripting
         const char *scriptCStr = script.c_str();
         closure = gravity_compiler_run(compiler, scriptCStr, (uint32_t)strlen(scriptCStr), 0, true, true);
         gravity_compiler_transfer(compiler, vm);
+        gravity_vm_loadclosure(vm, closure);
     }
 
     void CompileScriptFromFile(std::string filename)
@@ -44,7 +45,6 @@ namespace RetroSim::GravityScripting
             return;
 
         CompileScript(script);
-        gravity_vm_loadclosure(vm, closure);
     }
 
     void RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs)
