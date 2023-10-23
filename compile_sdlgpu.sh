@@ -20,8 +20,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run cmake
-cmake .. -G "Unix Makefiles" -DBUILD_FRAMEWORK=OFF
-make
+cmake .. -G "Unix Makefiles" -DDEFAULT_BUILD_SHARED=OFF -DBUILD_FRAMEWORK=OFF
+cmake --build . --target SDL_gpu
 
 cd ../../../../
 
