@@ -15,6 +15,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <SDL.h>
+#include <random>
 
 #include "GravityScripting.h"
 #include "GPU.h"
@@ -45,6 +47,13 @@ namespace RetroSim
 
     uint32_t frameNumber = 0;
 
+    int GetRandomNumber(int n, int m)
+    {
+        static std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
+        std::uniform_int_distribution<int> distribution(n, m);
+        return distribution(generator);
+    }
+
     void InitializeTestPatterns()
     {
         int tileWidth = 8;
@@ -57,11 +66,18 @@ namespace RetroSim
             MMU::memory.Map_u8[i] = i % 256;
         }
 
+        string images[] = {"freedom", "Fairlight", "Metaverse", "Nahkolor", "Rebels", "WinterPatrol", "Phenomenon"};
+        int randomIndex = GetRandomNumber(0, (images->length() - 1));
+
+        LogPrintf(RETRO_LOG_INFO, "RandomIndex: %d\n", randomIndex);
+        string path = Core::GetInstance()->GetCoreConfig().GetDataPath() + "/gfx/" + images[randomIndex] + ".png.pal";
+        LogPrintf(RETRO_LOG_INFO, "Random image: %s\n", path.c_str());
+
         // load image palette
-        MMU::LoadFileToAddress(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/freedom.png.pal", MMU::PALETTE_U32);
+        MMU::LoadFileToAddress(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/gfx/" + images[randomIndex] + ".png.pal", MMU::PALETTE_U32);
 
         // load image bitmap
-        MMU::LoadFileToAddress(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/freedom.png.bitmap", MMU::BITMAP_U8);
+        MMU::LoadFileToAddress(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/gfx/" + images[randomIndex] + ".png.bitmap", MMU::BITMAP_U8);
 
         // copy image from BITMAP_U8 to SPRITE_ATLAS_U8, crop at 128x128
         for (int y = 0; y < 128; y++)
