@@ -195,7 +195,7 @@ namespace RetroSim::SDLGPUApp
             // Set up shader variables
             GPU_ActivateShaderProgram(linkedShaders, &shaderBlock);
             static const char *Uniforms[] = {"OutputSize", "TextureSize", "InputSize"};
-            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w * internalScale, windowRect.h * internalScale});
+            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w * (internalScale + 2.0f), windowRect.h * (internalScale + 2.0f)});
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
 
