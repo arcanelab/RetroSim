@@ -34,16 +34,18 @@ func update()
     var x = 0
     for(var i in 0...255)
     {
-        x = Math.sin(clock/6.0 - i/20.0) * 8 + 16
+        x = Math.sin(clock/12.0 - i/20.0) * 8 + 16
         // GPU.Line(160, i, x, i, i + Math.sin(clock/60.0)*128+128)
         GPU.Line((x * x) / 15.0 + 8, i, x, i, i)
         // GPU.Line(x, i, 64-x, i, i+32)
+        GPU.Line((x * x) / 15.0 + 408, i, x + 400, i, i)
+        // GPU.Line((x * x) / 15.0 + 408, i, x + 400, i, i)
     }
 
     GPU.Bitmap(72, 0, 0, 0, 320, 256, 320, -1);
 
-    GPU.Print(100, 1, "RetroSim (c) 2023 Zoltan Majoros", 36)
-    GPU.Print(400, 1, "FPS: \(avgFps)", 36)
+    // GPU.Print(100, 1, "RetroSim (c) 2023 Zoltan Majoros", 36)
+    // GPU.Print(400, 1, "FPS: \(avgFps)", 36)
 
     // GPU.Print(37*8, 0, "\(clock)", 8)
 
