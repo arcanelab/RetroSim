@@ -3,6 +3,7 @@
 
 #pragma once
 #include <string>
+#include <SDL.h>
 #include <SDL_gpu.h>
 #include <filesystem>
 #include <iostream>
@@ -16,7 +17,8 @@
 namespace RetroSim::SDLGPUApp
 {
     GPU_Target *windowRenderTarget; // renderer
-    GPU_Image *gpuScreenTexture;    // screen texture
+    GPU_Image *screenTexture;    // screen texture
+    GPU_Image *upscaledTexture;
     SDL_Window *window;
 
     uint32_t linkedShaders;
@@ -123,39 +125,59 @@ namespace RetroSim::SDLGPUApp
         int scaledWindowWidth = GPU::windowWidth * windowScalingFactor;
         int scaledWindowHeight = GPU::windowHeight * windowScalingFactor;
 
-        float internalScale = windowScalingFactor; // 3.0f;
-        int internalContentWidth = GPU::textureWidth * internalScale;
-        int internalContentHeight = GPU::textureHeight * internalScale;
+        // float internalScale = windowScalingFactor; // 3.0f;
+        // int internalContentWidth = GPU::textureWidth * internalScale;
+        // int internalContentHeight = GPU::textureHeight * internalScale;
 
-        int internalWindowWidth = GPU::windowWidth * internalScale;
-        int internalWindowHeight = GPU::windowHeight * internalScale;
+        // int internalWindowWidth = GPU::windowWidth * internalScale;
+        // int internalWindowHeight = GPU::windowHeight * internalScale;
 
         window = SDL_CreateWindow("RetroSim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                   scaledWindowWidth, scaledWindowHeight,
                                   SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
         int width, height;
         SDL_GetWindowSize(window, &width, &height);
+        LogPrintf(RETRO_LOG_INFO, "Window size: %dx%d\n", width, height);
+        LogPrintf(RETRO_LOG_INFO, "GPU::windowSize: %dx%d\n", GPU::windowWidth, GPU::windowHeight);
+        // print GPU::windowWidth and GPU::windowHeight
+
         // SDL_SetWindowSize(window, width, height);
         // printRenderers();
+
+        SDL_GL_GetDrawableSize(window, &width, &height);
+        float desktopScale = (float)width / (float)GPU::windowWidth / (float)windowScalingFactor;
+        LogPrintf(RETRO_LOG_INFO, "OS scale: %f\n", desktopScale);
+        LogPrintf(RETRO_LOG_INFO, "Renderer size: %dx%d\n", width, height);
 
         uint32_t windowId = SDL_GetWindowID(window);
 
         GPU_SetInitWindow(windowId);
         GPU_SetPreInitFlags(GPU_INIT_ENABLE_VSYNC);
-        windowRenderTarget = GPU_InitRenderer(GPU_RENDERER_OPENGL_2, internalWindowWidth, internalWindowHeight, GPU_DEFAULT_INIT_FLAGS);
+        windowRenderTarget = GPU_InitRenderer(GPU_RENDERER_OPENGL_2, scaledWindowWidth, scaledWindowHeight, GPU_DEFAULT_INIT_FLAGS);
         if (windowRenderTarget == NULL)
         {
             printf("Failed to create renderer\n");
             return;
         }
 
-        // GPU_SetWindowResolution(scaledWindowWidth, scaledWindowHeight);
-        GPU_SetVirtualResolution(windowRenderTarget, GPU::windowWidth * internalScale, GPU::windowHeight * internalScale);
-        // GPU_SetVirtualResolution(windowRenderTarget, GPU::textureWidth, GPU::textureHeight);
+        GPU_SetWindowResolution(scaledWindowWidth, scaledWindowHeight);
+        // GPU_SetVirtualResolution(windowRenderTarget, GPU::windowWidth, GPU::windowHeight);
         // GPU_UnsetVirtualResolution(windowRenderTarget);
-        gpuScreenTexture = GPU_CreateImage(GPU::windowWidth, GPU::windowHeight, GPU_FORMAT_RGBA);
-        GPU_SetAnchor(gpuScreenTexture, 0, 0);
-        GPU_SetImageFilter(gpuScreenTexture, GPU_FILTER_NEAREST); // GPU_FILTER_LINEAR, GPU_FILTER_NEAREST
+        screenTexture = GPU_CreateImage(GPU::windowWidth, GPU::windowHeight, GPU_FORMAT_RGBA);
+        GPU_SetAnchor(screenTexture, 0, 0);
+        GPU_SetImageFilter(screenTexture, GPU_FILTER_NEAREST); // GPU_FILTER_LINEAR, GPU_FILTER_NEAREST
+
+        // upscaledTexture = GPU_CreateImage(GPU::windowWidth * desktopScale, GPU::windowHeight * desktopScale, GPU_FORMAT_RGBA);
+        upscaledTexture = GPU_CreateImage(scaledWindowWidth * desktopScale, scaledWindowHeight * desktopScale, GPU_FORMAT_RGBA);
+        GPU_SetImageFilter(upscaledTexture, GPU_FILTER_NEAREST);
+        GPU_SetAnchor(upscaledTexture, 0, 0);
+        GPU_Target* upscaledTarget = GPU_LoadTarget(upscaledTexture);
+        GPU_SetBlendMode(screenTexture, GPU_BLEND_NORMAL);
+
+        // print screentexture size
+        LogPrintf(RETRO_LOG_INFO, "Screen texture size: %dx%d\n", GPU::windowWidth, GPU::windowHeight);
+        // print upscaled texture size
+        LogPrintf(RETRO_LOG_INFO, "Upscaled texture size: %dx%d, %dx%d\n", upscaledTexture->base_w, upscaledTexture->base_h, upscaledTexture->texture_w, upscaledTexture->texture_h);
 
         LoadShaders();
 
@@ -178,8 +200,8 @@ namespace RetroSim::SDLGPUApp
         GPU_Rect windowRect;
         windowRect.x = 0;
         windowRect.y = 0;
-        windowRect.w = GPU::windowWidth;
-        windowRect.h = GPU::windowHeight;
+        windowRect.w = scaledWindowWidth;
+        windowRect.h = scaledWindowHeight;
 
         bool quit = false;
         SDL_Event event;
@@ -190,18 +212,28 @@ namespace RetroSim::SDLGPUApp
             GPU_Clear(windowRenderTarget);
             Core::GetInstance()->RunNextFrame();
             // copy texture to screen
-            GPU_UpdateImageBytes(gpuScreenTexture, &contentRect, (uint8_t *)GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
+            GPU_UpdateImageBytes(screenTexture, &contentRect, (uint8_t *)GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
+            // GPU_BlitScale(screenTexture, NULL, upscaledTarget, 0, 0, desktopScale, desktopScale);
+            // GPU_BlitScale(screenScreenTexture, NULL, upscaledTarget, 0, 0, windowScalingFactor, windowScalingFactor);
+            GPU_BlitScale(screenTexture, NULL, upscaledTarget, 0, 0, windowScalingFactor * desktopScale, windowScalingFactor * desktopScale);
 
             // Set up shader variables
             GPU_ActivateShaderProgram(linkedShaders, &shaderBlock);
             static const char *Uniforms[] = {"OutputSize", "TextureSize", "InputSize"};
-            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w * (internalScale + 2.0f), windowRect.h * (internalScale + 2.0f)});
+            // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
+            // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
+            // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
+
+            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
 
             // copy rendered screen to window render target
-            GPU_BlitScale(gpuScreenTexture, NULL, windowRenderTarget, 0, 0, internalScale, internalScale);
-
+            // GPU_BlitScale(upscaledTexture, NULL, windowRenderTarget, 0, 0, 1.0, 1.0);
+            // GPU_BlitScale(upscaledTexture, NULL, windowRenderTarget, 0, 0, desktopScale, desktopScale);
+            // GPU_BlitScale(upscaledTexture, NULL, windowRenderTarget, 0, 0, 1.0f, 1.0f);
+            GPU_Blit(upscaledTexture, NULL, windowRenderTarget, 0, 0);
+ 
             GPU_DeactivateShaderProgram();
 
             // Display rendertarget to window
