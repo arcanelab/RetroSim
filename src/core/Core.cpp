@@ -15,7 +15,6 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <SDL.h>
 #include <random>
 
 #include "GravityScripting.h"
