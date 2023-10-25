@@ -150,8 +150,8 @@ COMPAT_VARYING vec4 TEX0;
     uniform COMPAT_PRECISION float TRINITRON_CURVE;
 #else
     #define MASK 3.0
-    #define MASK_INTENSITY 0.4
-    #define SCANLINE_THINNESS 0.2
+    #define MASK_INTENSITY 0.3
+    #define SCANLINE_THINNESS 0.0
     #define SCAN_BLUR 6.0
     #define CURVATURE 0.02
     #define TRINITRON_CURVE 0.0
@@ -661,8 +661,22 @@ void main()
 	INPUT_BLUR,
 	INPUT_MASK,
 	CrtsTone(1.0,0.0,INPUT_THIN,INPUT_MASK));
-	
-	// Shadertoy outputs non-linear color   
-	FragColor.rgb=ToSrgb(FragColor.rgb);
+
+  float screenHeightInPixels = 270.0;
+  float normalizedY = gl_FragCoord.y / OutputSize.y; // [0, 1]
+  float strength = 0.5;
+
+  // https://www.desmos.com/calculator/wwml2qjse9
+  // A: brigness compensation
+  // B: function that dips on each line, see desmos link for visualization
+  // C: offset dip to scanline edges (otherwise it would dim on the horiznotal lines)
+  // D: how narrow the dip should be, must be an even number, sensible range: [4, 30]
+  // E: strength of scanline effect (valid range: [0, 1.2])
+  // -------------+-----------------------+--------------------------------------------------------+--------+-------+---------
+  //              |          A            |     B                                                  |    C   |  D    |    E
+  float scanline = 1.0 + (strength / 5.0) - (pow(sin(screenHeightInPixels * normalizedY * 3.141592 + 1.5708), 20.0) * strength);
+  // float scanline = 1.1 - (pow(sin(screenHeightInPixels * normalizedY * 3.141592), 20.0) * 0.5); // old
+
+	FragColor.rgb=ToSrgb(FragColor.rgb * scanline);
 } 
 #endif
