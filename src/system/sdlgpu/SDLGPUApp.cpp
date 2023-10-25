@@ -213,26 +213,19 @@ namespace RetroSim::SDLGPUApp
             Core::GetInstance()->RunNextFrame();
             // copy texture to screen
             GPU_UpdateImageBytes(screenTexture, &contentRect, (uint8_t *)GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
-            // GPU_BlitScale(screenTexture, NULL, upscaledTarget, 0, 0, desktopScale, desktopScale);
-            // GPU_BlitScale(screenScreenTexture, NULL, upscaledTarget, 0, 0, windowScalingFactor, windowScalingFactor);
             GPU_BlitScale(screenTexture, NULL, upscaledTarget, 0, 0, windowScalingFactor * desktopScale, windowScalingFactor * desktopScale);
 
             // Set up shader variables
             GPU_ActivateShaderProgram(linkedShaders, &shaderBlock);
             static const char *Uniforms[] = {"OutputSize", "TextureSize", "InputSize"};
-            // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
-            // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
-            // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
-
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
+            // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w, windowRect.h}); // this looks good, too.
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
 
             // copy rendered screen to window render target
-            // GPU_BlitScale(upscaledTexture, NULL, windowRenderTarget, 0, 0, 1.0, 1.0);
-            // GPU_BlitScale(upscaledTexture, NULL, windowRenderTarget, 0, 0, desktopScale, desktopScale);
-            // GPU_BlitScale(upscaledTexture, NULL, windowRenderTarget, 0, 0, 1.0f, 1.0f);
             GPU_Blit(upscaledTexture, NULL, windowRenderTarget, 0, 0);
+            // GPU_BlitScale(upscaledTexture, NULL, windowRenderTarget, 0, 0, 1.0f / desktopScale, 1.0f / desktopScale);
  
             GPU_DeactivateShaderProgram();
 

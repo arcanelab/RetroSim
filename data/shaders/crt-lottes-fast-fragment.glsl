@@ -149,13 +149,13 @@ COMPAT_VARYING vec4 TEX0;
     uniform COMPAT_PRECISION float MASK;
     uniform COMPAT_PRECISION float TRINITRON_CURVE;
 #else
-    #define MASK 1.0
-    #define MASK_INTENSITY 0.1
+    #define MASK 3.0
+    #define MASK_INTENSITY 0.4
     #define SCANLINE_THINNESS 0.2
     #define SCAN_BLUR 6.0
     #define CURVATURE 0.02
     #define TRINITRON_CURVE 0.0
-    #define CORNER 1.0
+    #define CORNER 10.0
     #define CRT_GAMMA 2.4
 #endif
 
