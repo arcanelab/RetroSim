@@ -19,6 +19,7 @@ namespace RetroSim::MMU
         SPRITE_ATLAS_U8 = 0x9000,   // Sprite atlas/memory bank (16K)
         GPU_REGISTERS = 0xD000,     // GPU registers
         GENERAL_REGISTERS = 0xD100, // General registers
+        SHADER_PARAMETERS = 0xD200, // Shader parameters
         PALETTE_U32 = 0xE000,       // Color palette memory (4K)
         BITMAP_U8 = 0x10000,        // Bitmap memory (120K)
         CHARSET_U8 = 0x30000        // Character tile data (64K)
@@ -44,6 +45,18 @@ namespace RetroSim::MMU
         uint8_t currentFPS;      // in Hz
     };
 
+    struct ShaderParameters
+    {
+        float MASK = 3.0f;              // $00
+        float MASK_INTENSITY = 0.3f;    // $04
+        float SCANLINE_THINNESS = 0.0f; // $08
+        float SCAN_BLUR = 6.0f;         // $0C
+        float CURVATURE = 0.02f;        // $10
+        float TRINITRON_CURVE = 0.0f;   // $14
+        float CORNER = 9.0f;            // $18
+        float CRT_GAMMA = 2.4f;         // $1C
+    };
+
     struct MemorySections
     {
         uint8_t raw[memorySize];
@@ -58,10 +71,12 @@ namespace RetroSim::MMU
 
         GPURegisters &gpu;
         GeneralRegisters &generalRegisters;
+        ShaderParameters &shaderParameters;
 
         MemorySections()
             : gpu(*reinterpret_cast<GPURegisters *>(&raw[GPU_REGISTERS])), // Initializing references in the constructor's initialization list
-              generalRegisters(*reinterpret_cast<GeneralRegisters *>(&raw[GENERAL_REGISTERS]))
+              generalRegisters(*reinterpret_cast<GeneralRegisters *>(&raw[GENERAL_REGISTERS])),
+              shaderParameters(*reinterpret_cast<ShaderParameters *>(&raw[SHADER_PARAMETERS]))
         {
             memset(raw, 0, memorySize);
             Map_u8 = &raw[MAP_U8];

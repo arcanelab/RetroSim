@@ -11,6 +11,7 @@
 #include "Core.h"
 #include "GPU.h"
 #include "FileUtils.h"
+#include "MMU.h"
 
 #define COUNT_OF(x) ((sizeof(x) / sizeof(0 [x])) / ((size_t)(!(sizeof(x) % sizeof(0 [x])))))
 
@@ -41,6 +42,18 @@ namespace RetroSim::SDLGPUApp
         }
 
         return false;
+    }
+
+    void SetShaderParameters()
+    {
+        MMU::memory.shaderParameters.MASK = 3.0f;
+        MMU::memory.shaderParameters.MASK_INTENSITY = 0.3f;
+        MMU::memory.shaderParameters.SCANLINE_THINNESS = 0.0f;
+        MMU::memory.shaderParameters.SCAN_BLUR = 6.0f;
+        MMU::memory.shaderParameters.CURVATURE = 0.02f;
+        MMU::memory.shaderParameters.TRINITRON_CURVE = 0.0f;
+        MMU::memory.shaderParameters.CORNER = 9.0f;
+        MMU::memory.shaderParameters.CRT_GAMMA = 2.4f;        
     }
 
     void LoadShaders()
@@ -81,7 +94,7 @@ namespace RetroSim::SDLGPUApp
         else
         {
             printf("Failed to link shader program: %s\n", GPU_GetShaderMessage());
-        }
+        }        
     }
 
     int GetScreenRefreshRate()
@@ -180,6 +193,7 @@ namespace RetroSim::SDLGPUApp
         LogPrintf(RETRO_LOG_INFO, "Upscaled texture size: %dx%d, %dx%d\n", upscaledTexture->base_w, upscaledTexture->base_h, upscaledTexture->texture_w, upscaledTexture->texture_h);
 
         LoadShaders();
+        SetShaderParameters();
 
         int refreshRate = GetScreenRefreshRate();
         if (refreshRate != -1)
@@ -217,11 +231,18 @@ namespace RetroSim::SDLGPUApp
 
             // Set up shader variables
             GPU_ActivateShaderProgram(linkedShaders, &shaderBlock);
-            static const char *Uniforms[] = {"OutputSize", "TextureSize", "InputSize"};
+            static const char *Uniforms[] = {"OutputSize", "TextureSize", "InputSize", "CRT_GAMMA", "SCANLINE_THINNESS", "SCAN_BLUR", "MASK_INTENSITY", "CURVATURE", "CORNER", "MASK", "TRINITRON_CURVE"};
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
             // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w, windowRect.h}); // this looks good, too.
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "MASK"), MMU::memory.shaderParameters.MASK);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "CRT_GAMMA"), MMU::memory.shaderParameters.CRT_GAMMA);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "SCANLINE_THINNESS"), MMU::memory.shaderParameters.SCANLINE_THINNESS);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "SCAN_BLUR"), MMU::memory.shaderParameters.SCAN_BLUR);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "MASK_INTENSITY"), MMU::memory.shaderParameters.MASK_INTENSITY);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "CURVATURE"), MMU::memory.shaderParameters.CURVATURE);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "CORNER"), MMU::memory.shaderParameters.CORNER);
 
             // copy rendered screen to window render target
             GPU_Blit(upscaledTexture, NULL, windowRenderTarget, 0, 0);

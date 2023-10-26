@@ -139,6 +139,8 @@ COMPAT_VARYING vec4 TEX0;
 #define SourceSize vec4(TextureSize, 1.0 / TextureSize) //either TextureSize or InputSize
 #define OutSize vec4(OutputSize, 1.0 / OutputSize)
 
+#define PARAMETER_UNIFORM 1
+
 #ifdef PARAMETER_UNIFORM
     uniform COMPAT_PRECISION float CRT_GAMMA;
     uniform COMPAT_PRECISION float SCANLINE_THINNESS;
