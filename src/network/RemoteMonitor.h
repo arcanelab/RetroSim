@@ -21,6 +21,7 @@ namespace RetroSim::RemoteMonitor
         setMemoryU8,
         setMemoryU16,
         setMemoryU32,
+        setMemoryF,
         disassemble,
         disconnect,
         stopGPU,

@@ -26,6 +26,7 @@ namespace RetroSim::RemoteMonitor
         {"set8", setMemoryU8},
         {"set16", setMemoryU16},
         {"set32", setMemoryU32},
+        {"setf", setMemoryF},
         {"dasm", disassemble},
         {"d", disassemble},
         {"stopGPU", stopGPU},
@@ -39,7 +40,7 @@ namespace RetroSim::RemoteMonitor
 
     string DisplayHelp()
     {
-        return "Available commands:\nhelp, mem, set8, set16, set32, dasm (short: d)";
+        return "Available commands:\nhelp, mem, set8, set16, set32, setf, dasm (short: d)";
     }
 
     string DisplayMemoryHelp()
@@ -229,6 +230,8 @@ namespace RetroSim::RemoteMonitor
                 return SetMemory<uint16_t>(tokens);
             case setMemoryU32:
                 return SetMemory<uint32_t>(tokens);
+            case setMemoryF:
+                return SetMemory<float>(tokens);
             case disassemble:
                 return Disassemble(tokens);
             case stopGPU:
