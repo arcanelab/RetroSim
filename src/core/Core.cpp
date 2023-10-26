@@ -65,8 +65,8 @@ namespace RetroSim
             MMU::memory.Map_u8[i] = i % 256;
         }
 
-        string images[] = {"freedom", "Fairlight", "Metaverse", "Nahkolor", "Rebels", "WinterPatrol", "Phenomenon", "Explorers"};
-        int randomIndex = GetRandomNumber(0, (images->length() - 1));
+        std::vector<string> images = {"freedom", "Fairlight", "Metaverse", "Nahkolor", "Rebels", "WinterPatrol", "Phenomenon", "Explorers"};
+        int randomIndex = GetRandomNumber(0, (images.size() - 1));
 
         LogPrintf(RETRO_LOG_INFO, "RandomIndex: %d\n", randomIndex);
         string path = Core::GetInstance()->GetCoreConfig().GetDataPath() + "/gfx/" + images[randomIndex] + ".png.pal";
