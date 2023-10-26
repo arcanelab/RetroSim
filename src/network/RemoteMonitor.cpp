@@ -136,7 +136,14 @@ namespace RetroSim::RemoteMonitor
 
         try
         {
-            value = static_cast<T>(std::stoul(tokens[2], nullptr, 0));
+            if (tokens[0] == "setf")
+            {
+                value = static_cast<T>(std::stof(tokens[2]));
+            }
+            else
+            {
+                value = static_cast<T>(std::stoul(tokens[2], nullptr, 0));
+            }
         }
         catch (...)
         {
