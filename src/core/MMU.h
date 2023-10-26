@@ -49,7 +49,7 @@ namespace RetroSim::MMU
     {
         float MASK = 3.0f;              // $00
         float MASK_INTENSITY = 0.3f;    // $04
-        float SCANLINE_THINNESS = 0.0f; // $08
+        float SCANLINE_STRENGTH = 0.5f; // $08
         float SCAN_BLUR = 6.0f;         // $0C
         float CURVATURE = 0.02f;        // $10
         float TRINITRON_CURVE = 0.0f;   // $14

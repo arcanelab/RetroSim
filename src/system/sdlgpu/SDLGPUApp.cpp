@@ -48,7 +48,7 @@ namespace RetroSim::SDLGPUApp
     {
         MMU::memory.shaderParameters.MASK = 3.0f;
         MMU::memory.shaderParameters.MASK_INTENSITY = 0.3f;
-        MMU::memory.shaderParameters.SCANLINE_THINNESS = 0.0f;
+        MMU::memory.shaderParameters.SCANLINE_STRENGTH = 0.5f;
         MMU::memory.shaderParameters.SCAN_BLUR = 6.0f;
         MMU::memory.shaderParameters.CURVATURE = 0.02f;
         MMU::memory.shaderParameters.TRINITRON_CURVE = 0.0f;
@@ -231,14 +231,14 @@ namespace RetroSim::SDLGPUApp
 
             // Set up shader variables
             GPU_ActivateShaderProgram(linkedShaders, &shaderBlock);
-            static const char *Uniforms[] = {"OutputSize", "TextureSize", "InputSize", "CRT_GAMMA", "SCANLINE_THINNESS", "SCAN_BLUR", "MASK_INTENSITY", "CURVATURE", "CORNER", "MASK", "TRINITRON_CURVE"};
+            static const char *Uniforms[] = {"OutputSize", "TextureSize", "InputSize", "CRT_GAMMA", "SCANLINE_STRENGTH", "SCAN_BLUR", "MASK_INTENSITY", "CURVATURE", "CORNER", "MASK", "TRINITRON_CURVE"};
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
             // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w, windowRect.h}); // this looks good, too.
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
             GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "MASK"), MMU::memory.shaderParameters.MASK);
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "CRT_GAMMA"), MMU::memory.shaderParameters.CRT_GAMMA);
-            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "SCANLINE_THINNESS"), MMU::memory.shaderParameters.SCANLINE_THINNESS);
+            GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "SCANLINE_STRENGTH"), MMU::memory.shaderParameters.SCANLINE_STRENGTH);
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "SCAN_BLUR"), MMU::memory.shaderParameters.SCAN_BLUR);
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "MASK_INTENSITY"), MMU::memory.shaderParameters.MASK_INTENSITY);
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "CURVATURE"), MMU::memory.shaderParameters.CURVATURE);
