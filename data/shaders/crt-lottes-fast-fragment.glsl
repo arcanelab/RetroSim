@@ -155,7 +155,7 @@ COMPAT_VARYING vec4 TEX0;
     #define SCAN_BLUR 6.0
     #define CURVATURE 0.02
     #define TRINITRON_CURVE 0.0
-    #define CORNER 10.0
+    #define CORNER 9.0
     #define CRT_GAMMA 2.4
 #endif
 
@@ -666,7 +666,7 @@ void main()
   float normalizedY = gl_FragCoord.y / OutputSize.y; // [0, 1]
   float strength = 0.5;
 
-  // https://www.desmos.com/calculator/wwml2qjse9
+  // https://www.desmos.com/calculator/soqhnckdet
   // A: brigness compensation
   // B: function that dips on each line, see desmos link for visualization
   // C: offset dip to scanline edges (otherwise it would dim on the horiznotal lines)
