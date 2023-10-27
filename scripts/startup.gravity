@@ -44,8 +44,8 @@ func update()
 
     GPU.Bitmap(72, 0, 0, 0, 320, 256, 320, -1);
 
-    // GPU.Print(100, 1, "RetroSim (c) 2023 Zoltan Majoros", 36)
-    // GPU.Print(400, 1, "FPS: \(avgFps)", 36)
+    GPU.Print(115, 1, "/ RetroSim // Zoltan Majoros /", 36)
+    GPU.Print(400, 1, "FPS: \(avgFps)", 36)
 
     // GPU.Print(37*8, 0, "\(clock)", 8)
 
