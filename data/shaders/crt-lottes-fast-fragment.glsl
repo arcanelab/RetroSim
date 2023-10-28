@@ -676,7 +676,7 @@ void main()
   // E: strength of scanline effect (valid range: [0, 1.2])
   // -------------+-----------------------+--------------------------------------------------------+--------+-------+---------
   //              |          A            |     B                                                  |    C   |  D    |    E
-  float scanline = 1.0 + (SCANLINE_STRENGTH / 5.0) - (pow(sin(screenHeightInPixels * normalizedY * 3.141592 + 1.5708), 20.0) * SCANLINE_STRENGTH);
+  float scanline = 1.0 + (SCANLINE_STRENGTH / 5.0) - (pow(sin(screenHeightInPixels * normalizedY * 3.141592 + 1.5708), 16.0) * SCANLINE_STRENGTH);
   // float scanline = 1.1 - (pow(sin(screenHeightInPixels * normalizedY * 3.141592), 20.0) * 0.5); // old
 
 	FragColor.rgb=ToSrgb(FragColor.rgb * scanline);
