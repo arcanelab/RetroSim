@@ -24,6 +24,7 @@ end
 
 -- set platform-specific compiler settings
 if is_plat("windows") then
+    add_requires("raylib x.x")
     set_warnings("all")
     add_defines("WIN32")
     -- add_cxflags("/wd4068")
@@ -68,13 +69,17 @@ function AddSDL_GPU()
     if is_plat("windows") then
         if is_mode("debug") then
             add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu-VS/lib/Debug")
+            -- add_linkdirs("src/extern/SDL/build/Debug")
         end
         if is_mode("release") then
             add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu-VS/lib/Release")
+            -- add_linkdirs("src/extern/SDL/build/Release")
         end
+        -- add_includedirs("src/extern/sdl/include")
         add_links("sdl2_gpu_s")
         add_links("opengl32")
         add_links("msvcrt")
+        -- add_links("sdl2-staticd")
         -- add_links("GL")
     elseif is_plat("macosx") then
         add_deps("BuildSDL_gpu")  
@@ -139,3 +144,11 @@ target("BuildSDL_gpu")
     else
         -- Implement cmake build for Windows
     end
+
+target("Raylib")
+    set_default(false)
+    AddCommon()
+    add_defines("RAYLIB")
+    add_files("src/system/raylib/*.cpp")
+    add_packages("raylib")
+    set_targetdir("bin")
