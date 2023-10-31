@@ -232,10 +232,12 @@ namespace RetroSim::SDLGPUApp
             // Set up shader variables
             GPU_ActivateShaderProgram(linkedShaders, &shaderBlock);
             static const char *Uniforms[] = {"OutputSize", "TextureSize", "InputSize", "CRT_GAMMA", "SCANLINE_STRENGTH", "SCAN_BLUR", "MASK_INTENSITY", "CURVATURE", "CORNER", "MASK", "TRINITRON_CURVE"};
-            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w * desktopScale, windowRect.h * desktopScale});
-            // GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, (float[]){windowRect.w, windowRect.h}); // this looks good, too.
-            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
-            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, (float[]){windowRect.w, windowRect.h});
+            float outputSize[] = {windowRect.w * desktopScale, windowRect.h * desktopScale};
+            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "OutputSize"), 2, 1, outputSize);
+            float textureSize[] = {windowRect.w, windowRect.h};
+            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "TextureSize"), 2, 1, textureSize);
+            float inputSize[] = {windowRect.w, windowRect.h};
+            GPU_SetUniformfv(GPU_GetUniformLocation(linkedShaders, "InputSize"), 2, 1, inputSize);
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "MASK"), MMU::memory.shaderParameters.MASK);
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "CRT_GAMMA"), MMU::memory.shaderParameters.CRT_GAMMA);
             GPU_SetUniformf(GPU_GetUniformLocation(linkedShaders, "SCANLINE_STRENGTH"), MMU::memory.shaderParameters.SCANLINE_STRENGTH);

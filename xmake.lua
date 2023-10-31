@@ -26,8 +26,9 @@ end
 if is_plat("windows") then
     set_warnings("all")
     add_defines("WIN32")
-    add_cxflags("/wd4068")
+    -- add_cxflags("/wd4068")
     -- add_ldflags("-subsystem:windows")
+    -- add_ldflags("-subsystem:console")
 elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
     add_defines("UNIX_HOST")
     add_defines("SDL_GPU_DISABLE_GLES")
@@ -64,23 +65,26 @@ function AddCommon()
 end
 
 function AddSDL_GPU()
-    add_deps("BuildSDL_gpu")    
     if is_plat("windows") then
         if is_mode("debug") then
-            add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu-VS-0.11.0/lib/Debug")
+            add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu-VS/lib/Debug")
         end
         if is_mode("release") then
-            add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu-VS-0.11.0/lib/Release")
+            add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu-VS/lib/Release")
         end
         add_links("sdl2_gpu_s")
+        add_links("opengl32")
+        add_links("msvcrt")
         -- add_links("GL")
     elseif is_plat("macosx") then
+        add_deps("BuildSDL_gpu")  
         add_linkdirs("src/extern/sdl-gpu/build/SDL_gpu/lib/")
         add_frameworks("OpenGL")
         add_links("sdl2_gpu")
     end
 
     add_files("src/system/sdlgpu/*.cpp")
+    add_files("src/system/sdlgpu/main.cpp")
     add_includedirs("src/extern/sdl-gpu/include")
 end
 
