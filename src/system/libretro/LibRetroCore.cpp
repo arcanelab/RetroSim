@@ -33,7 +33,7 @@ namespace RetroSim
         // GetSystemDirectory();
         SetupCore();
 
-        if(windowBuffer == nullptr)
+        if (windowBuffer == nullptr)
             windowBuffer = new uint32_t[GPU::windowWidth * GPU::windowHeight];
 
         memset(windowBuffer, 0, GPU::windowWidth * GPU::windowHeight * sizeof(uint32_t));
@@ -213,7 +213,7 @@ namespace RetroSim
         if (envCallback(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
         {
 #ifdef WIN32
-            systemDirectory = RetroSim::ConvertToWindowsPath(dir);
+            systemDirectory = RetroSim::ConvertPathToPlatformCompatibleFormat(dir);
 #else
             systemDirectory = dir;
 #endif
