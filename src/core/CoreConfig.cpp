@@ -8,8 +8,10 @@
 #include <regex>
 #include "CoreConfig.h"
 #include "FileUtils.h"
+#include "Logger.h"
 
 using namespace std;
+using namespace RetroSim::Logger;
 
 namespace RetroSim
 {
@@ -96,17 +98,34 @@ namespace RetroSim
                     // cout << key << ": " << value << endl;
 
                     if (key == "scriptPath")
+                    {
                         scriptPath = basePath + "/" + value;
+                        LogPrintf(RETRO_LOG_INFO, "Script path: %s\n", scriptPath.c_str());
+                    }
                     else if (key == "fullscreen")
+                    {
                         fullscreen = (value == "true");
+                        LogPrintf(RETRO_LOG_INFO, "Fullscreen: %s\n", fullscreen ? "true" : "false");
+                    }
                     else if (key == "fpsOverride")
+                    {
                         fpsOverride = stoi(value);
+                        LogPrintf(RETRO_LOG_INFO, "FPS override: %d\n", fpsOverride);
+                    }
                     else if (key == "dataPath")
+                    {
                         dataPath = basePath + "/" + value;
+                        LogPrintf(RETRO_LOG_INFO, "Data path: %s\n", dataPath.c_str());
+                    }
                     else if (key == "windowScale")
+                    {
                         windowScale = stoi(value);
+                        LogPrintf(RETRO_LOG_INFO, "Window scale: %d\n", windowScale);
+                    }
                     else
-                        cout << "Unknown key in config file: " << key << endl;
+                    {
+                        LogPrintf(RETRO_LOG_WARN, "Unknown key in config file: %s\n", key.c_str());
+                    }
                 }
             }
         }
