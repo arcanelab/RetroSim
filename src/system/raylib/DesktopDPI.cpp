@@ -18,17 +18,8 @@ namespace RetroSim
         HWND hwnd = GetConsoleWindow(); // Or get your actual game window handle if not using the console
         int dpi = GetDpiForWindow(hwnd);
         return (float)dpi / 96.0f;
-
-#elif defined(__APPLE__)
-        void *nsApp = objc_msgSend((id)objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
-        void *keyWindow = objc_msgSend(nsApp, sel_getUid("keyWindow"));
-        if (!keyWindow)
-            return 1.0f;
-
-        float backingScaleFactor = ((double (*)(id, SEL))objc_msgSend)(keyWindow, sel_getUid("backingScaleFactor"));
-        return backingScaleFactor;
-
 #else
+        // On Mac, it's always 1.0f.
         // TODO: implement Linux, etc.
         return 1.0f; // Default scale for other platforms
 #endif
