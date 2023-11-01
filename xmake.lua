@@ -3,6 +3,7 @@ set_version("0.2.0")
 set_languages("cxx20")
 add_rules("mode.debug", "mode.release")
 add_requires("libsdl 2.x")
+add_requires("raylib x.x")
 set_warnings("all")
 
 -- libraries built from submodules
@@ -24,7 +25,6 @@ end
 
 -- set platform-specific compiler settings
 if is_plat("windows") then
-    add_requires("raylib x.x")
     set_warnings("all")
     add_defines("WIN32")
     -- add_cxflags("/wd4068")
