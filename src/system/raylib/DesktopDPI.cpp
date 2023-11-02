@@ -19,7 +19,7 @@ namespace RetroSim
         int dpi = GetDpiForWindow(hwnd);
         return (float)dpi / 96.0f;
 #else
-        // On Mac, it's always 1.0f.
+        // On Mac it's always 1.0f.
         // TODO: implement Linux, etc.
         return 1.0f; // Default scale for other platforms
 #endif
