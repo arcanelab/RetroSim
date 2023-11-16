@@ -8,7 +8,7 @@ set_warnings("all")
 
 -- libraries built from submodules
 includes("src/extern/gravity")
-includes("src/cpu/A65000/AsmA65k")
+includes("src/cpu/A65000/asmA65k")
 includes("src/extern/csid-mod")
 
 -- make sure to include debug symbols when appropriate
