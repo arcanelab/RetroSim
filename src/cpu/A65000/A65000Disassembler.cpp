@@ -7,7 +7,7 @@
 //
 
 #include "A65000Disassembler.h"
-#ifdef WIN32
+#ifndef __APPLE__
 #include <algorithm>
 #endif
 

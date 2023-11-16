@@ -18,6 +18,8 @@ if is_plat("windows") then
 elseif is_plat("linux") or is_plat("macosx") or is_plat("mingw") then
     add_defines("UNIX_HOST")
     add_cxflags("-w")
+    add_cxxflags("-fPIC")
+    add_cflags("-fPIC")
 end
 
 target("csid-mod")

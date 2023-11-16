@@ -11,6 +11,9 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #endif
+#ifdef __linux__
+#include <algorithm>
+#endif
 #include <libtelnet.h>
 #include <assert.h>
 #include "Logger.h"
