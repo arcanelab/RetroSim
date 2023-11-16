@@ -48,9 +48,9 @@ namespace RetroSim
     {
         uint32_t *dst = (uint32_t *)windowBuffer + GPU::windowWidth * (GPU::windowHeight - GPU::textureHeight) / 2 + (GPU::windowWidth - GPU::textureWidth) / 2;
         uint32_t *src = (uint32_t *)GPU::outputTexture;
-        for (int y = 0; y < GPU::textureHeight; y++)
+        for (uint_fast16_t y = 0; y < GPU::textureHeight; y++)
         {
-            for (int x = 0; x < GPU::textureWidth; x++)
+            for (uint_fast16_t x = 0; x < GPU::textureWidth; x++)
             {
                 uint32_t pixel = *src++;
                 uint8_t a = (pixel >> 24) & 0xff;

@@ -83,8 +83,8 @@ namespace RetroSim::GPU
 
     void ClearScreen(uint8_t colorIndex)
     {
-        for (int y = 0; y < textureHeight; y++)
-            for (int x = 0; x < textureWidth; x++)
+        for (uint_fast16_t y = 0; y < textureHeight; y++)
+            for (uint_fast16_t x = 0; x < textureWidth; x++)
                 DrawPixel(x, y, colorIndex);
     }
 
