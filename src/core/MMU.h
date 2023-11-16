@@ -4,6 +4,9 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#ifdef __linux__
+#include <cstring>
+#endif
 #include "Logger.h"
 
 using namespace RetroSim::Logger;

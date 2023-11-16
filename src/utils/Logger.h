@@ -3,6 +3,9 @@
 #ifdef LIBRETRO
 #include "libretro.h"
 #endif
+#ifdef __linux__
+#include <climits>
+#endif
 
 namespace RetroSim::Logger
 {
