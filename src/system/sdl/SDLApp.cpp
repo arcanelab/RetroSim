@@ -39,11 +39,11 @@ namespace RetroSim::SDLApp
         SDL_Event event;
         bool quit = false;
 
-        uint32_t lastFrameTime = 0;
+        // uint32_t lastFrameTime = 0;
         SDL_Rect destinationRect = {(GPU::windowWidth - GPU::textureWidth) / 2, (GPU::windowHeight - GPU::textureHeight) / 2, GPU::textureWidth, GPU::textureHeight};
         while (!quit)
         {
-            uint32_t frameStartTime = SDL_GetTicks();
+            // uint32_t frameStartTime = SDL_GetTicks();
             Core::GetInstance()->RunNextFrame();
             SDL_UpdateTexture(texture, NULL, GPU::outputTexture, GPU::textureWidth * sizeof(uint32_t));
             SDL_RenderClear(renderer);
@@ -63,7 +63,7 @@ namespace RetroSim::SDLApp
                     }
                 }
             }
-            lastFrameTime = SDL_GetTicks() - frameStartTime;
+            // lastFrameTime = SDL_GetTicks() - frameStartTime;
         }
 
         Core::GetInstance()->Shutdown();
@@ -82,10 +82,28 @@ namespace RetroSim::SDLApp
                                   GPU::windowWidth, GPU::windowHeight,
                                   SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
+        if (window == NULL)
+        {
+            printf("Could not create window: %s\n", SDL_GetError());
+            exit(1);
+        }
+
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+        if (renderer == NULL)
+        {
+            printf("Could not create renderer: %s\n", SDL_GetError());
+            exit(1);
+        }
 
         texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING,
                                     GPU::textureWidth, GPU::textureHeight);
+
+        if (texture == NULL)
+        {
+            printf("Could not create texture: %s\n", SDL_GetError());
+            exit(1);
+        }
 
         // Set the logical size to maintain aspect ratio
         float aspectRatio = (float)GPU::windowWidth / (float)GPU::windowHeight;
@@ -107,23 +125,6 @@ namespace RetroSim::SDLApp
 
         if (Core::GetInstance()->GetCoreConfig().IsFullScreen())
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-
-        // check for errors
-        if (window == NULL)
-        {
-            printf("Could not create window: %s\n", SDL_GetError());
-            exit(1);
-        }
-        if (renderer == NULL)
-        {
-            printf("Could not create renderer: %s\n", SDL_GetError());
-            exit(1);
-        }
-        if (texture == NULL)
-        {
-            printf("Could not create texture: %s\n", SDL_GetError());
-            exit(1);
-        }
     }
 
     int GetScreenRefreshRate()
