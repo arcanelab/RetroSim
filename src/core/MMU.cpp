@@ -28,5 +28,7 @@ namespace RetroSim::MMU
         
         memcpy(memory.raw + address, buffer, fileSize);
         delete buffer;
+
+        return 0;
     }
 }
