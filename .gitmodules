@@ -2,7 +2,7 @@
     path = src/extern/libtelnet
     url = git@github.com:seanmiddleditch/libtelnet.git
 
-[submodule "asmA65k"]
+[submodule "src/cpu/A65000/asmA65k"]
     path = src/cpu/A65000/asmA65k
     url = git@github.com:arcanelab/AsmA65k.git
 
@@ -13,6 +13,7 @@
 [submodule "src/extern/sdl-gpu"]
 	path = src/extern/sdl-gpu
 	url = git@github.com:grimfang4/sdl-gpu.git
+
 [submodule "src/extern/gravity"]
 	path = src/extern/gravity
 	url = git@github.com:arcanelab/Gravity-RetroSim.git
