@@ -9,3 +9,5 @@ RetroSim.exe
 RetroSim.ilk
 RetroSim
 src/extern/csid-mod/original
+
+bin/libRetroSimCore.so
