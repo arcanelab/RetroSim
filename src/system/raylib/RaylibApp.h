@@ -29,6 +29,16 @@ namespace RetroSim
         float desktopScalingFactor;
         float effectiveScalingFactor;
 
+        float lotSharp = 0.9f;
+        int lotCurv = 1;
+        float lotScan = 0.1f;
+        int shadowMask = 2.0f;
+        float maskDark = 0.9f;
+        float maskLight = 1.1f;
+
         void InitializeWindow();
+        void UpdateShaderVariables(const Shader& shader);
+        void DrawImgui();
+        Shader SetupShaders();
     };
 }
