@@ -8,122 +8,147 @@
 
 namespace RetroSim
 {
-        void RaylibApp::Run()
+    void RaylibApp::Run()
+    {
+        SetTraceLogLevel(LOG_ERROR);
+
+        char basePath[] = ".";
+        core = Core::GetInstance();
+        core->Initialize(basePath);
+
+        InitializeWindow();
+        rlImGuiSetup(true);
+        auto imguiio = ImGui::GetIO();
+        imguiio.FontGlobalScale = 2.0f;
+
+        Shader shader = SetupShaders();
+
+        Image drawBuffer = GenImageColor(GPU::textureWidth, GPU::textureHeight, BLANK);
+        Texture2D drawTexture = LoadTextureFromImage(drawBuffer);
+        UnloadImage(drawBuffer);
+
+        Vector2 border = {(GPU::windowWidth - GPU::textureWidth) * effectiveScalingFactor / 2.0f, (GPU::windowHeight - GPU::textureHeight) * effectiveScalingFactor / 2.0f};
+
+        while (!WindowShouldClose())
         {
-            SetTraceLogLevel(LOG_WARNING);
+            core->RunNextFrame();
 
-            char basePath[] = ".";
-            core = Core::GetInstance();
-            core->Initialize(basePath);
-
-            InitializeWindow();
-            rlImGuiSetup(true);
-            auto imguiio = ImGui::GetIO();
-            imguiio.FontGlobalScale = 2.0f;
-
-            Shader shader = SetupShaders();
-
-            Image drawBuffer = GenImageColor(GPU::textureWidth, GPU::textureHeight, BLANK);
-            Texture2D drawTexture = LoadTextureFromImage(drawBuffer);
-            UnloadImage(drawBuffer);
-
-            Vector2 border = {(GPU::windowWidth - GPU::textureWidth) * effectiveScalingFactor / 2.0f, (GPU::windowHeight - GPU::textureHeight) * effectiveScalingFactor / 2.0f};
-
-            while (!WindowShouldClose())
+            UpdateShaderVariables(shader);
+            BeginDrawing();
             {
-                core->RunNextFrame();
-
-                UpdateShaderVariables(shader);
-                BeginDrawing();
                 ClearBackground(BLACK);
                 UpdateTexture(drawTexture, GPU::outputTexture);
                 BeginShaderMode(shader);
-                DrawTextureEx(drawTexture, border, 0.0f, (float)core->GetCoreConfig().GetWindowScale() * desktopScalingFactor, WHITE);
+                {
+                    DrawTextureEx(drawTexture, border, 0.0f, (float)core->GetCoreConfig().GetWindowScale() * desktopScalingFactor, WHITE);
+                }
                 EndShaderMode();
-
-                rlImGuiBegin();
+                // rlImGuiBegin();
                 // bool open = true;
                 // ImGui::ShowDemoWindow(&open);
-
-                DrawImgui();
-
-                rlImGuiEnd();
-
-                EndDrawing();
+                // DrawImgui();
+                // rlImGuiEnd();
             }
-
-            rlImGuiShutdown();
-            CloseWindow();
+            EndDrawing();
         }
 
-        void RaylibApp::InitializeWindow()
-        {
-            windowScalingFactor = core->GetCoreConfig().GetWindowScale();
-            desktopScalingFactor = GetDesktopScalingFactor();
-            effectiveScalingFactor = windowScalingFactor * desktopScalingFactor;
+        rlImGuiShutdown();
+        CloseWindow();
+    }
 
-            LogPrintf(RETRO_LOG_INFO, "Window scaling factor: %d\n", windowScalingFactor);
-            LogPrintf(RETRO_LOG_INFO, "Desktop scaling factor: %f\n", desktopScalingFactor);
+    void RaylibApp::InitializeWindow()
+    {
+        windowScalingFactor = core->GetCoreConfig().GetWindowScale();
+        desktopScalingFactor = GetDesktopScalingFactor();
+        effectiveScalingFactor = windowScalingFactor * desktopScalingFactor;
 
-            scaledWindowWidth = GPU::windowWidth * windowScalingFactor;
-            scaledWindowHeight = GPU::windowHeight * windowScalingFactor;
+        LogPrintf(RETRO_LOG_INFO, "Window scaling factor: %d\n", windowScalingFactor);
+        LogPrintf(RETRO_LOG_INFO, "Desktop scaling factor: %f\n", desktopScalingFactor);
 
-            InitWindow(int(scaledWindowWidth * desktopScalingFactor), int(scaledWindowHeight * desktopScalingFactor), "RetroSim");
+        scaledWindowWidth = GPU::windowWidth * windowScalingFactor;
+        scaledWindowHeight = GPU::windowHeight * windowScalingFactor;
 
-            int currentMonitor = GetCurrentMonitor();
-            int refreshRate = GetMonitorRefreshRate(currentMonitor);
-            LogPrintf(RETRO_LOG_INFO, "Refresh rate: %d\n", refreshRate);
+        InitWindow(int(scaledWindowWidth * desktopScalingFactor), int(scaledWindowHeight * desktopScalingFactor), "RetroSim");
 
-            Core::GetInstance()->SetRefreshRate(refreshRate);
+        int currentMonitor = GetCurrentMonitor();
+        int refreshRate = GetMonitorRefreshRate(currentMonitor);
+        LogPrintf(RETRO_LOG_INFO, "Refresh rate: %d\n", refreshRate);
 
-            SetTargetFPS(refreshRate);
-        }
+        Core::GetInstance()->SetRefreshRate(refreshRate);
 
-        Shader RaylibApp::SetupShaders()
-        {
-            std::string vertexShaderFileName = "lottes-mini.vs";
-            std::string fragmentShaderFileName = "lottes-mini.fs";
+        SetTargetFPS(refreshRate);
+    }
 
-            std::string dataPath = core->GetCoreConfig().GetDataPath();
-            std::string vertexShaderPath = ConvertPathToPlatformCompatibleFormat(dataPath + "/shaders/" + vertexShaderFileName);
-            std::string fragmentShaderPath = ConvertPathToPlatformCompatibleFormat(dataPath + "/shaders/" + fragmentShaderFileName);
+    Shader RaylibApp::SetupShaders()
+    {
+        std::string vertexShaderFileName = "lottes.vs";
+        std::string fragmentShaderFileName = "lottes.fs";
 
-            LogPrintf(RETRO_LOG_INFO, "Data path: %s\n", dataPath.c_str());
-            LogPrintf(RETRO_LOG_INFO, "Fragment shader path: %s\n", fragmentShaderPath.c_str());
-            LogPrintf(RETRO_LOG_INFO, "Vertex shader path: %s\n", vertexShaderPath.c_str());
+        std::string dataPath = core->GetCoreConfig().GetDataPath();
+        std::string vertexShaderPath = ConvertPathToPlatformCompatibleFormat(dataPath + "/shaders/" + vertexShaderFileName);
+        std::string fragmentShaderPath = ConvertPathToPlatformCompatibleFormat(dataPath + "/shaders/" + fragmentShaderFileName);
 
-            Shader shader = LoadShader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
+        LogPrintf(RETRO_LOG_INFO, "Data path: %s\n", dataPath.c_str());
+        LogPrintf(RETRO_LOG_INFO, "Fragment shader path: %s\n", fragmentShaderPath.c_str());
+        LogPrintf(RETRO_LOG_INFO, "Vertex shader path: %s\n", vertexShaderPath.c_str());
 
-            Vector2 resolution = {GPU::textureWidth, GPU::textureHeight};
+        Shader shader = LoadShader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
 
-            // Set shader values
-            SetShaderValue(shader, GetShaderLocation(shader, "resolution"), &resolution, SHADER_UNIFORM_VEC2);
-            UpdateShaderVariables(shader);
+        Vector2 textureSize = {GPU::textureWidth, GPU::textureHeight};
+        Vector2 outputSize = {scaledWindowWidth, scaledWindowHeight};
+        Vector2 inputSize = {scaledWindowWidth, scaledWindowHeight};
 
-            return shader;
-        }
+        // Set shader values
+        SetShaderValue(shader, GetShaderLocation(shader, "TextureSize"), &textureSize, SHADER_UNIFORM_VEC2);
+        SetShaderValue(shader, GetShaderLocation(shader, "InputSize"), &textureSize, SHADER_UNIFORM_VEC2);
+        SetShaderValue(shader, GetShaderLocation(shader, "OutputSize"), &outputSize, SHADER_UNIFORM_VEC2);
+        UpdateShaderVariables(shader);
 
-        void RaylibApp::UpdateShaderVariables(const Shader& shader)
-        {
-            SetShaderValue(shader, GetShaderLocation(shader, "LOT_SHARP"), &lotSharp, SHADER_UNIFORM_FLOAT);
-            SetShaderValue(shader, GetShaderLocation(shader, "LOT_CURV"), &lotCurv, SHADER_UNIFORM_INT);
-            SetShaderValue(shader, GetShaderLocation(shader, "LOT_SCAN"), &lotScan, SHADER_UNIFORM_FLOAT);
-            SetShaderValue(shader, GetShaderLocation(shader, "shadowMask"), &shadowMask, SHADER_UNIFORM_INT);
-            SetShaderValue(shader, GetShaderLocation(shader, "maskDark"), &maskDark, SHADER_UNIFORM_FLOAT);
-            SetShaderValue(shader, GetShaderLocation(shader, "maskLight"), &maskLight, SHADER_UNIFORM_FLOAT);
-        }
+        return shader;
+    }
 
-        void RaylibApp::DrawImgui()
-        {
-            bool isShaderGuiActive = true;
-            ImGui::Begin("Shader parameters", &isShaderGuiActive);
-            ImGui::SliderFloat("Sharpness", &lotSharp, 0, 3.0f);
-            ImGui::SliderInt("Curvature", &lotCurv, 0, 5);
-            ImGui::SliderFloat("Scanlines", &lotScan, 0.0f, 1.0f);
-            ImGui::SliderInt("Shadow Mask", &shadowMask, 0, 4);
-            ImGui::SliderFloat("Mask Dark", &maskDark, 0.0f, 3.0f);
-            ImGui::SliderFloat("Mask Light", &maskLight, 0.0f, 3.0f);
-            ImGui::End();
-        }
+    void RaylibApp::UpdateShaderVariables(const Shader &shader)
+    {
+        float hardScan;
+        float hardPix;
+        float warpX;
+        float warpY;
+        float maskDark;
+        float maskLight;
+        float scaleInLinearGamma;
+        float shadowMask;
+        float brightBoost;
+        float hardBloomPix;
+        float hardBloomScan;
+        float bloomAmount;
+        float shape;
+
+        SetShaderValue(shader, GetShaderLocation(shader, "hardScan"), &hardScan, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "hardPix"), &hardPix, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "warpX"), &warpX, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "warpY"), &warpY, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "maskDark"), &maskDark, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "maskLight"), &maskLight, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "scaleInLinearGamma"), &scaleInLinearGamma, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "shadowMask"), &shadowMask, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "brightBoost"), &brightBoost, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "hardBloomPix"), &hardBloomPix, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "hardBloomScan"), &hardBloomScan, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "bloomAmount"), &bloomAmount, SHADER_ATTRIB_FLOAT);
+        SetShaderValue(shader, GetShaderLocation(shader, "shape"), &shape, SHADER_ATTRIB_FLOAT);
+    }
+
+    void RaylibApp::DrawImgui()
+    {
+        bool isShaderGuiActive = true;
+        ImGui::Begin("Shader parameters", &isShaderGuiActive);
+        ImGui::SliderFloat("Sharpness", &lotSharp, 0, 3.0f);
+        ImGui::SliderInt("Curvature", &lotCurv, 0, 5);
+        ImGui::SliderFloat("Scanlines", &lotScan, 0.0f, 1.0f);
+        ImGui::SliderInt("Shadow Mask", &shadowMask, 0, 4);
+        ImGui::SliderFloat("Mask Dark", &maskDark, 0.0f, 3.0f);
+        ImGui::SliderFloat("Mask Light", &maskLight, 0.0f, 3.0f);
+        ImGui::End();
+    }
 
 } // namespace
