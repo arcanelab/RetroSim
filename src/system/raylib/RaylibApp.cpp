@@ -3,6 +3,9 @@
 
 #include "RaylibApp.h"
 
+#include "imgui.h"
+#include "rlImGui.h"
+
 namespace RetroSim
 {
         void RaylibApp::Run()
@@ -23,6 +26,8 @@ namespace RetroSim
             LogPrintf(RETRO_LOG_INFO, "Vertex shader path: %s\n", vertexShaderPath.c_str());
 
             InitializeWindow();
+
+            rlImGuiSetup(true);
 
             Shader shader = LoadShader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
             RenderTexture2D target = LoadRenderTexture(scaledWindowWidth, scaledWindowHeight);
@@ -59,8 +64,16 @@ namespace RetroSim
                 BeginShaderMode(shader);
                 DrawTextureEx(drawTexture, border, 0.0f, (float)core->GetCoreConfig().GetWindowScale() * desktopScalingFactor, WHITE);
                 EndShaderMode();
+
+                rlImGuiBegin();
+                bool open = true;
+                ImGui::ShowDemoWindow(&open);
+                rlImGuiEnd();
+
                 EndDrawing();
             }
+
+            rlImGuiShutdown();
             CloseWindow();
         }
 
