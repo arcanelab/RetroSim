@@ -10,7 +10,7 @@ namespace RetroSim::MMU
 {
     MemorySections memory;
 
-    int LoadFileToAddress(const std::string path, uint32_t address)
+    int LoadFileToAddress(const std::string& path, uint32_t address)
     {
         size_t fileSize;
         uint8_t *buffer = RetroSim::ReadBinaryFile(path, fileSize);
@@ -23,6 +23,7 @@ namespace RetroSim::MMU
         if (address + fileSize > memorySize)
         {
             LogPrintf(RETRO_LOG_ERROR, "LoadFile: file size exceeds memory size: %08X\n", address + fileSize);
+            // TODO: free memory or invert condition
             return -1;
         }
         

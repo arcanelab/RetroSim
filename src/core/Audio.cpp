@@ -16,9 +16,9 @@ namespace RetroSim::Audio
     void Initialize()
     {
         size_t songDataLength;
-        string filename = "Turok 2 - Cave Stage.sid";
+        string filename = "/Turok_2_Cave_Stage.sid";
         // string filename = "/Crimson_Cascade_Groove.sid";
-        songData = ReadBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + "/Crimson_Cascade_Groove.sid", songDataLength);
+        songData = ReadBinaryFile(Core::GetInstance()->GetCoreConfig().GetDataPath() + filename, songDataLength);
 
         if(songData == nullptr)
         {
