@@ -13,7 +13,6 @@ namespace RetroSim
 {
     retro_audio_sample_t LibRetroCore::audioCallback = nullptr;
     retro_audio_sample_batch_t LibRetroCore::batchedAudioCallback = nullptr;
-    int LibRetroCore::phase = 0;
 
     void LibRetroCore::SetEnvironment(retro_environment_t envCallback)
     {
@@ -98,8 +97,8 @@ namespace RetroSim
         info->timing.fps = coreInstance->GetCoreConfig().GetFPS();
         info->timing.sample_rate = sampling_rate;
 
-        last_aspect = aspect;
-        last_sample_rate = sampling_rate;
+        static float last_aspect = aspect;
+        static float last_sample_rate = sampling_rate;
 
         // Note: this might not even be necessary as the core runs fine without this call.
         // Leaving it here for good measure.
@@ -146,12 +145,12 @@ namespace RetroSim
     void LibRetroCore::GenerateAudio()
     {
         // test sine wave
+        // static int phase;
         // for (unsigned i = 0; i < 48000 / 60; i++, phase++)
         // {
         //     int16_t val = 0x800 * sinf(2.0f * 3.14159265f * phase * 300.0f / 48000.0f);
         //     audioCallback(val, val);
         // }
-
         // phase %= 100;
 
         Core *core = Core::GetInstance();

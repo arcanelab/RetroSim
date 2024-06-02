@@ -39,11 +39,7 @@ namespace RetroSim
         static retro_audio_sample_t audioCallback;
         static retro_audio_sample_batch_t batchedAudioCallback;
 
-        float last_aspect;
-        float last_sample_rate;
         bool use_audio_cb;
-
-        static int phase;
 
         void SetupLogging();
         void SetupControllers();

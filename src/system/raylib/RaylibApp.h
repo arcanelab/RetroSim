@@ -8,10 +8,10 @@
 #include "FileUtils.h"
 #include "DesktopDPI.h"
 
-#if defined(PLATFORM_DESKTOP)
-#define GLSL_VERSION 330
-#else // PLATFORM_ANDROID, PLATFORM_WEB
+#if defined(PLATFORM_ANDROID) || defined(PLATFORM_WEB)
 #define GLSL_VERSION 100
+#else
+#define GLSL_VERSION 330
 #endif
 
 namespace RetroSim
@@ -31,5 +31,4 @@ namespace RetroSim
 
         void InitializeWindow();
     };
-
 }

@@ -11,9 +11,12 @@ namespace RetroSim
             core = Core::GetInstance();
             core->Initialize(basePath);
 
+            std::string vertexShaderFileName = "lottes-mini.vs";
+            std::string fragmentShaderFileName = "lottes-mini.fs";
+
             std::string dataPath = core->GetCoreConfig().GetDataPath();
-            std::string fragmentShaderPath = ConvertPathToPlatformCompatibleFormat(dataPath + "/shaders/crt-lotters-fast-fragment.glsl");
-            std::string vertexShaderPath = ConvertPathToPlatformCompatibleFormat(dataPath + "/shaders/crt-lotters-fast-vertex.glsl");
+            std::string vertexShaderPath = ConvertPathToPlatformCompatibleFormat(dataPath + "/shaders/" + vertexShaderFileName);
+            std::string fragmentShaderPath = ConvertPathToPlatformCompatibleFormat(dataPath + "/shaders/" + fragmentShaderFileName);
 
             LogPrintf(RETRO_LOG_INFO, "Data path: %s\n", dataPath.c_str());
             LogPrintf(RETRO_LOG_INFO, "Fragment shader path: %s\n", fragmentShaderPath.c_str());
@@ -21,8 +24,25 @@ namespace RetroSim
 
             InitializeWindow();
 
-            Shader shader = LoadShader(0, TextFormat("resources/shaders/glsl%i/swirl.fs", GLSL_VERSION));
+            Shader shader = LoadShader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
             RenderTexture2D target = LoadRenderTexture(scaledWindowWidth, scaledWindowHeight);
+
+            Vector2 resolution = {GPU::textureWidth, GPU::textureHeight};
+            float lotSharp = 0.5f;
+            float lotCurv = 0.3f;
+            float lotScan = 0.3f;
+            float shadowMask = 2.0f;
+            float maskDark = 0.5f;
+            float maskLight = 1.5f;
+
+            // Set shader values
+            SetShaderValue(shader, GetShaderLocation(shader, "resolution"), &resolution, SHADER_UNIFORM_VEC2);
+            SetShaderValue(shader, GetShaderLocation(shader, "LOT_SHARP"), &lotSharp, SHADER_UNIFORM_FLOAT);
+            SetShaderValue(shader, GetShaderLocation(shader, "LOT_CURV"), &lotCurv, SHADER_UNIFORM_FLOAT);
+            SetShaderValue(shader, GetShaderLocation(shader, "LOT_SCAN"), &lotScan, SHADER_UNIFORM_FLOAT);
+            SetShaderValue(shader, GetShaderLocation(shader, "shadowMask"), &shadowMask, SHADER_UNIFORM_FLOAT);
+            SetShaderValue(shader, GetShaderLocation(shader, "maskDark"), &maskDark, SHADER_UNIFORM_FLOAT);
+            SetShaderValue(shader, GetShaderLocation(shader, "maskLight"), &maskLight, SHADER_UNIFORM_FLOAT);
 
             Image drawBuffer = GenImageColor(GPU::textureWidth, GPU::textureHeight, BLANK);
             Texture2D drawTexture = LoadTextureFromImage(drawBuffer);
@@ -36,7 +56,9 @@ namespace RetroSim
                 BeginDrawing();
                 // ClearBackground(BLACK);
                 UpdateTexture(drawTexture, GPU::outputTexture);
+                BeginShaderMode(shader);
                 DrawTextureEx(drawTexture, border, 0.0f, (float)core->GetCoreConfig().GetWindowScale() * desktopScalingFactor, WHITE);
+                EndShaderMode();
                 EndDrawing();
             }
             CloseWindow();
