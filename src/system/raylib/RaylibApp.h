@@ -29,12 +29,19 @@ namespace RetroSim
         float desktopScalingFactor;
         float effectiveScalingFactor;
 
-        float lotSharp = 0.9f;
-        int lotCurv = 1;
-        float lotScan = 0.1f;
-        int shadowMask = 2.0f;
-        float maskDark = 0.9f;
-        float maskLight = 1.1f;
+        float hardScan = -8.0f;
+        float hardPix = -3.0f;
+        float warpX = 0.021f;
+        float warpY = 0.031f;
+        float maskDark = 0.5f;
+        float maskLight = 1.5f;
+        float scaleInLinearGamma = 1.0f;
+        float shadowMask = 3.0f;
+        float brightBoost = 1.0f;
+        float hardBloomPix = -1.5f;
+        float hardBloomScan = -2.0f;
+        float bloomAmount = 0.15f;
+        float shape = 3.0f;
 
         void InitializeWindow();
         void UpdateShaderVariables(const Shader& shader);

@@ -43,11 +43,11 @@ namespace RetroSim
                     DrawTextureEx(drawTexture, border, 0.0f, (float)core->GetCoreConfig().GetWindowScale() * desktopScalingFactor, WHITE);
                 }
                 EndShaderMode();
-                // rlImGuiBegin();
+                rlImGuiBegin();
                 // bool open = true;
                 // ImGui::ShowDemoWindow(&open);
-                // DrawImgui();
-                // rlImGuiEnd();
+                DrawImgui();
+                rlImGuiEnd();
             }
             EndDrawing();
         }
@@ -109,20 +109,6 @@ namespace RetroSim
 
     void RaylibApp::UpdateShaderVariables(const Shader &shader)
     {
-        float hardScan;
-        float hardPix;
-        float warpX;
-        float warpY;
-        float maskDark;
-        float maskLight;
-        float scaleInLinearGamma;
-        float shadowMask;
-        float brightBoost;
-        float hardBloomPix;
-        float hardBloomScan;
-        float bloomAmount;
-        float shape;
-
         SetShaderValue(shader, GetShaderLocation(shader, "hardScan"), &hardScan, SHADER_ATTRIB_FLOAT);
         SetShaderValue(shader, GetShaderLocation(shader, "hardPix"), &hardPix, SHADER_ATTRIB_FLOAT);
         SetShaderValue(shader, GetShaderLocation(shader, "warpX"), &warpX, SHADER_ATTRIB_FLOAT);
@@ -140,14 +126,21 @@ namespace RetroSim
 
     void RaylibApp::DrawImgui()
     {
-        bool isShaderGuiActive = true;
-        ImGui::Begin("Shader parameters", &isShaderGuiActive);
-        ImGui::SliderFloat("Sharpness", &lotSharp, 0, 3.0f);
-        ImGui::SliderInt("Curvature", &lotCurv, 0, 5);
-        ImGui::SliderFloat("Scanlines", &lotScan, 0.0f, 1.0f);
-        ImGui::SliderInt("Shadow Mask", &shadowMask, 0, 4);
-        ImGui::SliderFloat("Mask Dark", &maskDark, 0.0f, 3.0f);
-        ImGui::SliderFloat("Mask Light", &maskLight, 0.0f, 3.0f);
+        ImGui::Begin("Shader Parameters");
+        ImGui::SliderFloat("hardScan", &hardScan, -20.0f, 0.0f, "%.1f");
+        ImGui::SliderFloat("hardPix", &hardPix, -20.0f, 0.0f, "%.1f");
+        ImGui::SliderFloat("warpX", &warpX, 0.0f, 0.125f, "%.3f", ImGuiSliderFlags_Logarithmic);
+        ImGui::SliderFloat("warpY", &warpY, 0.0f, 0.125f, "%.3f", ImGuiSliderFlags_Logarithmic);
+        ImGui::SliderFloat("maskDark", &maskDark, 0.0f, 2.0f, "%.1f");
+        ImGui::SliderFloat("maskLight", &maskLight, 0.0f, 2.0f, "%.1f");
+        ImGui::SliderFloat("scaleInLinearGamma", &scaleInLinearGamma, 0.0f, 1.0f, "%.1f");
+        ImGui::SliderFloat("shadowMask", &shadowMask, 0.0f, 4.0f, "%1.0f");
+        ImGui::SliderFloat("brightness boost", &brightBoost, 0.0f, 2.0f, "%.2f");
+        ImGui::SliderFloat("bloom-x soft", &hardBloomPix, -2.0f, -0.5f, "%.1f");
+        ImGui::SliderFloat("bloom-y soft", &hardBloomScan, -4.0f, -1.0f, "%.1f");
+        ImGui::SliderFloat("bloom ammount", &bloomAmount, 0.0f, 1.0f, "%.2f");
+        ImGui::SliderFloat("filter kernel shape", &shape, 0.0f, 10.0f, "%.2f");
+
         ImGui::End();
     }
 

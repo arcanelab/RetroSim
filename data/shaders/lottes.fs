@@ -45,7 +45,7 @@ in vec4 fragTexCoord;
 #define SourceSize vec4(TextureSize, 1.0 / TextureSize) //either TextureSize or InputSize
 #define outsize vec4(OutputSize, 1.0 / OutputSize)
 
-// #define PARAMETER_UNIFORM
+#define PARAMETER_UNIFORM
 #ifdef PARAMETER_UNIFORM
 // All parameter floats need to have COMPAT_PRECISION in front of them
 uniform float hardScan;
@@ -79,7 +79,7 @@ uniform float shape;
 
 //Uncomment to reduce instructions with simpler linearization
 //(fixes HD3000 Sandy Bridge IGP)
-//#define SIMPLE_LINEAR_GAMMA
+#define SIMPLE_LINEAR_GAMMA
 #define DO_BLOOM
 #define DO_VIGNETTE
 
@@ -369,4 +369,5 @@ void main()
 #endif
 
     FragColor = vec4(ToSrgb(outColor.rgb), 1.0);
+    // FragColor = texture(Texture, fragTexCoord.xy);
 }
