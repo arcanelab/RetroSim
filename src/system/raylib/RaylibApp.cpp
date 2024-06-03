@@ -36,7 +36,7 @@ namespace RetroSim
             UpdateShaderVariables(shader);
             BeginDrawing();
             {
-                ClearBackground(BLACK);
+                ClearBackground(BLANK);
                 UpdateTexture(drawTexture, GPU::outputTexture);
                 BeginShaderMode(shader);
                 {

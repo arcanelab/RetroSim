@@ -64,8 +64,8 @@ uniform float shape;
 #else
 #define hardScan -8.0
 #define hardPix -3.0
-#define warpX 0.031
-#define warpY 0.041
+#define warpX 0.021
+#define warpY 0.031
 #define maskDark 0.5
 #define maskLight 1.5
 #define scaleInLinearGamma 1.0
@@ -74,7 +74,7 @@ uniform float shape;
 #define hardBloomPix -1.5
 #define hardBloomScan -2.0
 #define bloomAmount 0.15
-#define shape 2.0
+#define shape 3.0
 #endif
 
 //Uncomment to reduce instructions with simpler linearization
@@ -342,7 +342,15 @@ vec3 Mask(vec2 pos)
 
 void main()
 {
-    vec2 pos = Warp(fragTexCoord.xy*(TextureSize.xy/InputSize.xy))*(InputSize.xy/TextureSize.xy);
+    vec2 screenSize = TextureSize.xy / InputSize.xy;
+    vec2 pos = Warp(fragTexCoord.xy * screenSize) * (InputSize.xy / TextureSize.xy);
+
+    // clipping
+    if (any(lessThan(pos, vec2(0.0))) || any(greaterThan(pos, screenSize)))
+    {
+        discard;
+    }
+
     vec3 outColor = Tri(pos);
 
 #ifdef DO_BLOOM
@@ -354,5 +362,4 @@ void main()
         outColor.rgb *= Mask(gl_FragCoord.xy * 1.000001);
 
     FragColor = vec4(ToSrgb(outColor.rgb), 1.0);
-    // FragColor = texture(Texture, fragTexCoord.xy);
 } 
