@@ -25,6 +25,9 @@ RetroSim is written in C++ using SDL. [Xmake](https://xmake.io/) is used to mana
 * [libtelnet](http://github.com/seanmiddleditch/libtelnet)
 * [sdl-gpu](https://github.com/grimfang4/sdl-gpu)
 * [CSID-mod](https://github.com/possan/csid-mod)
+* [raylib](https://www.raylib.com/)
+* [ImGui](https://github.com/ocornut/imgui)
+* [rlImGui](https://github.com/raylib-extras/rlImGui)
 
 # License
 
