@@ -345,21 +345,23 @@ void main()
     vec2 screenSize = TextureSize.xy / InputSize.xy;
     vec2 pos = Warp(fragTexCoord.xy * screenSize) * (InputSize.xy / TextureSize.xy);
 
-    // clipping
-    if (any(lessThan(pos, vec2(0.0))) || any(greaterThan(pos, screenSize)))
-    {
-        discard;
-    }
+    float threshold = 0.005;
+    float fadeFactorX = smoothstep(0.0, threshold, pos.x) * smoothstep(screenSize.x, screenSize.x - threshold, pos.x);
+    float fadeFactorY = smoothstep(0.0, threshold, pos.y) * smoothstep(screenSize.y, screenSize.y - threshold, pos.y);
+    float fadeFactor = fadeFactorX * fadeFactorY;
 
     vec3 outColor = Tri(pos);
 
 #ifdef DO_BLOOM
-    //Add Bloom
-    outColor.rgb += Bloom(pos)*bloomAmount;
+    // Add Bloom
+    outColor.rgb += Bloom(pos) * bloomAmount;
 #endif
 
     if (shadowMask > 0.0)
         outColor.rgb *= Mask(gl_FragCoord.xy * 1.000001);
 
+    // Apply the fade factor to blend the color with black
+    outColor.rgb *= fadeFactor;
+
     FragColor = vec4(ToSrgb(outColor.rgb), 1.0);
-} 
+}
