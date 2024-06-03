@@ -81,6 +81,7 @@ uniform float shape;
 //(fixes HD3000 Sandy Bridge IGP)
 //#define SIMPLE_LINEAR_GAMMA
 #define DO_BLOOM
+#define DO_VIGNETTE
 
 // ------------- //
 
@@ -345,9 +346,14 @@ void main()
     vec2 screenSize = TextureSize.xy / InputSize.xy;
     vec2 pos = Warp(fragTexCoord.xy * screenSize) * (InputSize.xy / TextureSize.xy);
 
+#ifdef DO_VIGNETTE // soft clipping
     float threshold = 0.005;
     vec2 distToEdge = min(pos, screenSize - pos);
     float fadeFactor = smoothstep(0.0, threshold, distToEdge.x) * smoothstep(0.0, threshold, distToEdge.y);
+#else // hard clipping
+    if (any(lessThan(pos, vec2(0.0))) || any(greaterThan(pos, screenSize)))
+        discard;
+#endif
 
     vec3 outColor = Tri(pos);
 
@@ -359,8 +365,9 @@ void main()
     if (shadowMask > 0.0)
         outColor.rgb *= Mask(gl_FragCoord.xy * 1.000001);
 
-    // Apply the fade factor to blend the color with black
+#ifdef DO_VIGNETTE
     outColor.rgb *= fadeFactor;
+#endif
 
     FragColor = vec4(ToSrgb(outColor.rgb), 1.0);
 }
