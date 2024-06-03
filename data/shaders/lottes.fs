@@ -346,9 +346,8 @@ void main()
     vec2 pos = Warp(fragTexCoord.xy * screenSize) * (InputSize.xy / TextureSize.xy);
 
     float threshold = 0.005;
-    float fadeFactorX = smoothstep(0.0, threshold, pos.x) * smoothstep(screenSize.x, screenSize.x - threshold, pos.x);
-    float fadeFactorY = smoothstep(0.0, threshold, pos.y) * smoothstep(screenSize.y, screenSize.y - threshold, pos.y);
-    float fadeFactor = fadeFactorX * fadeFactorY;
+    vec2 distToEdge = min(pos, screenSize - pos);
+    float fadeFactor = smoothstep(0.0, threshold, distToEdge.x) * smoothstep(0.0, threshold, distToEdge.y);
 
     vec3 outColor = Tri(pos);
 
