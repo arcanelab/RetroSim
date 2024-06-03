@@ -362,8 +362,7 @@ void main()
     outColor.rgb += Bloom(pos) * bloomAmount;
 #endif
 
-    if (shadowMask > 0.0)
-        outColor.rgb *= Mask(gl_FragCoord.xy * 1.000001);
+    outColor.rgb *= Mask(gl_FragCoord.xy * 1.000001);
 
 #ifdef DO_VIGNETTE
     outColor.rgb *= fadeFactor;
