@@ -37,6 +37,26 @@ namespace RetroSim::TelnetServer
         return s;
     }
 
+    void TelnetSend(telnet_t *telnet, const std::string &message)
+    {
+#ifdef WIN32
+        std::string processedMessage;
+        processedMessage.reserve(message.length() * 2);
+
+        for(char c : message)
+        {
+            if (c == '\n')
+                processedMessage += "\r\n";
+            else
+                processedMessage += c;
+        }
+        
+        telnet_send(telnet, processedMessage.c_str(), processedMessage.length());
+#else
+        telnet_send(telnet, message.c_str(), message.length());
+#endif
+    }
+
     static void EventHandler(telnet_t *telnet, telnet_event_t *ev, void *user_data)
     {
 #ifdef WIN32
@@ -61,7 +81,7 @@ namespace RetroSim::TelnetServer
 
             // send response
             response += "\n>";
-            telnet_send(telnet, response.c_str(), response.length());
+            TelnetSend(telnet, response);
 
             free(buffer);
         }
@@ -96,9 +116,9 @@ namespace RetroSim::TelnetServer
             return -1; // return an error code
         }
 
-        std::string address = "127.0.0.1"; // for example
-        int port = 8080;                   // for example
-
+        std::string address = "127.0.0.1";
+        int port = 8080;
+        
         SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (listenSocket == INVALID_SOCKET)
         {
@@ -154,10 +174,35 @@ namespace RetroSim::TelnetServer
                 continue;
             }
 
-            telnet_send(telnet, "Welcome to RetroSim!\r\n", strlen("Welcome to RetroSim!\r\n"));
-            telnet_send(telnet, "Username: ", strlen("Username: "));
+            std::string welcomeMessage = "Welcome to RetroSim!\n";
+            TelnetSend(telnet, welcomeMessage);
+            std::string response = RemoteMonitor::DisplayHelp() + "\n>";
+            TelnetSend(telnet, response);
 
-            // handle telnet client
+            std::string input_buffer;
+            char buffer[512];
+            int bytes;
+
+            while ((bytes = recv(clientSocket, buffer, sizeof(buffer), 0)) > 0)
+            {
+                for (int i = 0; i < bytes; ++i)
+                {
+                    char c = buffer[i];
+                    if (c == '\r' || c == '\n')
+                    {
+                        // Process the complete line
+                        telnet_recv(telnet, input_buffer.c_str(), input_buffer.length());
+                        input_buffer.clear();
+                    }
+                    else
+                    {
+                        input_buffer += c;
+                    }
+                }
+            }
+
+            telnet_free(telnet);
+            closesocket(clientSocket);
         }
 
         return 0; // return value to signify success

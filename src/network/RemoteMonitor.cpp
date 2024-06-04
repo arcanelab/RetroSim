@@ -55,7 +55,8 @@ namespace RetroSim::RemoteMonitor
 
     string DisplayMemory(std::vector<string> tokens)
     {
-        if (tokens.size() < 2 && tokens.size() > 3)
+        size_t numTokens = tokens.size();
+        if (numTokens < 2 && numTokens > 3)
         {
             return DisplayMemoryHelp();
         }
