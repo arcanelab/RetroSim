@@ -20,8 +20,8 @@ namespace RetroSim::Raylib
         LogPrintf(RETRO_LOG_INFO, "Fragment shader path: %s\n", fragmentShaderPath.c_str());
         LogPrintf(RETRO_LOG_INFO, "Vertex shader path: %s\n", vertexShaderPath.c_str());
 
-        Shader laodedShader = LoadShader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
-        this->shader = laodedShader;
+        Shader loadedShader = LoadShader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
+        this->shader = loadedShader;
 
         Vector2 textureSize = {(float)GPU::textureWidth, (float)GPU::textureHeight};
         Vector2 outputSize = {(float)scaledWindowWidth, (float)scaledWindowHeight};
