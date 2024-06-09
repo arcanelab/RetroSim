@@ -21,7 +21,7 @@ namespace RetroSim
         auto imguiio = ImGui::GetIO();
         imguiio.FontGlobalScale = 2.0f;
 
-        shaderManager.Initialize(core, scaledWindowWidth, scaledWindowHeight);
+        shader.Initialize(core, scaledWindowWidth, scaledWindowHeight);
 
         Image drawBuffer = GenImageColor(GPU::textureWidth, GPU::textureHeight, BLANK);
         Texture2D drawTexture = LoadTextureFromImage(drawBuffer);
@@ -33,12 +33,12 @@ namespace RetroSim
         {
             core->RunNextFrame();
 
-            shaderManager.UpdateShaderVariables();
+            shader.UpdateShaderVariables();
             BeginDrawing();
             {
                 ClearBackground(BLANK);
                 UpdateTexture(drawTexture, GPU::outputTexture);
-                BeginShaderMode(shaderManager.GetShader());
+                BeginShaderMode(shader.GetShader());
                 {
                     DrawTextureEx(drawTexture, border, 0.0f, (float)core->GetCoreConfig().GetWindowScale() * desktopScalingFactor, WHITE);
                 }
@@ -46,7 +46,7 @@ namespace RetroSim
                 rlImGuiBegin();
                 // bool open = true;
                 // ImGui::ShowDemoWindow(&open);
-                shaderManager.DrawParametersGui();
+                shader.DrawParametersGui();
                 rlImGuiEnd();
             }
             EndDrawing();
