@@ -11,6 +11,11 @@
 #include <algorithm>
 #endif
 
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <vector>
+
 A65000Disassembler::Disassembly A65000Disassembler::getDisassembly(uint8_t *const codePtr, const uint32_t address, const uint8_t lines = 0)
 {
     Chunk chunk;
@@ -26,7 +31,8 @@ vector<string> A65000Disassembler::getDisassembly(const char *fileName)
 {
     try
     {
-        auto chunks = parseRSXFileIntoChunks(loadFile(fileName));
+        auto fileContents = loadFile(fileName);
+        auto chunks = parseRSXFileIntoChunks(fileContents.get());
         result = disassembleChunk(chunks[0]);
     }
     catch (Error e)
@@ -450,58 +456,39 @@ vector<A65000Disassembler::Chunk> A65000Disassembler::parseRSXFileIntoChunks(vec
     return chunks;
 }
 
-vector<uint8_t> *A65000Disassembler::loadFile(const char *loadPath)
+std::unique_ptr<std::vector<uint8_t>>
+A65000Disassembler::loadFile(const std::string& loadPath)
 {
-    FILE *file = fopen(loadPath, "r");
-    if (file == nullptr)
+    if (!std::filesystem::exists(loadPath))
     {
         throw Error("Error while opening file '" + string(loadPath) + string("'"));
     }
 
-    // get filesize
-    fseek(file, 0, SEEK_END);
-    uint64_t fileSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    uint64_t fileSize = std::filesystem::file_size(loadPath);
+    std::vector<uint8_t> buffer(fileSize);
 
-    printf("Filesize: $%llX (%llu) bytes\n", fileSize, fileSize);
-
-    // allocate memory for file
-    uint8_t *buffer = new uint8_t[fileSize];
-
-    printf("Loading '%s'\n", loadPath);
-
-    // read file contents
-    uint32_t freadResult = (uint32_t)fread(buffer, 1, fileSize, file);
-    if (freadResult != fileSize)
+    std::ifstream file(loadPath, std::ios::binary);
+    if (!file.read(reinterpret_cast<char*>(buffer.data()), fileSize))
     {
-        fclose(file);
-        delete[] buffer;
         throw Error("Error while reading file '" + string(loadPath) + string("'"));
     }
-
-    fclose(file);
 
     if (fileSize > 3) // header check
     {
         string header;
-        header.push_back((char)*buffer);
-        header.push_back((char)*(buffer + 1));
-        header.push_back((char)*(buffer + 2));
-        header.push_back((char)*(buffer + 3));
+        header.push_back(buffer[0]);
+        header.push_back(buffer[1]);
+        header.push_back(buffer[2]);
+        header.push_back(buffer[3]);
         if (header != "RSX0")
         {
-            delete[] buffer;
             throw Error("Invalid file format: RSX format expected");
         }
     }
     else // filesize too small
     {
-        delete[] buffer;
         throw Error("Invalid file format: RSX format expected");
     }
 
-    vector<uint8_t> *fileContent = new vector<uint8_t>(buffer, buffer + fileSize);
-    delete[] buffer;
-
-    return fileContent;
+    return std::make_unique<std::vector<uint8_t>>(std::move(buffer));
 }

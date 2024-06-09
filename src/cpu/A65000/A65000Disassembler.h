@@ -77,5 +77,5 @@ private:
     string registerStr(const uint8_t &reg);
     string machineCode(const uint8_t *ptr, const int &length);
     vector<Chunk> parseRSXFileIntoChunks(vector<uint8_t> *data);
-    vector<uint8_t> *loadFile(const char *loadPath);
+    std::unique_ptr<std::vector<uint8_t>> loadFile(const std::string& loadPath);
 };
