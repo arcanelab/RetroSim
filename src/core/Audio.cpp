@@ -27,7 +27,7 @@ namespace RetroSim::Audio
         }
 
         libcsid_init(sampleRate * 2, SIDMODEL_8580);
-        libcsid_load(songData, songDataLength, 0);
+        libcsid_load(songData, (int)songDataLength, 0);
         audioBufferSize = sampleRate / Core::GetInstance()->GetCoreConfig().GetFPS();
         audioBuffer = new uint16_t[audioBufferSize];
     }
