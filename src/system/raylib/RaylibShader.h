@@ -21,16 +21,15 @@ namespace RetroSim::Raylib
         float shape = 3.0f;
     };
 
-    class ShaderManager
+    class RaylibShader
     {
     public:
         Parameters parameters;
         Shader GetShader() { return shader; };
+        void Initialize(RetroSim::Core *core, const int scaledWindowWidth, const int scaledWindowHeight);
         void UpdateShaderVariables();
-        void SetupShaders(RetroSim::Core *core, const int scaledWindowWidth, const int scaledWindowHeight);
         void DrawParametersGui();
     private:
         Shader shader;
     };
-
 }

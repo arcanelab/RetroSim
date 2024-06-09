@@ -21,7 +21,7 @@ namespace RetroSim
         auto imguiio = ImGui::GetIO();
         imguiio.FontGlobalScale = 2.0f;
 
-        shaderManager.SetupShaders(core, scaledWindowWidth, scaledWindowHeight);
+        shaderManager.Initialize(core, scaledWindowWidth, scaledWindowHeight);
 
         Image drawBuffer = GenImageColor(GPU::textureWidth, GPU::textureHeight, BLANK);
         Texture2D drawTexture = LoadTextureFromImage(drawBuffer);

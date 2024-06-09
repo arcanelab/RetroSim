@@ -1,5 +1,5 @@
 #include <string>
-#include "ShaderManager.h"
+#include "RaylibShader.h"
 #include "FileUtils.h"
 #include "GPU.h"
 #include "Core.h"
@@ -7,7 +7,7 @@
 
 namespace RetroSim::Raylib
 {
-    void ShaderManager::SetupShaders(RetroSim::Core *core, const int scaledWindowWidth, const int scaledWindowHeight)
+    void RaylibShader::Initialize(RetroSim::Core *core, const int scaledWindowWidth, const int scaledWindowHeight)
     {
         std::string vertexShaderFileName = "lottes.vs";
         std::string fragmentShaderFileName = "lottes.fs";
@@ -34,7 +34,7 @@ namespace RetroSim::Raylib
         UpdateShaderVariables();
     }
 
-    void ShaderManager::UpdateShaderVariables()
+    void RaylibShader::UpdateShaderVariables()
     {
         SetShaderValue(shader, GetShaderLocation(shader, "hardScan"), &parameters.hardScan, SHADER_ATTRIB_FLOAT);
         SetShaderValue(shader, GetShaderLocation(shader, "hardPix"), &parameters.hardPix, SHADER_ATTRIB_FLOAT);
@@ -51,7 +51,7 @@ namespace RetroSim::Raylib
         SetShaderValue(shader, GetShaderLocation(shader, "shape"), &parameters.shape, SHADER_ATTRIB_FLOAT);
     }
 
-    void ShaderManager::DrawParametersGui()
+    void RaylibShader::DrawParametersGui()
     {
         ImGui::Begin("Shader Parameters");
         ImGui::SliderFloat("hardScan", &parameters.hardScan, -20.0f, 0.0f, "%.1f");

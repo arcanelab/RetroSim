@@ -30,7 +30,7 @@ namespace RetroSim
         float desktopScalingFactor;
         float effectiveScalingFactor;
 
-        Raylib::ShaderManager shaderManager;
+        Raylib::RaylibShader shaderManager;
 
         void InitializeWindow();
         void DrawImgui();
