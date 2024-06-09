@@ -332,7 +332,7 @@ private:
     }
 
     template <class T>
-    void ModifyFlagsCV(const T &value1, const T &value2, const int64_t &result)
+    void ModifyFlagsCV(const int64_t &result)
     {
         if ((uint64_t)result > (uint64_t)std::numeric_limits<T>::max())
             statusRegister.c = 1;
@@ -369,7 +369,7 @@ private:
     T Exec_Add(const T &value1, const T &value2, const bool &withCarry)
     {
         const int64_t result = value1 + value2 + (withCarry ? statusRegister.c : 0);
-        ModifyFlagsCV(value1, value2, result);
+        ModifyFlagsCV<int64_t>(result);
 
         return (T)result;
     }
@@ -378,7 +378,7 @@ private:
     T Exec_Sub(const T &value1, const T &value2, const bool &withCarry)
     {
         const int64_t result = value1 - value2 - (withCarry ? statusRegister.c : 0);
-        ModifyFlagsCV(value1, value2, result);
+        ModifyFlagsCV<int64_t>(result);
 
         return (T)result;
     }
@@ -443,7 +443,7 @@ private:
         case I_SBC:
             return Exec_Sub(value1, value2, true);
         case I_AND:
-            return value1 & value2;
+            return value1 & value2; // no flags modified?
         case I_OR:
             return value1 | value2;
         case I_XOR:
@@ -578,7 +578,7 @@ private:
         const int64_t result = value + diff;
         MMU::WriteMem<T>(address, (T)result);
         ModifyFlagsNZ(result);
-        ModifyFlagsCV(value, (T)1, result);
+        ModifyFlagsCV<int64_t>(result);
     }
 
     template <class T>
@@ -591,7 +591,7 @@ private:
         const int32_t result = value + diff;
         WriteRegister(&registers[registerIndex], (T)result); // this sets N & Z
 
-        ModifyFlagsCV(value, (T)1, result);
+        ModifyFlagsCV<int32_t>(result);
     }
 
     template <class T>                                              // clr, inc, dec, jmp, jsr, push, pop
