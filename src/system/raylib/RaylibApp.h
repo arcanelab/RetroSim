@@ -7,7 +7,7 @@
 #include "Logger.h"
 #include "FileUtils.h"
 #include "DesktopDPI.h"
-#include "ShaderManager.h"
+#include "RaylibShader.h"
 
 #if defined(PLATFORM_ANDROID) || defined(PLATFORM_WEB)
 #define GLSL_VERSION 100
