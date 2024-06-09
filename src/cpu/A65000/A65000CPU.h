@@ -369,8 +369,6 @@ private:
     T Exec_Add(const T &value1, const T &value2, const bool &withCarry)
     {
         const int64_t result = value1 + value2 + (withCarry ? statusRegister.c : 0);
-        ModifyFlagsCV<int64_t>(result);
-
         return (T)result;
     }
 
@@ -378,8 +376,6 @@ private:
     T Exec_Sub(const T &value1, const T &value2, const bool &withCarry)
     {
         const int64_t result = value1 - value2 - (withCarry ? statusRegister.c : 0);
-        ModifyFlagsCV<int64_t>(result);
-
         return (T)result;
     }
 
@@ -432,37 +428,41 @@ private:
     template <class T>
     T ExecuteALUInstructions(const int &instruction, const T &value1, const T &value2)
     {
+        T result = 0;
         switch (instruction)
         {
         case I_ADD:
-            return Exec_Add(value1, value2, false);
+            result = Exec_Add(value1, value2, false);
         case I_SUB:
-            return Exec_Sub(value1, value2, false);
+            result = Exec_Sub(value1, value2, false);
         case I_ADC:
-            return Exec_Add(value1, value2, true);
+            result = Exec_Add(value1, value2, true);
         case I_SBC:
-            return Exec_Sub(value1, value2, true);
+            result = Exec_Sub(value1, value2, true);
         case I_AND:
-            return value1 & value2; // no flags modified?
+            result = value1 & value2;            
         case I_OR:
-            return value1 | value2;
+            result = value1 | value2;
         case I_XOR:
-            return value1 ^ value2;
+            result = value1 ^ value2;
         case I_DIV:
-            return Exec_Div(value1, value2);
+            result = Exec_Div(value1, value2);
         case I_MUL:
-            return Exec_Mul(value1, value2);
+            result = Exec_Mul(value1, value2);
         case I_SHL:
-            return value1 << value2;
+            result = value1 << value2;
         case I_SHR:
-            return value1 >> value2;
+            result = value1 >> value2;
         case I_ROL:
-            return Exec_Rol(value1, value2);
+            result = Exec_Rol(value1, value2);
         case I_ROR:
-            return Exec_Ror(value1, value2);
+            result = Exec_Ror(value1, value2);
         default:
             throw A65000Exception(EX_INVALID_INSTRUCTION);
         }
+
+        ModifyFlagsNZ<T>(result); // TODO: test if T is the correct type
+        ModifyFlagsCV<T>(result); // or must be set manually
     }
 
     template <typename T>
