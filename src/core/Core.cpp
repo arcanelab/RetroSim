@@ -254,7 +254,7 @@ namespace RetroSim
 
     void Core::SetRefreshRate(int refreshRate)
     {
-        coreConfig.SetFPS(refreshRate);
+        coreConfig.SetTargetFPS(refreshRate);
         MMU::memory.generalRegisters.refreshRate = refreshRate;
         MMU::memory.generalRegisters.fixedFrameTime = 1000000 / refreshRate; // microseconds
     }
@@ -560,6 +560,18 @@ namespace RetroSim
                         cpu.statusRegister.z, cpu.statusRegister.n, cpu.statusRegister.c,
                         cpu.statusRegister.v, cpu.statusRegister.b, cpu.statusRegister.i);
         }
+
+        ImGui::End();
+
+        bool configWindowEnabled;
+        ImGui::Begin("Config", &configWindowEnabled);
+        
+        ImGui::Text("Data Path: %s", coreConfig.GetDataPath().c_str());
+        ImGui::Text("Script Path: %s", coreConfig.GetScriptPath().c_str());
+        ImGui::Text("Fullscreen: %s", coreConfig.IsFullScreen() ? "True" : "False");
+        ImGui::Text("FPS Override: %d", coreConfig.GetFPS());
+        ImGui::Text("Audio Sample Rate: %d Hz", coreConfig.GetAudioSampleRate());
+        ImGui::Text("Window Scale: %d", coreConfig.GetWindowScale());
 
         ImGui::End();
     }

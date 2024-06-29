@@ -21,9 +21,9 @@ namespace RetroSim
         LoadConfigFile();
 
         if (fpsOverride > 0)
-            fps = fpsOverride;
+            targetFps = fpsOverride;
         else
-            fps = 60; // TODO: query current fps
+            targetFps = 60; // TODO: query current fps
 
         isInitialized = true;
     }
@@ -45,12 +45,12 @@ namespace RetroSim
 
     int CoreConfig::GetFPS()
     {
-        return fps;
+        return targetFps;
     }
 
-    void CoreConfig::SetFPS(int fps)
+    void CoreConfig::SetTargetFPS(int fps)
     {
-        this->fps = fps;
+        this->targetFps = fps;
     }
 
     bool CoreConfig::IsFullScreen()
@@ -61,6 +61,11 @@ namespace RetroSim
     int CoreConfig::GetWindowScale()
     {
         return windowScale;
+    }
+
+    int CoreConfig::GetAudioSampleRate()
+    {
+        return audioSampleRate;
     }
 
     void CoreConfig::LoadConfigFile()

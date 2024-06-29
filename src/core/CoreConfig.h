@@ -16,8 +16,9 @@ namespace RetroSim
         std::string GetDataPath();
         std::string GetScriptPath();        
         int GetFPS();
-        void SetFPS(int fps);
+        void SetTargetFPS(int fps);
         int GetWindowScale();
+        int GetAudioSampleRate();
 
     private:
         std::string basePath = ".";   // All paths are relative to this. Supplied externally via Initialize().
@@ -25,7 +26,7 @@ namespace RetroSim
         std::string scriptPath = "."; // The path to the script to be run on start.
         bool fullscreen = false;
         int fpsOverride = 0;         // The user can override the default fps.
-        int fps = 60;                // The current fps. Set to the current freq. of the monitor.
+        int targetFps = 60;          // The current fps. Set to the current freq. of the monitor.
         int audioSampleRate = 48000; // The audio engine will output samples on this frequency.
         int windowScale = 1;         // The window will be scaled by this factor.
 
