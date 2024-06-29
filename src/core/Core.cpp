@@ -471,9 +471,17 @@ namespace RetroSim
         {
             Reset();
         }
-        
+
         ImGui::Checkbox("Paused", &isPaused);
         ImGui::Checkbox("Scripting Enabled", &scriptingEnabled);
+
+        if(isPaused)
+        {
+            if (ImGui::Button("Run next frame"))
+            {
+                RunNextFrame();
+            }
+        }        
         ImGui::End();
 
         bool infoWindowEnabled = true;
