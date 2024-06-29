@@ -54,8 +54,6 @@ public:
     void Reset();
     void SetPC(unsigned int newPC);
 
-    void CheckRegisterRange(const int8_t &reg) const;
-
     void (*syscallHandler)(uint16_t syscallID, uint32_t argumentAddress);
 
     // --- enumerations ---
@@ -251,6 +249,8 @@ private:
     int HandleAddressingMode_Implied(const InstructionWord &inst);
     int HandleAddressingMode_Direct(const InstructionWord &inst);
     int HandleAddressingMode_Syscall(const InstructionWord &inst);
+
+    void CheckRegisterRange(const int8_t &reg) const;
 
     template <class T>
     int DecodeInstruction(const InstructionWord &instr)
