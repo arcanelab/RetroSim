@@ -475,13 +475,25 @@ namespace RetroSim
         ImGui::Checkbox("Paused", &isPaused);
         ImGui::Checkbox("Scripting Enabled", &scriptingEnabled);
 
+        if (ImGui::Button("Reset CPU"))
+        {
+            cpu.Reset();
+        }
+
         if(isPaused)
         {
             if (ImGui::Button("Run next frame"))
             {
                 RunNextFrame();
             }
-        }        
+
+            if (ImGui::Button("Step CPU"))
+            {
+                cpu.sleep = false;
+                cpu.Tick();
+            }
+        }
+            
         ImGui::End();
 
         bool infoWindowEnabled = true;
@@ -510,11 +522,6 @@ namespace RetroSim
 
         if (ImGui::CollapsingHeader("A65000 CPU", openHeader))
         {
-            if (ImGui::Button("Reset CPU"))
-            {
-                cpu.Reset();
-            }
-
             ImGui::Checkbox("Sleep", &cpu.sleep);
             ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "General registers:");
 
