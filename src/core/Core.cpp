@@ -467,9 +467,16 @@ namespace RetroSim
     {
         bool systemWindowEnabled = true;
         ImGui::Begin("System", &systemWindowEnabled);
-        if (ImGui::Button("Reset"))
+        if (ImGui::Button("Reset system"))
         {
             Reset();
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Quit system"))
+        {
+            std::exit(0);
         }
 
         ImGui::Checkbox("Paused", &isPaused);
@@ -480,7 +487,7 @@ namespace RetroSim
             cpu.Reset();
         }
 
-        if(isPaused)
+        if (isPaused)
         {
             if (ImGui::Button("Run next frame"))
             {
@@ -493,7 +500,7 @@ namespace RetroSim
                 cpu.Tick();
             }
         }
-            
+
         ImGui::End();
 
         bool infoWindowEnabled = true;
@@ -550,7 +557,7 @@ namespace RetroSim
 
             ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Status register:");
             ImGui::Text("Z: %X  N: %X  C: %X  V: %X  B: %X  I: %X",
-                        cpu.statusRegister.z, cpu.statusRegister.n, cpu.statusRegister.c, 
+                        cpu.statusRegister.z, cpu.statusRegister.n, cpu.statusRegister.c,
                         cpu.statusRegister.v, cpu.statusRegister.b, cpu.statusRegister.i);
         }
 
