@@ -9,17 +9,16 @@
 #pragma once
 #include <cstdint>
 
-enum A65000ExceptionTypes
+struct A65000Exception
 {
-    EX_INVALID_ADDRESS,
-    EX_INVALID_INSTRUCTION,
-    EX_DIVISION_BY_ZERO
-};
+    enum class Type
+    {
+        NO_EXCEPTION,
+        EX_INVALID_ADDRESS,
+        EX_INVALID_INSTRUCTION,
+        EX_DIVISION_BY_ZERO
+    };
 
-class A65000Exception
-{
-public:
-    A65000ExceptionTypes type;
-    uint64_t address;
-    A65000Exception(A65000ExceptionTypes type):type(type){}
+    Type type;
+    A65000Exception(): type(Type::NO_EXCEPTION) {}
 };

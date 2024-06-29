@@ -234,6 +234,8 @@ public:
 
     bool sleep = false;
 
+    A65000Exception cpuException;
+
 private:
     vector<string> log;
 
@@ -248,7 +250,7 @@ private:
     int HandleAddressingMode_Direct(const InstructionWord &inst);
     int HandleAddressingMode_Syscall(const InstructionWord &inst);
 
-    void CheckRegisterRange(const int8_t &reg) const;
+    void CheckRegisterRange(const int8_t &reg);
     void InterruptRaised(bool isNMI = false);
     void SetPC(unsigned int newPC);
 
@@ -298,7 +300,8 @@ private:
         case AM_SYSCALL:
             return HandleAddressingMode_Syscall(instr); // sys 0, $200
         default:
-            throw A65000Exception(EX_INVALID_INSTRUCTION);
+            cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
+            return 1;
         }
     }
 
@@ -382,6 +385,12 @@ private:
     template <class T>
     T Exec_Div(const T &value1, const T &value2)
     {
+        if(value2 == 0)
+        {
+            cpuException.type = A65000Exception::Type::EX_DIVISION_BY_ZERO;
+            return 0;
+        }
+
         registers[13] = value1 % value2;
         return value1 / value2;
     }
@@ -389,9 +398,6 @@ private:
     template <class T>
     T Exec_Mul(const T &value1, const T &value2)
     {
-        if (value2 == 0)
-            throw A65000Exception(EX_DIVISION_BY_ZERO);
-
         const uint64_t result = value1 * value2;
         registers[13] = (result & 0xffff0000) >> 16;
         return (T)(result & 0xffff);
@@ -458,7 +464,8 @@ private:
         case I_ROR:
             result = Exec_Ror(value1, value2);
         default:
-            throw A65000Exception(EX_INVALID_INSTRUCTION);
+            cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
+            return 0;
         }
 
         ModifyFlagsNZ<T>(result); // TODO: test if T is the correct type
@@ -537,7 +544,7 @@ private:
             PC += signedDiff;
             break;
         default:
-            throw A65000Exception(EX_INVALID_INSTRUCTION);
+            cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
         }
         return 1;
     }
@@ -564,7 +571,10 @@ private:
             PC = value;
         }
         else
-            throw A65000Exception(EX_INVALID_INSTRUCTION);
+        {
+            cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
+            return 1;
+        }
 
         return 2;
     }
@@ -636,7 +646,8 @@ private:
             WriteRegister(&registers[registerSelector], (int32_t)(registers[registerSelector] & 0xffff)); // TODO: test
             return 1;
         default:
-            throw A65000Exception(EX_INVALID_INSTRUCTION);
+            cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
+            return 1;
         }
     }
 
@@ -695,7 +706,8 @@ private:
             cycles = 3;
             break;
         default:
-            throw A65000Exception(EX_INVALID_INSTRUCTION);
+            cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
+            return 1;
         }
 
         assert(cycles > 0);
@@ -782,6 +794,8 @@ private:
             return 2; // we return because we don't want to store the result
         default:
             result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, valueInSourceRegister);
+            if(cpuException.type != A65000Exception::Type::NO_EXCEPTION)
+                return 1;
         }
 
         // store result
@@ -821,6 +835,8 @@ private:
             return cycles; // we return because we don't want to store the result
         default:
             result = ExecuteALUInstructions((int)inst.instructionCode, valueInDestinationRegister, valueAtAddress);
+            if(cpuException.type != A65000Exception::Type::NO_EXCEPTION)
+                return 1;
         }
 
         // store result
@@ -853,6 +869,8 @@ private:
             return cycles; // we return, because we don't want to store the result
         default:
             result = ExecuteALUInstructions((int)inst.instructionCode, leftRegisterValue, rightRegisterValue);
+            if(cpuException.type != A65000Exception::Type::NO_EXCEPTION)
+                return 1;
         }
 
         // store result
@@ -885,6 +903,8 @@ private:
             return cycles; // we return, because we don't want to store the result
         default:
             result = ExecuteALUInstructions((int)inst.instructionCode, valueInRegister, opcodeConstant);
+            if(cpuException.type != A65000Exception::Type::NO_EXCEPTION)
+                return 1;
         }
 
         // store result
@@ -918,6 +938,8 @@ private:
             return 2; // we return, because we don't want to store the result
         default:
             result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, valueInRegister);
+            if(cpuException.type != A65000Exception::Type::NO_EXCEPTION)
+                return 1;
         }
 
         // store result
@@ -951,6 +973,8 @@ private:
             return 2; // we return, because we don't want to store the result
         default:
             result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, valueInRegister);
+            if(cpuException.type != A65000Exception::Type::NO_EXCEPTION)
+                return 1;
         }
 
         // store result
@@ -984,6 +1008,8 @@ private:
             return 2; // we return, because we don't want to store the result
         default:
             result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, constValue);
+            if(cpuException.type != A65000Exception::Type::NO_EXCEPTION)
+                return 1;
         }
 
         // store result
@@ -1020,6 +1046,8 @@ private:
             return 2; // we return because we don't want to store the result
         default:
             result = ExecuteALUInstructions((int)inst.instructionCode, valueAtAddress, constValue);
+            if(cpuException.type != A65000Exception::Type::NO_EXCEPTION)
+                return 1;
         }
 
         // store result

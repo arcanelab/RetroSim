@@ -57,27 +57,25 @@ int A65000CPU::Tick() // return value: the number of cycles used
     if (sleep)
         return 1;
 
-    try
+    int cycles = RunNextInstruction();
+
+    if(cpuException.type == A65000Exception::Type::NO_EXCEPTION)
+        return cycles;
+
+    switch (cpuException.type)
     {
-        return RunNextInstruction();
-    }
-    catch (A65000Exception exception)
-    {
-        switch (exception.type)
-        {
-        case EX_INVALID_INSTRUCTION:
-            PC = MMU::ReadMem<uint32_t>(VEC_ILLEGALINSTRUCTION);
-            break;
-        case EX_INVALID_ADDRESS:
-            PC = MMU::ReadMem<uint32_t>(VEC_ILLEGALADDRESS);
-            break;
-        case EX_DIVISION_BY_ZERO:
-            PC = MMU::ReadMem<uint32_t>(VEC_DIVZERO);
-            break;
-        default:
-            // TODO: here?
-            break;
-        }
+    case A65000Exception::Type::EX_INVALID_INSTRUCTION:
+        PC = MMU::ReadMem<uint32_t>(VEC_ILLEGALINSTRUCTION);
+        break;
+    case A65000Exception::Type::EX_INVALID_ADDRESS:
+        PC = MMU::ReadMem<uint32_t>(VEC_ILLEGALADDRESS);
+        break;
+    case A65000Exception::Type::EX_DIVISION_BY_ZERO:
+        PC = MMU::ReadMem<uint32_t>(VEC_DIVZERO);
+        break;
+    default:
+        assert(true);
+        break;
     }
 
     return 2;
@@ -96,7 +94,7 @@ int A65000CPU::RunNextInstruction()
     case OS_32BIT:
         return DecodeInstruction<uint32_t>(instr);
     default:
-        throw A65000Exception(EX_INVALID_INSTRUCTION);
+        cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
     }
 }
 
@@ -181,7 +179,7 @@ int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
         break;
 
     default:
-        throw A65000Exception(EX_INVALID_INSTRUCTION);
+        cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
     }
 
     return cycles;
@@ -190,7 +188,10 @@ int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
 int A65000CPU::HandleAddressingMode_Syscall(const InstructionWord &inst)
 {
     if(inst.instructionCode != I_SYS)
-        throw A65000Exception(EX_INVALID_INSTRUCTION);
+    {
+        cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
+        return 1;
+    }
 
     uint16_t syscallId = FetchAndAdvancePC<uint16_t>();
     uint32_t syscallArgAddress = FetchAndAdvancePC<uint32_t>();
@@ -223,10 +224,10 @@ auto A65000CPU::FetchRegisterPair() -> RegisterIndexPair
     return RegisterIndexPair(registerIndexLeft, registerIndexRight);
 }
 
-void A65000CPU::CheckRegisterRange(const int8_t &reg) const
+void A65000CPU::CheckRegisterRange(const int8_t &reg)
 {
     if (reg > REG_PC || reg < REG_R0)
-        throw A65000Exception(EX_INVALID_INSTRUCTION);
+        cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
 }
 
 int A65000CPU::HandleAddressingMode_Direct(const InstructionWord &inst)
@@ -247,7 +248,8 @@ int A65000CPU::HandleAddressingMode_Direct(const InstructionWord &inst)
         cycles = 3;
         break;
     default:
-        throw A65000Exception(EX_INVALID_INSTRUCTION);
+        cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
+        return 1;
     }
 
     assert(cycles > 0);
