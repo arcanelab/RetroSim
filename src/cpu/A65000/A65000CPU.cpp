@@ -39,6 +39,7 @@ void A65000CPU::InterruptRaised(bool isNMI)
 void A65000CPU::Reset()
 {
     sleep = false;
+    cpuException.type = A65000Exception::Type::NO_EXCEPTION;
 
     for (int i = 0; i < 14; i++)
         registers[i] = 0;
@@ -57,6 +58,8 @@ int A65000CPU::Tick() // return value: the number of cycles used
     if (sleep)
         return 1;
 
+    cpuException.type = A65000Exception::Type::NO_EXCEPTION;
+    
     int cycles = RunNextInstruction();
 
     if(cpuException.type == A65000Exception::Type::NO_EXCEPTION)
