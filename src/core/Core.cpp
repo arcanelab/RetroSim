@@ -370,7 +370,7 @@ namespace RetroSim
         FILE *file = fopen(path.c_str(), "rb");
         if (file == nullptr)
         {
-            LogPrintf(RETRO_LOG_ERROR, "Failed to open file: %s\n", path.c_str());
+            LogPrintf(RETRO_LOG_ERROR, "Failed to systemWindowEnabled file: %s\n", path.c_str());
             return;
         }
 
@@ -465,15 +465,80 @@ namespace RetroSim
 #ifdef IMGUI
     void Core::DrawImGui()
     {
-        bool open = true;
-        ImGui::Begin("System", &open);
-        if(ImGui::Button("Reset"))
+        bool systemWindowEnabled = true;
+        ImGui::Begin("System", &systemWindowEnabled);
+        if (ImGui::Button("Reset"))
         {
             Reset();
         }
+        
         ImGui::Checkbox("Paused", &isPaused);
         ImGui::Checkbox("Scripting Enabled", &scriptingEnabled);
-        ImGui::Text("Frame: %d", frameCounter);
+        ImGui::End();
+
+        bool infoWindowEnabled = true;
+        ImGui::Begin("Info", &systemWindowEnabled);
+        ImGuiTreeNodeFlags openHeader = ImGuiTreeNodeFlags_DefaultOpen;
+
+        if (ImGui::CollapsingHeader("System", openHeader))
+        {
+            ImGui::Text("Fixed Frame Time: %u µs", MMU::memory.generalRegisters.fixedFrameTime);
+            ImGui::Text("Delta Time: %u µs", MMU::memory.generalRegisters.deltaTime);
+            ImGui::Text("Frame Counter: %u", MMU::memory.generalRegisters.frameCounter);
+            ImGui::Text("Refresh Rate: %d Hz", MMU::memory.generalRegisters.refreshRate);
+            ImGui::Text("Current FPS: %d Hz", MMU::memory.generalRegisters.currentFPS);
+        }
+
+        if (ImGui::CollapsingHeader("GPU", openHeader))
+        {
+            ImGui::Text("Screen Width: %d", MMU::memory.gpu.screenWidth);
+            ImGui::Text("Screen Height: %d", MMU::memory.gpu.screenHeight);
+            ImGui::Text("Tile Width: %d", MMU::memory.gpu.tileWidth);
+            ImGui::Text("Tile Height: %d", MMU::memory.gpu.tileHeight);
+            ImGui::Text("Map Width: %d", MMU::memory.gpu.mapWidth);
+            ImGui::Text("Map Height: %d", MMU::memory.gpu.mapHeight);
+            ImGui::Text("Sprite Atlas Pitch: %d", MMU::memory.gpu.spriteAtlasPitch);
+        }
+
+        if (ImGui::CollapsingHeader("A65000 CPU", openHeader))
+        {
+            if (ImGui::Button("Reset CPU"))
+            {
+                cpu.Reset();
+            }
+
+            ImGui::Checkbox("Sleep", &cpu.sleep);
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "General registers:");
+
+            const int num_columns = 4;
+            if (ImGui::BeginTable("Registers", num_columns))
+            {
+                for (int i = 0; i < 16; i++)
+                {
+                    if (i % 4 == 0)
+                    {
+                        ImGui::TableNextRow();
+                    }
+
+                    ImGui::TableSetColumnIndex(i % 4);
+
+                    if (i < 14)
+                        ImGui::Text("R%d: %X", i, cpu.registers[i]);
+                    else if (i == 14)
+                        ImGui::Text("SP: %X", cpu.registers[14]);
+                    else
+                        ImGui::Text("PC: %X", cpu.registers[15]);
+                }
+
+                ImGui::EndTable();
+            }
+
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Status register:");
+            ImGui::Text("Z: %X  N: %X  C: %X  V: %X  B: %X  I: %X",
+                        cpu.statusRegister.z, cpu.statusRegister.n, cpu.statusRegister.c, 
+                        cpu.statusRegister.v, cpu.statusRegister.b, cpu.statusRegister.i);
+        }
+
         ImGui::End();
     }
 #endif // IMGUI
