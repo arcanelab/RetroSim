@@ -104,7 +104,7 @@ Target =
 local _sdltarget = Target.sdl
 
 target("RetroSim")
-    set_default(true)
+    set_default(false)
     AddCommon()
     set_kind("binary")
     add_packages("libsdl")
@@ -147,10 +147,10 @@ target("BuildSDL_gpu")
     end
 
 target("Raylib")
-    set_default(false)
+    set_default(true)
+    add_defines("IMGUI")
     AddCommon()
     add_defines("RAYLIB")
-    add_defines("TELNET_ENABLED")
     add_files("src/system/raylib/*.cpp")
     add_packages("raylib")
     add_packages("imgui")
