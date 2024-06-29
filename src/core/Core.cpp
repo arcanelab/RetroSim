@@ -17,6 +17,10 @@
 #include <fstream>
 #include <random>
 
+#ifdef IMGUI
+#include "imgui.h"
+#endif // IMGUI
+
 #include "GravityScripting.h"
 #include "GPU.h"
 #include "Core.h"
@@ -356,6 +360,9 @@ namespace RetroSim
         InitializePalette();
         InitializeTestPatterns();
         InitializeCPU();
+
+        isPaused = false;
+        frameCounter = 0;
     }
 
     void Core::LoadRetroSimBinaryFile(const std::string &path)
@@ -439,4 +446,35 @@ namespace RetroSim
     {
         return Audio::GetSampleRate();
     }
+
+    void Core::Pause()
+    {
+        isPaused = true;
+    }
+
+    void Core::Resume()
+    {
+        isPaused = false;
+    }
+
+    bool Core::IsPaused()
+    {
+        return isPaused;
+    }
+
+#ifdef IMGUI
+    void Core::DrawImGui()
+    {
+        bool open = true;
+        ImGui::Begin("System", &open);
+        if(ImGui::Button("Reset"))
+        {
+            Reset();
+        }
+        ImGui::Checkbox("Paused", &isPaused);
+        ImGui::Checkbox("Scripting Enabled", &scriptingEnabled);
+        ImGui::Text("Frame: %d", frameCounter);
+        ImGui::End();
+    }
+#endif // IMGUI
 }

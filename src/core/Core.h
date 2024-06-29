@@ -29,9 +29,16 @@ namespace RetroSim
         void Reset();
         void Shutdown();
         void SetRefreshRate(int refreshRate);
+        void Pause();
+        void Resume();
+        bool IsPaused();
 
         void RenderAudio(uint16_t **audioBuffer, uint32_t *audioBufferSize);
         uint32_t GetSampleRate();
+
+#ifdef IMGUI
+        void DrawImGui();
+#endif // IMGUI
 
         std::mutex memoryMutex;
 
@@ -42,6 +49,7 @@ namespace RetroSim
         uint32_t frameCounter;
         A65000CPU cpu;
         bool scriptingEnabled = false;
+        bool isPaused = false;
 
         void InitializeFonts();
         void InitializePalette();

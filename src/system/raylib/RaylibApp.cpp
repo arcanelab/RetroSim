@@ -2,9 +2,10 @@
 // https://github.com/arcanelab
 
 #include "RaylibApp.h"
-
+#ifdef IMGUI
 #include "imgui.h"
 #include "rlImGui.h"
+#endif // IMGUI
 
 namespace RetroSim
 {
@@ -17,9 +18,12 @@ namespace RetroSim
         core->Initialize(basePath);
 
         InitializeWindow();
+
+#ifdef IMGUI
         rlImGuiSetup(true);
         auto imguiio = ImGui::GetIO();
         imguiio.FontGlobalScale = 2.0f;
+#endif // IMGUI
 
         shader.Initialize(core, scaledWindowWidth, scaledWindowHeight);
 
@@ -31,7 +35,8 @@ namespace RetroSim
 
         while (!WindowShouldClose())
         {
-            core->RunNextFrame();
+            if(core->IsPaused() == false)
+                core->RunNextFrame();
 
             shader.UpdateShaderVariables();
             BeginDrawing();
@@ -43,16 +48,21 @@ namespace RetroSim
                     DrawTextureEx(drawTexture, border, 0.0f, (float)core->GetCoreConfig().GetWindowScale() * desktopScalingFactor, WHITE);
                 }
                 EndShaderMode();
+#ifdef IMGUI
                 rlImGuiBegin();
-                // bool open = true;
-                // ImGui::ShowDemoWindow(&open);
+                bool open = true;
+                ImGui::ShowDemoWindow(&open);
                 shader.DrawParametersGui();
+                core->DrawImGui();
                 rlImGuiEnd();
+#endif // IMGUI
             }
             EndDrawing();
         }
 
+#ifdef IMGUI
         rlImGuiShutdown();
+#endif // IMGUI
         CloseWindow();
     }
 
