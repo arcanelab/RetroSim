@@ -164,59 +164,59 @@ namespace RetroSim::GravityAPI
         if (!VALUE_ISA_STRING(key))
             RETURN_VALUE(VALUE_FROM_NULL, rindex);
 
-        if (strcmp(VALUE_AS_CSTRING(key), "SCREEN_WIDTH_U16") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "screen_width_u16") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenWidth), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "SCREEN_HEIGHT_U16") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "screen_height_u16") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenHeight), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "TILE_WIDTH_U8") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "tile_width_u8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.tileWidth), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "TILE_HEIGHT_U8") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "tile_height_u8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.tileHeight), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "MAP_WIDTH_U8") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "map_width_u8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.mapWidth), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "MAP_HEIGHT_U8") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "map_height_u8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.mapHeight), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "SPRITE_ATLAS_PITCH_U8") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "sprite_atlas_pitch_u8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.spriteAtlasPitch), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "BITMAP_PITCH_U16") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "bitmap_pitch_u16") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.gpu.screenWidth), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "CHARACTER_COLOR_INDEX_U8") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "character_color_index_u8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.currentFPS), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "FIXED_FRAME_TIME_U32") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "fixed_frame_time_u32") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.fixedFrameTime), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "DELTA_TIME_U32") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "delta_time_u32") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.deltaTime), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "FRAME_COUNTER_U32") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "frame_counter_u32") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.frameCounter), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "REFRESH_RATE_U8") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "refresh_rate_u8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.refreshRate), rindex);
         }
-        if (strcmp(VALUE_AS_CSTRING(key), "CURRENT_FPS_U8") == 0)
+        if (strcmp(VALUE_AS_CSTRING(key), "current_fps_u8") == 0)
         {
             RETURN_VALUE(VALUE_FROM_INT(MMU::memory.generalRegisters.currentFPS), rindex);
         }
@@ -226,7 +226,7 @@ namespace RetroSim::GravityAPI
     {
         if (key)
         {
-            if ((strcmp(key, "TILE_WIDTH_U8") == 0) && VALUE_ISA_INT(value))
+            if ((strcmp(key, "tile_width_u8") == 0) && VALUE_ISA_INT(value))
             {
                 int valueAsInt = VALUE_AS_INT(value);
                 if (valueAsInt < 1 || valueAsInt > 255)
@@ -236,37 +236,37 @@ namespace RetroSim::GravityAPI
                 return true;
             }
 
-            if ((strcmp(key, "TILE_HEIGHT_U8") == 0) && VALUE_ISA_INT(value))
+            if ((strcmp(key, "tile_height_u8") == 0) && VALUE_ISA_INT(value))
             {
                 MMU::memory.gpu.tileHeight = (uint8_t)VALUE_AS_INT(value);
                 return true;
             }
 
-            if ((strcmp(key, "MAP_WIDTH_U8") == 0) && VALUE_ISA_INT(value))
+            if ((strcmp(key, "map_width_u8") == 0) && VALUE_ISA_INT(value))
             {
                 MMU::memory.gpu.mapWidth = (uint8_t)VALUE_AS_INT(value);
                 return true;
             }
 
-            if ((strcmp(key, "MAP_HEIGHT_U8") == 0) && VALUE_ISA_INT(value))
+            if ((strcmp(key, "map_height_u8") == 0) && VALUE_ISA_INT(value))
             {
                 MMU::memory.gpu.mapHeight = (uint8_t)VALUE_AS_INT(value);
                 return true;
             }
 
-            if ((strcmp(key, "SPRITE_ATLAS_PITCH_U8") == 0) && VALUE_ISA_INT(value))
+            if ((strcmp(key, "sprite_atlas_pitch_u8") == 0) && VALUE_ISA_INT(value))
             {
                 MMU::memory.gpu.spriteAtlasPitch = (uint8_t)VALUE_AS_INT(value);
                 return true;
             }
 
-            if ((strcmp(key, "BITMAP_PITCH_U16") == 0) && VALUE_ISA_INT(value))
+            if ((strcmp(key, "bitmap_pitch_u16") == 0) && VALUE_ISA_INT(value))
             {
                 MMU::memory.gpu.screenWidth = (uint16_t)VALUE_AS_INT(value);
                 return true;
             }
 
-            if ((strcmp(key, "CHARACTER_COLOR_INDEX_U8") == 0) && VALUE_ISA_INT(value))
+            if ((strcmp(key, "character_color_index_u8") == 0) && VALUE_ISA_INT(value))
             {
                 MMU::memory.generalRegisters.currentFPS = (uint8_t)VALUE_AS_INT(value);
                 return true;
@@ -879,47 +879,47 @@ namespace RetroSim::GravityAPI
     {
         gravity_gc_setenabled(vm, false);
         // class
-        gravity_class_t *c = gravity_class_new_pair(vm, "Memory", NULL, 0, 0);
+        gravity_class_t *c = gravity_class_new_pair(vm, "memory", NULL, 0, 0);
         gravity_class_t *meta = gravity_class_get_meta(c);
 
         // methods
         gravity_function_t *write8f = gravity_function_new_internal(vm, NULL, Write<uint8_t>, 0);
         gravity_closure_t *writeu8c = gravity_closure_new(vm, write8f);
-        gravity_class_bind(meta, "Write8", VALUE_FROM_OBJECT(writeu8c));
+        gravity_class_bind(meta, "write8", VALUE_FROM_OBJECT(writeu8c));
 
         gravity_function_t *write16f = gravity_function_new_internal(vm, NULL, Write<uint16_t>, 0);
         gravity_closure_t *write16c = gravity_closure_new(vm, write16f);
-        gravity_class_bind(meta, "Write16", VALUE_FROM_OBJECT(write16c));
+        gravity_class_bind(meta, "write16", VALUE_FROM_OBJECT(write16c));
 
         gravity_function_t *write32f = gravity_function_new_internal(vm, NULL, Write<uint32_t>, 0);
         gravity_closure_t *write32c = gravity_closure_new(vm, write32f);
-        gravity_class_bind(meta, "Write32", VALUE_FROM_OBJECT(write32c));
+        gravity_class_bind(meta, "write32", VALUE_FROM_OBJECT(write32c));
 
         gravity_function_t *read8f = gravity_function_new_internal(vm, NULL, Read<uint8_t>, 0);
         gravity_closure_t *read8c = gravity_closure_new(vm, read8f);
-        gravity_class_bind(meta, "Read8", VALUE_FROM_OBJECT(read8c));
+        gravity_class_bind(meta, "read8", VALUE_FROM_OBJECT(read8c));
 
         gravity_function_t *read16f = gravity_function_new_internal(vm, NULL, Read<uint16_t>, 0);
         gravity_closure_t *read16c = gravity_closure_new(vm, read16f);
-        gravity_class_bind(meta, "Read16", VALUE_FROM_OBJECT(read16c));
+        gravity_class_bind(meta, "read16", VALUE_FROM_OBJECT(read16c));
 
         gravity_function_t *read32f = gravity_function_new_internal(vm, NULL, Read<uint32_t>, 0);
         gravity_closure_t *read32c = gravity_closure_new(vm, read32f);
-        gravity_class_bind(meta, "Read32", VALUE_FROM_OBJECT(read32c));
+        gravity_class_bind(meta, "read32", VALUE_FROM_OBJECT(read32c));
 
         // read-only properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(MemoryPropertyGetter), NEW_FUNCTION(MemoryPropertySetter));
         gravity_value_t value = VALUE_FROM_OBJECT(closure);
-        gravity_class_bind(meta, "MEMORY_SIZE_U32", value);
-        gravity_class_bind(meta, "PALETTE_U32", value);
-        gravity_class_bind(meta, "MAP_U8", value);
-        gravity_class_bind(meta, "TILES_U8", value);
-        gravity_class_bind(meta, "SPRITE_ATLAS_U8", value);
-        gravity_class_bind(meta, "BITMAP_U8", value);
-        gravity_class_bind(meta, "CHARSET_U8", value);
+        gravity_class_bind(meta, "memory_size_u32", value);
+        gravity_class_bind(meta, "palette_u32", value);
+        gravity_class_bind(meta, "map_u8", value);
+        gravity_class_bind(meta, "tiles_u8", value);
+        gravity_class_bind(meta, "sprite_atlas_u8", value);
+        gravity_class_bind(meta, "bitmap_u8", value);
+        gravity_class_bind(meta, "charset_u8", value);
 
         // register class
-        gravity_vm_setvalue(vm, "Memory", VALUE_FROM_OBJECT(c));
+        gravity_vm_setvalue(vm, "memory", VALUE_FROM_OBJECT(c));
 
         gravity_gc_setenabled(vm, true);
     }
@@ -928,94 +928,94 @@ namespace RetroSim::GravityAPI
     {
         gravity_gc_setenabled(vm, false);
         // class
-        gravity_class_t *c = gravity_class_new_pair(vm, "GPU", NULL, 0, 0);
+        gravity_class_t *c = gravity_class_new_pair(vm, "gpu", NULL, 0, 0);
         gravity_class_t *meta = gravity_class_get_meta(c);
 
         // methods
         gravity_function_t *clscolorf = gravity_function_new_internal(vm, NULL, Cls, 0);
         gravity_closure_t *clscolorc = gravity_closure_new(vm, clscolorf);
-        gravity_class_bind(meta, "Cls", VALUE_FROM_OBJECT(clscolorc));
+        gravity_class_bind(meta, "cls", VALUE_FROM_OBJECT(clscolorc));
 
         gravity_function_t *clsnoclipf = gravity_function_new_internal(vm, NULL, ClsNoClip, 0);
         gravity_closure_t *clsnoclipc = gravity_closure_new(vm, clsnoclipf);
-        gravity_class_bind(meta, "ClsNoClip", VALUE_FROM_OBJECT(clsnoclipc));
+        gravity_class_bind(meta, "clsnoclip", VALUE_FROM_OBJECT(clsnoclipc));
 
         gravity_function_t *pixelf = gravity_function_new_internal(vm, NULL, DrawPixel, 0);
         gravity_closure_t *pixelc = gravity_closure_new(vm, pixelf);
-        gravity_class_bind(meta, "Pixel", VALUE_FROM_OBJECT(pixelc));
+        gravity_class_bind(meta, "pixel", VALUE_FROM_OBJECT(pixelc));
 
         gravity_function_t *palcolorf = gravity_function_new_internal(vm, NULL, SetPaletteColor, 0);
         gravity_closure_t *palcolorc = gravity_closure_new(vm, palcolorf);
-        gravity_class_bind(meta, "PalColor", VALUE_FROM_OBJECT(palcolorc));
+        gravity_class_bind(meta, "palcolor", VALUE_FROM_OBJECT(palcolorc));
 
         gravity_function_t *linef = gravity_function_new_internal(vm, NULL, DrawLine, 0);
         gravity_closure_t *linec = gravity_closure_new(vm, linef);
-        gravity_class_bind(meta, "Line", VALUE_FROM_OBJECT(linec));
+        gravity_class_bind(meta, "line", VALUE_FROM_OBJECT(linec));
 
         gravity_function_t *circlef = gravity_function_new_internal(vm, NULL, DrawCircle, 0);
         gravity_closure_t *circlec = gravity_closure_new(vm, circlef);
-        gravity_class_bind(meta, "Circle", VALUE_FROM_OBJECT(circlec));
+        gravity_class_bind(meta, "circle", VALUE_FROM_OBJECT(circlec));
 
         gravity_function_t *rectf = gravity_function_new_internal(vm, NULL, DrawRect, 0);
         gravity_closure_t *rectc = gravity_closure_new(vm, rectf);
-        gravity_class_bind(meta, "Rect", VALUE_FROM_OBJECT(rectc));
+        gravity_class_bind(meta, "rect", VALUE_FROM_OBJECT(rectc));
 
         gravity_function_t *trif = gravity_function_new_internal(vm, NULL, DrawTriangle, 0);
         gravity_closure_t *tric = gravity_closure_new(vm, trif);
-        gravity_class_bind(meta, "Tri", VALUE_FROM_OBJECT(tric));
+        gravity_class_bind(meta, "tri", VALUE_FROM_OBJECT(tric));
 
         gravity_function_t *clipf = gravity_function_new_internal(vm, NULL, SetClippingRect, 0);
         gravity_closure_t *clipc = gravity_closure_new(vm, clipf);
-        gravity_class_bind(meta, "Clip", VALUE_FROM_OBJECT(clipc));
+        gravity_class_bind(meta, "clip", VALUE_FROM_OBJECT(clipc));
 
         gravity_function_t *noclipf = gravity_function_new_internal(vm, NULL, DisableClipping, 0);
         gravity_closure_t *noclipc = gravity_closure_new(vm, noclipf);
-        gravity_class_bind(meta, "NoClip", VALUE_FROM_OBJECT(noclipc));
+        gravity_class_bind(meta, "noclip", VALUE_FROM_OBJECT(noclipc));
 
         gravity_function_t *setfontf = gravity_function_new_internal(vm, NULL, SetFont, 0);
         gravity_closure_t *setfontc = gravity_closure_new(vm, setfontf);
-        gravity_class_bind(meta, "SetFont", VALUE_FROM_OBJECT(setfontc));
+        gravity_class_bind(meta, "setfont", VALUE_FROM_OBJECT(setfontc));
 
         gravity_function_t *printf = gravity_function_new_internal(vm, NULL, RenderText, 0);
         gravity_closure_t *printc = gravity_closure_new(vm, printf);
-        gravity_class_bind(meta, "Print", VALUE_FROM_OBJECT(printc));
+        gravity_class_bind(meta, "print", VALUE_FROM_OBJECT(printc));
 
         gravity_function_t *printopaquef = gravity_function_new_internal(vm, NULL, RenderTextOpaque, 0);
         gravity_closure_t *printopaquec = gravity_closure_new(vm, printopaquef);
-        gravity_class_bind(meta, "PrintOpaque", VALUE_FROM_OBJECT(printopaquec));
+        gravity_class_bind(meta, "printopaque", VALUE_FROM_OBJECT(printopaquec));
 
         gravity_function_t *mapf = gravity_function_new_internal(vm, NULL, DrawMap, 0);
         gravity_closure_t *mapc = gravity_closure_new(vm, mapf);
-        gravity_class_bind(meta, "Map", VALUE_FROM_OBJECT(mapc));
+        gravity_class_bind(meta, "map", VALUE_FROM_OBJECT(mapc));
 
         gravity_function_t *spritef = gravity_function_new_internal(vm, NULL, DrawSprite, 0);
         gravity_closure_t *spritec = gravity_closure_new(vm, spritef);
-        gravity_class_bind(meta, "Sprite", VALUE_FROM_OBJECT(spritec));
+        gravity_class_bind(meta, "sprite", VALUE_FROM_OBJECT(spritec));
 
         gravity_function_t *bitmapf = gravity_function_new_internal(vm, NULL, DrawBitmap, 0);
         gravity_closure_t *bitmapc = gravity_closure_new(vm, bitmapf);
-        gravity_class_bind(meta, "Bitmap", VALUE_FROM_OBJECT(bitmapc));
+        gravity_class_bind(meta, "bitmap", VALUE_FROM_OBJECT(bitmapc));
 
         // properties
         gravity_closure_t *closure = computed_property_create(NULL, NEW_FUNCTION(GPUPropertyGetter), NEW_FUNCTION(GPUPropertySetter));
         gravity_value_t value = VALUE_FROM_OBJECT(closure);
-        gravity_class_bind(meta, "SCREEN_WIDTH_U16", value);
-        gravity_class_bind(meta, "SCREEN_HEIGHT_U16", value);
-        gravity_class_bind(meta, "TILE_WIDTH_U8", value);
-        gravity_class_bind(meta, "TILE_HEIGHT_U8", value);
-        gravity_class_bind(meta, "MAP_WIDTH_U8", value);
-        gravity_class_bind(meta, "MAP_HEIGHT_U8", value);
-        gravity_class_bind(meta, "SPRITE_ATLAS_PITCH_U8", value);
-        gravity_class_bind(meta, "BITMAP_PITCH_U16", value);
-        gravity_class_bind(meta, "CHARACTER_COLOR_INDEX_U8", value);
-        gravity_class_bind(meta, "FIXED_FRAME_TIME_U32", value);
-        gravity_class_bind(meta, "DELTA_TIME_U32", value);
-        gravity_class_bind(meta, "FRAME_COUNTER_U32", value);
-        gravity_class_bind(meta, "REFRESH_RATE_U8", value);
-        gravity_class_bind(meta, "CURRENT_FPS_U8", value);
+        gravity_class_bind(meta, "screen_width_u16", value);
+        gravity_class_bind(meta, "screen_height_u16", value);
+        gravity_class_bind(meta, "tile_width_u8", value);
+        gravity_class_bind(meta, "tile_height_u8", value);
+        gravity_class_bind(meta, "map_width_u8", value);
+        gravity_class_bind(meta, "map_height_u8", value);
+        gravity_class_bind(meta, "sprite_atlas_pitch_u8", value);
+        gravity_class_bind(meta, "bitmap_pitch_u16", value);
+        gravity_class_bind(meta, "character_color_index_u8", value);
+        gravity_class_bind(meta, "fixed_frame_time_u32", value);
+        gravity_class_bind(meta, "delta_time_u32", value);
+        gravity_class_bind(meta, "frame_counter_u32", value);
+        gravity_class_bind(meta, "refresh_rate_u8", value);
+        gravity_class_bind(meta, "current_fps_u8", value);
 
         // register class
-        gravity_vm_setvalue(vm, "GPU", VALUE_FROM_OBJECT(c));
+        gravity_vm_setvalue(vm, "gpu", VALUE_FROM_OBJECT(c));
 
         gravity_gc_setenabled(vm, true);
     }

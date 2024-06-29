@@ -1,19 +1,19 @@
 // vim: syntax=Swift
-extern var Memory;
-extern var GPU;
+extern var memory;
+extern var gpu;
 
 func start()
 {
     System.print("Hello from Startup.start().")
     // GPU.PalColor(0, 0, 0, 0)
-    GPU.SetFont(8, 8, 0x8000)
+    gpu.setfont(8, 8, 0x8000)
 
-    for(var y in 0...GPU.SCREEN_HEIGHT_U16)
+    for(var y in 0 ... 200)
     {
-        for(var x in 0...GPU.SCREEN_WIDTH_U16)
+        for(var x in 0 ... gpu.screen_width_u16)
         {
-            GPU.PalColor(1, x, y, x^y)
-            GPU.Pixel(x, y, 1)
+            gpu.palcolor(1, x, y, x^y)
+            gpu.pixel(x, y, 1)
         }
     }
 }
@@ -27,30 +27,36 @@ var avgFpsClock = 0.0
 
 func update()
 {
-    clock = clock + GPU.DELTA_TIME_U32 / 30000.0;
+    clock = clock + gpu.delta_time_u32 / 30000.0;
 
-    GPU.Cls(0)
+    gpu.cls(0)
 
     var x = 0
+    var x2 = 0
+    var xSqr = 0
+    var xSqr2 = 0
     for(var i in 0...255)
     {
         x = Math.sin(clock/12.0 - i/20.0) * 8 + 16
-        // GPU.Line(160, i, x, i, i + Math.sin(clock/60.0)*128+128)
-        GPU.Line((x * x) / 15.0 + 8, i, x, i, i)
-        // GPU.Line(x, i, 64-x, i, i+32)
-        GPU.Line((x * x) / 15.0 + 408, i, x + 400, i, i)
-        // GPU.Line((x * x) / 15.0 + 408, i, x + 400, i, i)
+        x2 = Math.sin(-clock/12.0 - i/20.0) * 8 + 16
+        xSqr = x * x / 15.0
+        xSqr2 = x2 * x2 / 15.0
+        // GPU.line(160, i, x, i, i + Math.sin(clock/60.0)*128+128)
+        gpu.line(xSqr + 8, i, x, i, i)
+        // GPU.line(x, i, 64-x, i, i+32)
+        gpu.line(xSqr2 + 408, i, x2 + 400, i, i)
+        // GPU.line((x * x) / 15.0 + 408, i, x + 400, i, i)
     }
 
-    GPU.Bitmap(72, 0, 0, 0, 320, 256, 320, -1);
+    gpu.bitmap(72, 0, 0, 0, 320, 256, 320, -1);
 
-    GPU.Print(180, 1, "/ RetroSim /", 36)
-    GPU.Print(400, 1, "FPS: \(avgFps)", 36)
+    gpu.print(180, 1, "/ RetroSim /", 36)
+    gpu.print(400, 1, "FPS: \(avgFps)", 36)
 
-    // GPU.Print(37*8, 0, "\(clock)", 8)
+    // GPU.print(37*8, 0, "\(clock)", 8)
 
     fpsSum += 1
-    avgFpsClock += GPU.DELTA_TIME_U32
+    avgFpsClock += gpu.delta_time_u32
 
     if(avgFpsClock > 1000000.0)
     {
