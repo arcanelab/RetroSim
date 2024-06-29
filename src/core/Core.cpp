@@ -572,7 +572,7 @@ namespace RetroSim
         ImGui::Text("FPS Override: %d", coreConfig.GetFPS());
         ImGui::Text("Audio Sample Rate: %d Hz", coreConfig.GetAudioSampleRate());
         ImGui::Text("Window Scale: %d", coreConfig.GetWindowScale());
-        ImGui::InputInt("CPU cycles per frame: %d", &coreConfig.cpuCyclesPerFrame);
+        ImGui::InputInt("CPU cycles per frame", &coreConfig.cpuCyclesPerFrame);
 
         ImGui::End();
     }
