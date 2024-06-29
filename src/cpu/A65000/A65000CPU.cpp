@@ -96,6 +96,7 @@ int A65000CPU::RunNextInstruction()
     default:
         cpuException.type = A65000Exception::Type::EX_INVALID_INSTRUCTION;
     }
+    return 1;
 }
 
 int A65000CPU::HandleAddressingMode_Implied(const InstructionWord &inst)
