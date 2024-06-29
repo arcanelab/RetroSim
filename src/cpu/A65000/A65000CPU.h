@@ -21,10 +21,10 @@
 #include <string>
 #include <cassert>
 #ifdef WIN32
-#undef max
-#undef min
-#include <limits>
-#endif
+    #undef max
+    #undef min
+    #include <limits>
+#endif // WIN32
 
 using std::string;
 using std::vector;
