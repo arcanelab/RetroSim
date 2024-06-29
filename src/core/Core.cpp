@@ -279,8 +279,8 @@ namespace RetroSim
 
         GPU::RenderOpaqueText("RetroSim", textPos, 150, colorIndex, 20);
 
-        int bitmapX = 100 + sin(frameNumber / 100.0) * 100;
-        int bitmapY = 50 + cos(frameNumber / 100.0) * 100;
+        int bitmapX = (int)(100 + sin(frameNumber / 100.0) * 100);
+        int bitmapY = (int)(50 + cos(frameNumber / 100.0) * 100);
 
         GPU::DrawBitmap(bitmapX, bitmapY, 0, 0, 320, 256, 320, 1);
 
@@ -342,8 +342,8 @@ namespace RetroSim
 
         auto now = std::chrono::high_resolution_clock::now();
         auto frameTimeInMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(now - lastFrameTime).count();
-        MMU::memory.generalRegisters.deltaTime = frameTimeInMicroseconds;
-        MMU::memory.generalRegisters.currentFPS = 1000000.0f / frameTimeInMicroseconds;
+        MMU::memory.generalRegisters.deltaTime = (uint32_t)frameTimeInMicroseconds;
+        MMU::memory.generalRegisters.currentFPS = (uint8_t)(1000000.0f / frameTimeInMicroseconds);
         lastFrameTime = now;
     }
 
