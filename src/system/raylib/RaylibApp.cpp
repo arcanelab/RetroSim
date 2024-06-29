@@ -21,8 +21,6 @@ namespace RetroSim
 
 #ifdef IMGUI
         rlImGuiSetup(true);
-        auto imguiio = ImGui::GetIO();
-        imguiio.FontGlobalScale = 2.0f;
 #endif // IMGUI
 
         shader.Initialize(core, scaledWindowWidth, scaledWindowHeight);
@@ -49,6 +47,9 @@ namespace RetroSim
                 }
                 EndShaderMode();
 #ifdef IMGUI
+                ImGuiIO& io = ImGui::GetIO();
+                io.FontGlobalScale = core->GetCoreConfig().GetWindowScale();
+
                 rlImGuiBegin();
                 bool open = true;
                 ImGui::ShowDemoWindow(&open);
