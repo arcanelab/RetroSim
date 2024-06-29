@@ -50,9 +50,7 @@ public:
     }
     // ICPUInterface methods
     int Tick(); // returns the number of cycles spent
-    void InterruptRaised(bool isNMI = false);
     void Reset();
-    void SetPC(unsigned int newPC);
 
     void (*syscallHandler)(uint16_t syscallID, uint32_t argumentAddress);
 
@@ -251,6 +249,8 @@ private:
     int HandleAddressingMode_Syscall(const InstructionWord &inst);
 
     void CheckRegisterRange(const int8_t &reg) const;
+    void InterruptRaised(bool isNMI = false);
+    void SetPC(unsigned int newPC);
 
     template <class T>
     int DecodeInstruction(const InstructionWord &instr)
