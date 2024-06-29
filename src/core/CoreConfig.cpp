@@ -127,6 +127,11 @@ namespace RetroSim
                         windowScale = stoi(value);
                         LogPrintf(RETRO_LOG_INFO, "Window scale: %d\n", windowScale);
                     }
+                    else if (key == "cpuCyclesPerFrame")
+                    {
+                        cpuCyclesPerFrame = stoi(value);
+                        LogPrintf(RETRO_LOG_INFO, "CPU cycles per frame: %d\n", cpuCyclesPerFrame);
+                    }
                     else
                     {
                         LogPrintf(RETRO_LOG_WARN, "Unknown key in config file: %s\n", key.c_str());

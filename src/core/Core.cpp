@@ -322,7 +322,7 @@ namespace RetroSim
 
         if (cpu.sleep == false)
         {
-            while (cycles < 32768)
+            while (cycles < coreConfig.cpuCyclesPerFrame)
             {
                 cycles += cpu.Tick();
             }
@@ -565,13 +565,14 @@ namespace RetroSim
 
         bool configWindowEnabled;
         ImGui::Begin("Config", &configWindowEnabled);
-        
+
         ImGui::Text("Data Path: %s", coreConfig.GetDataPath().c_str());
         ImGui::Text("Script Path: %s", coreConfig.GetScriptPath().c_str());
         ImGui::Text("Fullscreen: %s", coreConfig.IsFullScreen() ? "True" : "False");
         ImGui::Text("FPS Override: %d", coreConfig.GetFPS());
         ImGui::Text("Audio Sample Rate: %d Hz", coreConfig.GetAudioSampleRate());
         ImGui::Text("Window Scale: %d", coreConfig.GetWindowScale());
+        ImGui::InputInt("CPU cycles per frame: %d", &coreConfig.cpuCyclesPerFrame);
 
         ImGui::End();
     }

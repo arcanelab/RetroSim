@@ -19,6 +19,7 @@ namespace RetroSim
         void SetTargetFPS(int fps);
         int GetWindowScale();
         int GetAudioSampleRate();
+        int cpuCyclesPerFrame = 32768;// How many CPU cycles we want to execute per frame.
 
     private:
         std::string basePath = ".";   // All paths are relative to this. Supplied externally via Initialize().
