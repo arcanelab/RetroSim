@@ -101,7 +101,7 @@ Target =
     sdlgpu = 2,
 }
 
-local _sdltarget = Target.sdlgpu
+local _sdltarget = Target.sdl
 
 target("RetroSim")
     set_default(true)
@@ -150,6 +150,7 @@ target("Raylib")
     set_default(false)
     AddCommon()
     add_defines("RAYLIB")
+    add_defines("TELNET_ENABLED")
     add_files("src/system/raylib/*.cpp")
     add_packages("raylib")
     add_packages("imgui")
