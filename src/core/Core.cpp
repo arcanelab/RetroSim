@@ -375,21 +375,8 @@ namespace RetroSim
 
     void Core::LoadRetroSimBinaryFile(const std::string &path)
     {
-        FILE *file = fopen(path.c_str(), "rb");
-        if (file == nullptr)
-        {
-            LogPrintf(RETRO_LOG_ERROR, "Failed to systemWindowEnabled file: %s\n", path.c_str());
-            return;
-        }
-
-        fseek(file, 0, SEEK_END);
-        size_t fileSize = ftell(file);
-        fseek(file, 0, SEEK_SET);
-
-        uint8_t *buffer = new uint8_t[fileSize];
-        fread(buffer, 1, fileSize, file);
-        fclose(file);
-
+        size_t fileSize;
+        uint8_t *buffer = ReadBinaryFile(path, fileSize);
         uint8_t *ptr = buffer;
         uint8_t magic[3];
         magic[0] = *ptr++;
