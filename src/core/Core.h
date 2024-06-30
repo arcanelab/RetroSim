@@ -37,7 +37,7 @@ namespace RetroSim
         uint32_t GetSampleRate();
 
 #ifdef IMGUI
-        void DrawImGui();
+        void DrawImGui(bool &showShaderParameters);
 #endif // IMGUI
 
         std::mutex memoryMutex;

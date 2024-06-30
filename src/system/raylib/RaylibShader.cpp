@@ -53,7 +53,10 @@ namespace RetroSim::Raylib
 
     void RaylibShader::DrawParametersGui()
     {
-        ImGui::Begin("Shader Parameters");
+        if (showImGui == false)
+            return;
+            
+        ImGui::Begin("Shader Parameters", &showImGui);
         ImGui::SliderFloat("hardScan", &parameters.hardScan, -20.0f, 0.0f, "%.1f");
         ImGui::SliderFloat("hardPix", &parameters.hardPix, -20.0f, 0.0f, "%.1f");
         ImGui::SliderFloat("warpX", &parameters.warpX, 0.0f, 0.125f, "%.3f", ImGuiSliderFlags_Logarithmic);
@@ -67,7 +70,6 @@ namespace RetroSim::Raylib
         ImGui::SliderFloat("bloom-y soft", &parameters.hardBloomScan, -4.0f, -1.0f, "%.1f");
         ImGui::SliderFloat("bloom ammount", &parameters.bloomAmount, 0.0f, 1.0f, "%.2f");
         ImGui::SliderFloat("filter kernel shape", &parameters.shape, 0.0f, 10.0f, "%.2f");
-
         ImGui::End();
     }
 }

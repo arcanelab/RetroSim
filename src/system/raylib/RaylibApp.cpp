@@ -51,10 +51,8 @@ namespace RetroSim
                 io.FontGlobalScale = core->GetCoreConfig().GetWindowScale();
 
                 rlImGuiBegin();
-                bool open = true;
-                ImGui::ShowDemoWindow(&open);
                 shader.DrawParametersGui();
-                core->DrawImGui();
+                core->DrawImGui(shader.showImGui);
                 rlImGuiEnd();
 #endif // IMGUI
             }

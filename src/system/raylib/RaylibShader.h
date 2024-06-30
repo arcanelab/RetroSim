@@ -29,6 +29,7 @@ namespace RetroSim::Raylib
         void Initialize(RetroSim::Core *core, const int scaledWindowWidth, const int scaledWindowHeight);
         void UpdateShaderVariables();
         void DrawParametersGui();
+        bool showImGui = false;
     private:
         Shader shader;
     };
