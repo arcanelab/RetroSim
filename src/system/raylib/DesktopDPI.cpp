@@ -6,11 +6,6 @@
 #include <cmath>
 #endif
 
-#if defined(__APPLE__)
-#include <objc/objc.h>
-#include <objc/message.h>
-#endif
-
 namespace RetroSim
 {
     float GetDesktopScalingFactor()
