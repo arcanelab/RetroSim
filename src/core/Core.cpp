@@ -19,6 +19,7 @@
 
 #ifdef IMGUI
 #include "imgui.h"
+#include "imfilebrowser.h"
 #endif // IMGUI
 
 #include "GravityScripting.h"
@@ -172,6 +173,7 @@ namespace RetroSim
         if (scriptingEnabled)
         {
             LogPrintf(RETRO_LOG_INFO, "Running script: %s\n", coreConfig.GetScriptPath().c_str());
+            GravityScripting::Initialize();
             GravityScripting::RegisterAPIFunctions();
             GravityScripting::CompileScriptFromFile(coreConfig.GetScriptPath());
             GravityScripting::RunScript("start", {}, 0);
@@ -574,6 +576,38 @@ namespace RetroSim
         ImGui::Text("Window Scale: %d", coreConfig.GetWindowScale());
         ImGui::InputInt("CPU cycles per frame", &coreConfig.cpuCyclesPerFrame);
 
+        ImGui::End();
+
+        bool scriptsWindowEnabled;
+        ImGui::Begin("Scripts", &scriptsWindowEnabled);
+
+        static ImGui::FileBrowser fileDialog(0, "..");
+        
+        // (optional) set browser properties
+        fileDialog.SetTitle("Select a script file");
+        fileDialog.SetTypeFilters({ ".gravity" });
+
+        // open file dialog when user clicks this button
+        if(ImGui::Button("Load script"))
+            fileDialog.Open();
+        
+        fileDialog.Display();
+        
+        if(fileDialog.HasSelected())
+        {
+            auto fileName = fileDialog.GetSelected().string();
+            std::cout << "Selected filename" << fileName << std::endl;
+            fileDialog.ClearSelected();
+
+            scriptingEnabled = false;
+            GravityScripting::Cleanup();
+            GravityScripting::Initialize();
+            GravityScripting::RegisterAPIFunctions();
+            GravityScripting::CompileScriptFromFile(fileName);
+            GravityScripting::RunScript("start", {}, 0);
+            scriptingEnabled = true;
+        }
+    
         ImGui::End();
     }
 #endif // IMGUI

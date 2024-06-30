@@ -17,3 +17,6 @@
 [submodule "src/extern/gravity"]
 	path = src/extern/gravity
 	url = git@github.com:arcanelab/Gravity-RetroSim.git
+[submodule "src/extern/imgui-filebrowser"]
+	path = src/extern/imgui-filebrowser
+	url = git@github.com:AirGuanZ/imgui-filebrowser.git

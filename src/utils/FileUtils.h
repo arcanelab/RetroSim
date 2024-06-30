@@ -3,6 +3,7 @@
 
 #pragma once
 #include <string>
+#include <vector>
 
 namespace RetroSim
 {
@@ -10,4 +11,5 @@ namespace RetroSim
     uint8_t *ReadBinaryFile(const std::string &filename, size_t &size);
     bool FileExists(const std::string &filename);
     std::string ConvertPathToPlatformCompatibleFormat(std::string path);
+    std::vector<std::string> GetFilesInDirectory(std::string path);
 }

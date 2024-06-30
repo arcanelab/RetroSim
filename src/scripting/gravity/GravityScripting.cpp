@@ -19,9 +19,15 @@ namespace RetroSim::GravityScripting
     std::string script;
 
     gravity_delegate_t delegate = {.error_callback = ErrorCallback};
-    gravity_compiler_t *compiler = gravity_compiler_create(&delegate);
-    gravity_vm *vm = gravity_vm_new(&delegate);
+    gravity_compiler_t *compiler = nullptr;
+    gravity_vm *vm = nullptr;
     gravity_closure_t *closure;
+
+    void Initialize()
+    {
+        compiler = gravity_compiler_create(&delegate);
+        vm = gravity_vm_new(&delegate);
+    }
 
     void RegisterAPIFunctions()
     {
@@ -64,8 +70,8 @@ namespace RetroSim::GravityScripting
     void Cleanup()
     {
         gravity_compiler_free(compiler);
+        gravity_vm_reset(vm);
         gravity_vm_free(vm);
-        gravity_core_free();
     }
 
     std::string GetScriptLine(const std::string &script, uint32_t lineNumber)

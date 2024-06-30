@@ -9,6 +9,7 @@
 
 namespace RetroSim::GravityScripting
 {
+    void Initialize();
     void CompileScript(std::string _script);
     void RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs);
     void CompileScriptFromFile(std::string filename);

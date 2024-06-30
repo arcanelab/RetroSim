@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
 #include "FileUtils.h"
 #include "Logger.h"
 
@@ -68,5 +69,22 @@ namespace RetroSim
 #else
         return path;
 #endif
+    }
+
+    std::vector<std::string> GetFilesInDirectory(std::string path)
+    {
+        std::vector<std::string> files;
+
+        // Iterate over the directory entries
+        for (const auto &entry : std::filesystem::directory_iterator(path))
+        {
+            // Check if the entry is a regular file (not a directory)
+            if (entry.is_regular_file())
+            {
+                files.push_back(entry.path().string());
+            }
+        }
+
+        return files;
     }
 }
