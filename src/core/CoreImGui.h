@@ -9,8 +9,16 @@ namespace RetroSim
     public:
         CoreImGui(Core *coreInstance): core(coreInstance) {};
 
-        void DrawImGui(bool &showShaderParameters);
+        void DrawImGui(bool *showShaderParameters);
     private:
         Core *core;
+        bool *showShaderParameters;
+
+        void DrawSystemPanel();
+        void DrawInfoPanel();
+        void DrawConfigPanel();
+        void DrawScriptPanel();
+        void DrawMemoryPanel();
+        void DrawContextMenu();
     };
 };

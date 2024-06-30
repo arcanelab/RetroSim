@@ -54,7 +54,7 @@ namespace RetroSim
 
                 rlImGuiBegin();
                 shader.DrawParametersGui();
-                coreImGui->DrawImGui(shader.showImGui);
+                coreImGui->DrawImGui(&shader.showImGui);
 
                 rlImGuiEnd();
 #endif // IMGUI
