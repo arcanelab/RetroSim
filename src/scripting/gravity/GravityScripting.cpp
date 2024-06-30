@@ -17,6 +17,7 @@ namespace RetroSim::GravityScripting
     void ErrorCallback(gravity_vm *vm, error_type_t error_type, const char *message, error_desc_t error_desc, void *xdata);
 
     std::string script;
+    ScriptError *lastError = nullptr;
 
     gravity_delegate_t delegate = {.error_callback = ErrorCallback};
     gravity_compiler_t *compiler = nullptr;
@@ -35,22 +36,33 @@ namespace RetroSim::GravityScripting
     }
 
     // Compiles the script and transfers it to the VM
-    void CompileScript(std::string _script)
+    bool CompileScript(std::string _script)
     {
+        if(lastError != nullptr)
+        {
+            delete lastError;
+            lastError = nullptr;
+        }
+
         script = _script;
         const char *scriptCStr = script.c_str();
         closure = gravity_compiler_run(compiler, scriptCStr, (uint32_t)strlen(scriptCStr), 0, true, true);
+        if(closure == NULL || lastError != nullptr)
+        {
+            return false;
+        }
         gravity_compiler_transfer(compiler, vm);
         gravity_vm_loadclosure(vm, closure);
+        return true;
     }
 
-    void CompileScriptFromFile(std::string filename)
+    bool CompileScriptFromFile(std::string filename)
     {
         script = RetroSim::ReadTextFile(filename);
         if (script.empty())
-            return;
+            return false;
 
-        CompileScript(script);
+        return CompileScript(script);
     }
 
     void RunScript(std::string functionName, std::vector<gravity_value_t> args, const int numArgs)
@@ -70,8 +82,10 @@ namespace RetroSim::GravityScripting
     void Cleanup()
     {
         gravity_compiler_free(compiler);
+        compiler = nullptr;
         gravity_vm_reset(vm);
         gravity_vm_free(vm);
+        vm = nullptr;
     }
 
     std::string GetScriptLine(const std::string &script, uint32_t lineNumber)
@@ -86,14 +100,23 @@ namespace RetroSim::GravityScripting
 
     void ErrorCallback(gravity_vm *vm, error_type_t error_type, const char *message, error_desc_t error_desc, void *xdata)
     {
-        printf("Gravity error in line %d: %s\n", error_desc.lineno, message);
-        printf("%s\n", GetScriptLine(script, error_desc.lineno).c_str());
-        if (error_desc.colno > 0 && error_desc.colno < 100)
+        if(lastError != nullptr)
         {
-            for (uint32_t i = 0; i < error_desc.colno - 1; i++)
-                printf(" ");
-            printf("^");
+            delete lastError;
+            lastError = nullptr;
         }
-        abort();
+
+        std::ostringstream oss;
+        oss << "Gravity error in line " << error_desc.lineno << ": " << message << std::endl;
+        oss << GetScriptLine(script, error_desc.lineno) << std::endl;
+        if (error_desc.colno > 0 && error_desc.colno < 100) {
+            for (uint32_t i = 0; i < error_desc.colno - 1; i++)
+                oss << " ";
+            oss << "^" << std::endl;
+        }
+
+        lastError = new ScriptError();
+        lastError->errorMessage = oss.str();
+        lastError->lineNumber = error_desc.colno;
     }
 }

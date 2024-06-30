@@ -175,8 +175,19 @@ namespace RetroSim
             LogPrintf(RETRO_LOG_INFO, "Running script: %s\n", coreConfig.GetScriptPath().c_str());
             GravityScripting::Initialize();
             GravityScripting::RegisterAPIFunctions();
-            GravityScripting::CompileScriptFromFile(coreConfig.GetScriptPath());
-            GravityScripting::RunScript("start", {}, 0);
+            if(GravityScripting::CompileScriptFromFile(coreConfig.GetScriptPath()))
+            {
+                GravityScripting::RunScript("start", {}, 0);
+            }
+            else
+            {
+                if(GravityScripting::lastError != nullptr)
+                {
+                    LogPrintf(RETRO_LOG_ERROR, GravityScripting::lastError->errorMessage.c_str());
+                }
+                // On compilation errors we disable script running
+                scriptingEnabled = false;
+            }
         }
 
         cpu.syscallHandler = SyscallHandler;
@@ -593,6 +604,8 @@ namespace RetroSim
         
         fileDialog.Display();
         
+        static bool showErrorPopup = false;
+
         if(fileDialog.HasSelected())
         {
             auto fileName = fileDialog.GetSelected().string();
@@ -603,11 +616,35 @@ namespace RetroSim
             GravityScripting::Cleanup();
             GravityScripting::Initialize();
             GravityScripting::RegisterAPIFunctions();
-            GravityScripting::CompileScriptFromFile(fileName);
-            GravityScripting::RunScript("start", {}, 0);
-            scriptingEnabled = true;
+            scriptingEnabled = GravityScripting::CompileScriptFromFile(fileName);
+            if(scriptingEnabled)
+            {
+                GravityScripting::RunScript("start", {}, 0);
+                showErrorPopup = false;
+            }
+            else
+            {
+                showErrorPopup = true;
+            }
         }
-    
+
+        if(showErrorPopup)
+        {
+            ImGui::OpenPopup("Script compilation error");
+
+            // Define the popup
+            if (ImGui::BeginPopupModal("Script compilation error", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::Text(GravityScripting::lastError->errorMessage.c_str());
+                if (ImGui::Button("OK"))
+                {
+                    ImGui::CloseCurrentPopup();
+                    showErrorPopup = false;
+                }
+                ImGui::EndPopup();
+            }
+        }
+
         ImGui::End();
     }
 #endif // IMGUI
