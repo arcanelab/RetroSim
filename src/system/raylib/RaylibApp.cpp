@@ -5,6 +5,7 @@
 #ifdef IMGUI
 #include "imgui.h"
 #include "rlImGui.h"
+#include "CoreImGui.h"
 #endif // IMGUI
 
 namespace RetroSim
@@ -21,6 +22,7 @@ namespace RetroSim
 
 #ifdef IMGUI
         rlImGuiSetup(true);
+        coreImGui = new CoreImGui(core);
 #endif // IMGUI
 
         shader.Initialize(core, scaledWindowWidth, scaledWindowHeight);
@@ -52,7 +54,8 @@ namespace RetroSim
 
                 rlImGuiBegin();
                 shader.DrawParametersGui();
-                core->DrawImGui(shader.showImGui);
+                coreImGui->DrawImGui(shader.showImGui);
+
                 rlImGuiEnd();
 #endif // IMGUI
             }

@@ -8,6 +8,9 @@
 #include "FileUtils.h"
 #include "DesktopDPI.h"
 #include "RaylibShader.h"
+#ifdef IMGUI
+#include "CoreImGui.h"
+#endif
 
 #if defined(PLATFORM_ANDROID) || defined(PLATFORM_WEB)
 #define GLSL_VERSION 100
@@ -34,5 +37,9 @@ namespace RetroSim
 
         void InitializeWindow();
         void DrawImgui();
+
+#ifdef IMGUI
+        CoreImGui *coreImGui;
+#endif
     };
 }

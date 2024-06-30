@@ -8,6 +8,10 @@
 #include "CoreConfig.h"
 #include "A65000CPU.h"
 
+#ifdef IMGUI
+class CoreImGui;
+#endif
+
 namespace RetroSim
 {
     class Core
@@ -36,11 +40,11 @@ namespace RetroSim
         void RenderAudio(uint16_t **audioBuffer, uint32_t *audioBufferSize);
         uint32_t GetSampleRate();
 
-#ifdef IMGUI
-        void DrawImGui(bool &showShaderParameters);
-#endif // IMGUI
-
         std::mutex memoryMutex;
+
+#ifdef IMGUI
+        friend CoreImGui;
+#endif // IMGUI
 
     private:
         static Core *instance;
